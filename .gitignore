@@ -1,0 +1,6 @@
+src/apps/*
+src/util/quickFixes/*
+lib/*
+project/*
+test/*
+utils/*
