@@ -31,7 +31,7 @@ import images.mining.codebook.SIFTCodeBook;
 import images.mining.codebook.SIFTCodebookMaker;
 import ioformat.FileUtil;
 import ioformat.IOARFF;
-import ioformat.images.ConverToPGM;
+import ioformat.images.ConvertJPGToPGM;
 import ioformat.images.SiftUtil;
 import ioformat.images.ThumbnailMaker;
 import java.awt.Color;
@@ -1651,7 +1651,7 @@ public class ImageCollectionHandler extends javax.swing.JFrame {
                 currSIFTFile = new File(siftDirectory,
                         nameFromFileName(imageRelativePaths.get(i)) + ".key");
                 try {
-                    ConverToPGM.convertFile(currImageFile, pgmFile);
+                    ConvertJPGToPGM.convertFile(currImageFile, pgmFile);
                     // Perform the extraction on the current image.
                     SiftUtil.siftFile(pgmFile, currSIFTFile, "");
                 } catch (Exception e) {

@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class ConverToPGM {
+public class ConvertJPGToPGM {
 
     /**
      * Performs batch JPEG to PGM conversion.

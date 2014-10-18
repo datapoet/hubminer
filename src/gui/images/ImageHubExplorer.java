@@ -51,7 +51,7 @@ import edu.uci.ics.jung.visualization.picking.PickedState;
 import images.mining.codebook.SIFTCodeBook;
 import ioformat.FileUtil;
 import ioformat.IOARFF;
-import ioformat.images.ConverToPGM;
+import ioformat.images.ConvertJPGToPGM;
 import ioformat.images.SiftUtil;
 import java.awt.Color;
 import java.awt.Component;
@@ -3828,7 +3828,7 @@ private void imageBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {/
                     + shortName);
             File siftTempFile = new File(workspace, "tmp" + File.separator
                     + "siftTemp.key");
-            ConverToPGM.convertFile(imageFile, pgmFile);
+            ConvertJPGToPGM.convertFile(imageFile, pgmFile);
             SiftUtil.siftFile(pgmFile, siftTempFile, "");
             pgmFile.delete();
             // Load the extracted SIFT features.

@@ -23,7 +23,7 @@ import images.mining.clustering.SingleImageSIFTClusterer;
 import images.mining.display.SIFTDraw;
 import images.mining.segmentation.SRMSegmentation;
 import ioformat.FileUtil;
-import ioformat.images.ConverToPGM;
+import ioformat.images.ConvertJPGToPGM;
 import ioformat.images.SiftUtil;
 import java.awt.Color;
 import java.awt.Image;
@@ -522,7 +522,7 @@ public class ImageManipulator extends javax.swing.JFrame {
                 statusLabel.setText("Converting to PGM for"
                         + "SIFT calculations...");
                 // Generate a temporary PGM file for SiftWin to work on.
-                ConverToPGM.convertFile(originalImageFile, temporaryPGM);
+                ConvertJPGToPGM.convertFile(originalImageFile, temporaryPGM);
                 currProgressPercentage = 45;
                 statusLabel.setText("Converted to PGM...");
                 statusLabel.setText("Finding features...");
