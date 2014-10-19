@@ -54,6 +54,12 @@ rome-0.8.jar
 servlet-api-2.5-6.1.1.jar
 servlet.jar
 swing-layout-1.0.3.jar
+swingx-1.6.jar
+swingx-beaninfo-1.6.jar
+swingx-ws-1.0.jar
+TGGraphLayout.jar
+xercesImpl.jar
+xmlunit1.0.jar
 
 A dependency on OpenML is soon to be introduced, as integration with OpenML API is underway. All Hub Miner code is in Java and should be portable.
 
