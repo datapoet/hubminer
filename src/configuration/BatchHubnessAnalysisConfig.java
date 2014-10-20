@@ -278,7 +278,7 @@ public class BatchHubnessAnalysisConfig {
                     // This means that there is probably a typo in the
                     // configuration file or an option is being set that is not
                     // supported.
-                    System.err.println("The following option line was "
+                    System.err.println("WARNING: The following option line was "
                             + "ignored: " + s);
                 }
                 s = br.readLine();
