@@ -77,7 +77,8 @@ public class BatchClusteringConfig {
     public ArrayList<CombinedMetric> dsMetric = new ArrayList<>(100);
     public Kernel ker = null;
     // Secondary distance specification.
-    public BatchClassifierTester.SecondaryDistance secondaryDistanceType;
+    public BatchClassifierTester.SecondaryDistance secondaryDistanceType =
+            BatchClassifierTester.SecondaryDistance.NONE;
     public int secondaryK = 50;
     // Clustering range.
     public int cluNumMin;
