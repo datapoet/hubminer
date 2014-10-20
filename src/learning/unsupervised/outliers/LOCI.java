@@ -31,7 +31,6 @@ import statistics.HigherMoments;
  * that was presented at IEEE 19th International Conference on Data Engineering
  * (ICDE'03) in Bangalore, India.
  *
- * @author
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public class LOCI extends OutlierDetector {

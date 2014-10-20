@@ -188,7 +188,8 @@ public class BatchClusteringConfig {
                     // are persisted and/or loaded from.
                     lineParse = s.split("\\s+");
                     distancesDir = new File(lineParse[1]);
-                } else if (s.startsWith("@alpha")) {
+                } else if (s.startsWith("@alpha") ||
+                        s.startsWith("@approximateNN")) {
                     // Approximate nearest neighbors with parameter alpha.
                     lineParse = s.split("\\s+");
                     approximateNeighborsAlpha = Float.parseFloat(lineParse[1]);

@@ -148,6 +148,7 @@ public class BatchHubnessAnalysisConfig {
             // Integer and float metrics.
             Class currIntMet;
             Class currFloatMet;
+            secondaryDistanceType = SecondaryDistance.NONE;
             // Read the file line by line.
             while (s != null) {
                 s = s.trim();
