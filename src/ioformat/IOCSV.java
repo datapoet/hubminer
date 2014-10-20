@@ -39,9 +39,10 @@ public class IOCSV {
     // If the data is loaded or saved with the category, then the category is
     // read from or appended to the end of the line as a last item. If not, the
     // data is loaded or saved without the labels.
-    boolean withCategory = true;
-    String separator;
-    int type;
+    private boolean withCategory = true;
+    private String separator;
+    private int type;
+    private boolean withHeader = false;
 
     /**
      * Initialization.
@@ -72,6 +73,63 @@ public class IOCSV {
         this.separator = separator;
         this.type = DataMineConstants.FLOAT;
     }
+    
+    /**
+     * Initialization.
+     *
+     * @param withCategory Boolean flag indicating whether to operate in a
+     * supervised or unsupervised mode. If set to true, the labels will be read
+     * from or appended to the end of the line.
+     * @param withHeader Boolean flag indicating whether the file to be loaded
+     * has a header line or not. The same goes for saving data with or without
+     * headers.
+     * @param separator String that is the separator to use (can be a regex).
+     * @param type Integer that is the feature type to load, as per
+     * DataMineConstants.
+     */
+    public IOCSV(boolean withCategory, boolean withHeader, String separator,
+            int type) {
+        this.withCategory = withCategory;
+        this.separator = separator;
+        this.type = type;
+        this.withHeader = withHeader;
+    }
+
+    /**
+     * Initialization. Sets the default data type to float.
+     *
+     * @param withCategory Boolean flag indicating whether to operate in a
+     * supervised or unsupervised mode. If set to true, the labels will be read
+     * from or appended to the end of the line.
+     * @param withHeader Boolean flag indicating whether the file to be loaded
+     * has a header line or not. The same goes for saving data with or without
+     * headers.
+     * @param separator String that is the separator to use (can be a regex).
+     */
+    public IOCSV(boolean withCategory, boolean withHeader, String separator) {
+        this.withCategory = withCategory;
+        this.separator = separator;
+        this.type = DataMineConstants.FLOAT;
+        this.withHeader = withHeader;
+    }
+    
+    /**
+     * This method sets up the IO object to read CSV data as if having no header
+     * line. It will not persist feature names if saving the data later. This is
+     * currently set as default.
+     */
+    public void noHeaderMode() {
+        withHeader = false;
+    }
+    
+    /**
+     * This method configures the IO object to expect headers in the first line
+     * of the files to load. Also, it will write a header line if persisting
+     * the data.
+     */
+    public void headerMode() {
+        withHeader = true;
+    }
 
     /**
      * Write the data to an output csv file.
@@ -100,9 +158,42 @@ public class IOCSV {
                 break;
             }
         }
-        // Initialize the output stream.
-        PrintWriter pw = new PrintWriter(new FileWriter(outFile));
-        try {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(outFile))) {
+            if (withHeader) {
+                switch (type) {
+                    case DataMineConstants.FLOAT: {
+                        pw.print(dset.fAttrNames[0]);
+                        break;
+                    }
+                    case DataMineConstants.INTEGER: {
+                        pw.print(dset.iAttrNames[0]);
+                        break;
+                    }
+                    case DataMineConstants.NOMINAL: {
+                        pw.print(dset.sAttrNames[0]);
+                        break;
+                    }
+                }
+                for (int attIndex = 1; attIndex < numAtt; attIndex++) {
+                    switch (type) {
+                        case DataMineConstants.FLOAT: {
+                            pw.print(separator + dset.fAttrNames[attIndex]);
+                            break;
+                        }
+                        case DataMineConstants.INTEGER: {
+                            pw.print(separator + dset.iAttrNames[attIndex]);
+                            break;
+                        }
+                        case DataMineConstants.NOMINAL: {
+                            pw.print(separator + dset.sAttrNames[attIndex]);
+                            break;
+                        }
+                    }
+                }
+                if (withCategory) {
+                    pw.print(separator + "class");
+                }
+            }
             if (withCategory) {
                 // If labels are also to be persisted.
                 for (DataInstance instance : dset.data) {
@@ -163,8 +254,6 @@ public class IOCSV {
         } catch (Exception e) {
             System.err.println(e.getMessage());
             throw e;
-        } finally {
-            pw.close();
         }
     }
 
@@ -183,7 +272,7 @@ public class IOCSV {
             String[] lineItems;
             String line = br.readLine();
             line = line.trim();
-            // Read the first instance to see how many features there are.
+            // Read the first line to see how many features there are.
             lineItems = line.split(separator);
             int numAtt;
             if (withCategory) {
@@ -193,51 +282,66 @@ public class IOCSV {
                 numAtt = lineItems.length;
             }
             DataSet dset = new DataSet();
-            // Generate feature names.
-            if (type == DataMineConstants.FLOAT) {
-                dset.fAttrNames = new String[numAtt];
-                for (int i = 0; i < numAtt; i++) {
-                    dset.fAttrNames[i] = "fAtt" + i;
-                }
-            } else if (type == DataMineConstants.INTEGER) {
-                dset.iAttrNames = new String[numAtt];
-                for (int i = 0; i < numAtt; i++) {
-                    dset.iAttrNames[i] = "iAtt" + i;
-                }
-            } else {
-                dset.sAttrNames = new String[numAtt];
-                for (int i = 0; i < numAtt; i++) {
-                    dset.sAttrNames[i] = "nAtt" + i;
-                }
-            }
+            DataInstance instance;
             int initialCapacity = 2000;
             dset.data = new ArrayList<>(initialCapacity);
-            DataInstance instance = new DataInstance(dset);
-            instance.embedInDataset(dset);
-            // Load the feature values.
-            for (int attIndex = 0; attIndex < numAtt; attIndex++) {
+            // First line is either the header or the first instance. First we
+            // cover the case where it is an instance, then the other one.
+            if (!withHeader) {
+                // Generate feature names.
                 if (type == DataMineConstants.FLOAT) {
-                    instance.fAttr[attIndex] = Float.parseFloat(
-                            lineItems[attIndex].trim());
+                    dset.fAttrNames = new String[numAtt];
+                    for (int i = 0; i < numAtt; i++) {
+                        dset.fAttrNames[i] = "fAtt" + i;
+                    }
                 } else if (type == DataMineConstants.INTEGER) {
-                    instance.iAttr[attIndex] = (int) Float.parseFloat(
-                            lineItems[attIndex].trim());
+                    dset.iAttrNames = new String[numAtt];
+                    for (int i = 0; i < numAtt; i++) {
+                        dset.iAttrNames[i] = "iAtt" + i;
+                    }
                 } else {
-                    instance.sAttr[attIndex] = lineItems[attIndex].trim();
+                    dset.sAttrNames = new String[numAtt];
+                    for (int i = 0; i < numAtt; i++) {
+                        dset.sAttrNames[i] = "nAtt" + i;
+                    }
+                }
+                instance = new DataInstance(dset);
+                instance.embedInDataset(dset);
+                // Load the feature values.
+                for (int attIndex = 0; attIndex < numAtt; attIndex++) {
+                    if (type == DataMineConstants.FLOAT) {
+                        instance.fAttr[attIndex] = Float.parseFloat(
+                                lineItems[attIndex].trim());
+                    } else if (type == DataMineConstants.INTEGER) {
+                        instance.iAttr[attIndex] = (int) Float.parseFloat(
+                                lineItems[attIndex].trim());
+                    } else {
+                        instance.sAttr[attIndex] = lineItems[attIndex].trim();
+                    }
+                }
+                // Load the category, if working in the supervised mode.
+                if (withCategory) {
+                    String classNameString =
+                            lineItems[lineItems.length - 1].trim();
+                    if (!classNameToIndexMap.containsKey(classNameString)) {
+                        ++maxClassIndex;
+                        classNameToIndexMap.put(classNameString,
+                                maxClassIndex);
+                    }
+                    instance.setCategory(classNameToIndexMap.get(
+                            classNameString));
+                }
+                dset.addDataInstance(instance);
+            } else {
+                if (type == DataMineConstants.FLOAT) {
+                    dset.fAttrNames = new String[numAtt];
+                    System.arraycopy(lineItems, 0, dset.fAttrNames, 0, numAtt);
+                } else if (type == DataMineConstants.INTEGER) {
+                    System.arraycopy(lineItems, 0, dset.iAttrNames, 0, numAtt);
+                } else {
+                    System.arraycopy(lineItems, 0, dset.sAttrNames, 0, numAtt);
                 }
             }
-            // Load the category, if working in the supervised mode.
-            if (withCategory) {
-                String classNameString = lineItems[lineItems.length - 1].trim();
-                if (!classNameToIndexMap.containsKey(classNameString)) {
-                    ++maxClassIndex;
-                    classNameToIndexMap.put(classNameString,
-                            maxClassIndex);
-                }
-                instance.setCategory(classNameToIndexMap.get(
-                        classNameString));
-            }
-            dset.addDataInstance(instance);
             line = br.readLine();
             // Now handle the remaining lines in the file.
             try {
