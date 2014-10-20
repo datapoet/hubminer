@@ -274,6 +274,12 @@ public class BatchHubnessAnalysisConfig {
                         cmetLoaded.setCombinationMethod(CombinedMetric.DEFAULT);
                         dsMetric.add(cmetLoaded);
                     }
+                } else if (s.startsWith("@")) {
+                    // This means that there is probably a typo in the
+                    // configuration file or an option is being set that is not
+                    // supported.
+                    System.err.println("The following option line was "
+                            + "ignored: " + s);
                 }
                 s = br.readLine();
             }
