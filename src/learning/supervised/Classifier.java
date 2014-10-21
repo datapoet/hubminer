@@ -727,7 +727,263 @@ public abstract class Classifier implements ValidateableInterface,
             return null;
         }
     }
+    
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            ArrayList<Integer> indexes, Object dataType, int numClasses,
+            float[][] pointDistances) throws Exception {
+        int[] classificationResult = new int[indexes.size()];
+        float[][] confusionMatrix = new float[numClasses][numClasses];
+        for (int i = 0; i < indexes.size(); i++) {
+            if (this instanceof DistToPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((DistToPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i]);
+            } else {
+                classificationResult[i] =
+                        classify(((DataSet) dataType).getInstance(
+                        indexes.get(i)));
+            }
+            confusionMatrix[classificationResult[i]][((DataSet) dataType).
+                    getLabelOf(indexes.get(i))]++;
+            if (classificationResult[i] == ((DataSet) dataType).getLabelOf(
+                    indexes.get(i))) {
+                correctPointClassificationArray[indexes.get(i)]++;
+            }
+            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+        }
+        ClassificationEstimator estimator =
+                new ClassificationEstimator(confusionMatrix);
+        estimator.calculateEstimates();
+        return estimator;
+    }
 
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
+            int numClasses, float[][] pointDistances) throws Exception {
+        int[] classificationResult = new int[indexes.size()];
+        float[][] confusionMatrix = new float[numClasses][numClasses];
+        for (int i = 0; i < indexes.size(); i++) {
+            if (this instanceof DistToPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((DistToPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i]);
+            } else {
+                classificationResult[i] =
+                        classify(((DataSet) dataType).getInstance(
+                        indexes.get(i)));
+            }
+            confusionMatrix[classificationResult[i]][testLabelArray[
+                    indexes.get(i)]]++;
+            if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
+                correctPointClassificationArray[indexes.get(i)]++;
+            }
+            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+        }
+        ClassificationEstimator estimator =
+                new ClassificationEstimator(confusionMatrix);
+        estimator.calculateEstimates();
+        return estimator;
+    }
+
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray, ArrayList<Integer> indexes,
+            Object dataType, int numClasses, float[][] pointDistances,
+            int[][] pointNeighbors) throws Exception {
+        int[] classificationResult = new int[indexes.size()];
+        float[][] confusionMatrix = new float[numClasses][numClasses];
+        for (int i = 0; i < indexes.size(); i++) {
+            if (this instanceof NeighborPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((NeighborPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i], pointNeighbors[i]);
+            } else if (this instanceof DistToPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((DistToPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i]);
+            } else {
+                classificationResult[i] =
+                        classify(((DataSet) dataType).getInstance(
+                        indexes.get(i)));
+            }
+            confusionMatrix[classificationResult[i]][((DataSet) dataType).
+                    getLabelOf(indexes.get(i))]++;
+            if (classificationResult[i] == ((DataSet) dataType).getLabelOf(
+                    indexes.get(i))) {
+                correctPointClassificationArray[indexes.get(i)]++;
+            }
+            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+        }
+        ClassificationEstimator estimator =
+                new ClassificationEstimator(confusionMatrix);
+        estimator.calculateEstimates();
+        return estimator;
+    }
+
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            ArrayList<Integer> indexes, Object dataType,
+            int[] testLabelArray, int numClasses, float[][] pointDistances,
+            int[][] pointNeighbors) throws Exception {
+        int[] classificationResult = new int[indexes.size()];
+        float[][] confusionMatrix = new float[numClasses][numClasses];
+        for (int i = 0; i < indexes.size(); i++) {
+            if (this instanceof NeighborPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((NeighborPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i], pointNeighbors[i]);
+            } else if (this instanceof DistToPointsQueryUserInterface) {
+                classificationResult[i] =
+                        ((DistToPointsQueryUserInterface) this).classify(
+                        ((DataSet) dataType).getInstance(indexes.get(i)),
+                        pointDistances[i]);
+            } else {
+                classificationResult[i] =
+                        classify(((DataSet) dataType).getInstance(
+                        indexes.get(i)));
+            }
+            confusionMatrix[classificationResult[i]][testLabelArray[
+                    indexes.get(i)]]++;
+            if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
+                correctPointClassificationArray[indexes.get(i)]++;
+            }
+            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+        }
+        ClassificationEstimator estimator =
+                new ClassificationEstimator(confusionMatrix);
+        estimator.calculateEstimates();
+        return estimator;
+    }
+
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            ArrayList<Integer> indexes, Object dataType, int numClasses)
+            throws Exception {
+        if (indexes != null && !indexes.isEmpty()) {
+            Category[] testClasses = null;
+            if (dataType instanceof BOWDataSet) {
+                BOWInstance instance;
+                BOWDataSet bowDSet = (BOWDataSet) dataType;
+                testClasses = new Category[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    testClasses[i] = new Category("number" + i, 200, bowDSet);
+                }
+                for (int i = 0; i < indexes.size(); i++) {
+                    instance = (BOWInstance) bowDSet.data.get(indexes.get(i));
+                    testClasses[instance.getCategory()].addInstance(
+                            indexes.get(i));
+                }
+            } else if (dataType instanceof DataSet) {
+                DataInstance instance;
+                DataSet dset = (DataSet) dataType;
+                testClasses = new Category[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    testClasses[i] = new Category("number" + i, 200, dset);
+                }
+                for (int i = 0; i < indexes.size(); i++) {
+                    instance = dset.data.get(indexes.get(i));
+                    testClasses[instance.getCategory()].addInstance(
+                            indexes.get(i));
+                }
+            }
+            return test(predictedLabelsAllData, correctPointClassificationArray,
+                    testClasses);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
+            int numClasses) throws Exception {
+        if (indexes != null && !indexes.isEmpty()) {
+            Category[] testClasses = null;
+            if (dataType instanceof BOWDataSet) {
+                BOWDataSet bowDSet = (BOWDataSet) dataType;
+                testClasses = new Category[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    testClasses[i] = new Category("number" + i, 200, bowDSet);
+                }
+                for (int i = 0; i < indexes.size(); i++) {
+                    testClasses[testLabelArray[indexes.get(i)]].addInstance(
+                            indexes.get(i));
+                }
+            } else if (dataType instanceof DataSet) {
+                DataSet dset = (DataSet) dataType;
+                testClasses = new Category[numClasses];
+                for (int i = 0; i < numClasses; i++) {
+                    testClasses[i] = new Category("number" + i, 200, dset);
+                }
+                for (int i = 0; i < indexes.size(); i++) {
+                    testClasses[testLabelArray[indexes.get(i)]].addInstance(
+                            indexes.get(i));
+                }
+            }
+            return test(predictedLabelsAllData, correctPointClassificationArray,
+                    testClasses);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * This method tests and evaluates the classifier.
+     *
+     * @param predictedLabelsAllData int[] representing the current predicted
+     * labels for all data points (not only the test points in the current
+     * iteration, but rather all points from the original data.)
+     * @param correctPointClassificationArray float[] that is updated with the
+     * total point-wise classification precision.
+     * @param dataClasses Array of data categories representing the test data.
+     * @return ClassificationEstimator containing the resulting classification
+     * quality measures.
+     * @throws Exception
+     */
+    public ClassificationEstimator test(int[] predictedLabelsAllData,
+            float[] correctPointClassificationArray,
+            Category[] dataClasses) throws Exception {
+        if ((dataClasses == null) || (dataClasses.length == 0)) {
+            return null;
+        } else {
+            int[] classificationResult;
+            float[][] confusionMatrix = new float[dataClasses.length][
+                    dataClasses.length];
+            for (int Cindex = 0; Cindex < dataClasses.length; Cindex++) {
+                classificationResult = classify(dataClasses[Cindex].
+                        getAllInstances());
+                if (classificationResult != null) {
+                    for (int i = 0; i < classificationResult.length; i++) {
+                        confusionMatrix[classificationResult[i]][Cindex]++;
+                        if (classificationResult[i] == Cindex) {
+                            correctPointClassificationArray[
+                                    dataClasses[Cindex].indexes.get(i)]++;
+                        }
+                        predictedLabelsAllData[
+                                dataClasses[Cindex].indexes.get(i)] =
+                                classificationResult[i];
+                    }
+                }
+            }
+            ClassificationEstimator estimator =
+                    new ClassificationEstimator(confusionMatrix);
+            estimator.calculateEstimates();
+            return estimator;
+        }
+    }
+    
     /**
      * This method saves the classifier model.
      * 
