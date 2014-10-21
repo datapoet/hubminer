@@ -16,6 +16,7 @@
 */
 package learning.supervised.evaluation.cv;
 
+import com.google.gson.Gson;
 import configuration.BatchClassifierConfig;
 import data.neighbors.NSFUserInterface;
 import data.representation.DataSet;
@@ -35,7 +36,9 @@ import ioformat.results.BatchStatSummarizer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ArrayList;
 import learning.supervised.ClassifierFactory;
@@ -770,6 +773,19 @@ public class BatchClassifierTester {
                             }
                             int discreteCounter = -1;
                             int nonDiscreteCounter = -1;
+                            float[][][][] allFuzzyPredictionsNonDisc = null;
+                            if (nonDiscreteCV != null) {
+                                allFuzzyPredictionsNonDisc =
+                                    nonDiscreteCV.getAllFuzzyLabelAssignments();
+                            }
+                            float[][][][] allFuzzyPredictionsDisc = null;
+                            if (discreteCV != null) {
+                                allFuzzyPredictionsDisc =
+                                    discreteCV.getAllFuzzyLabelAssignments();
+                            }
+                            float[][][] averageFuzzyPredictions =
+                                    new float[classifierNames.size()][
+                                            currDSet.size()][numCategories];
                             // Persist the average classifier performance
                             // indicators.
                             for (int cIndex = 0; cIndex <
@@ -787,6 +803,26 @@ public class BatchClassifierTester {
                                 }
                                 if (isDiscreteAlgorithm[cIndex]) {
                                     discreteCounter++;
+                                    for (int i = 0; i < currDSet.size(); i++) {
+                                        for (int c = 0; c < numCategories;
+                                                c++) {
+                                            for (int rep = 0; rep < numTimes;
+                                                    rep++) {
+                                                averageFuzzyPredictions[cIndex][
+                                                        i][c] +=
+                                                        allFuzzyPredictionsDisc[
+                                                        discreteCounter][
+                                                        rep][i][c];
+                                            }
+                                        }
+                                    }
+                                    for (int i = 0; i < currDSet.size(); i++) {
+                                        for (int c = 0; c < numCategories;
+                                                c++) {
+                                            averageFuzzyPredictions[cIndex][i][c] /=
+                                                    numTimes;
+                                        }
+                                    }
                                     avgDiscrete[discreteCounter].
                                             printEstimatorToFile(new File(
                                             outAlgDir, "avg.txt"));
@@ -811,6 +847,26 @@ public class BatchClassifierTester {
                                     }
                                 } else {
                                     nonDiscreteCounter++;
+                                    for (int i = 0; i < currDSet.size(); i++) {
+                                        for (int c = 0; c < numCategories;
+                                                c++) {
+                                            for (int rep = 0; rep < numTimes;
+                                                    rep++) {
+                                                averageFuzzyPredictions[cIndex][
+                                                        i][c] +=
+                                                        allFuzzyPredictionsNonDisc[
+                                                        nonDiscreteCounter][
+                                                        rep][i][c];
+                                            }
+                                        }
+                                    }
+                                    for (int i = 0; i < currDSet.size(); i++) {
+                                        for (int c = 0; c < numCategories;
+                                                c++) {
+                                            averageFuzzyPredictions[cIndex][i][c] /=
+                                                    numTimes;
+                                        }
+                                    }
                                     avgNonDiscrete[nonDiscreteCounter].
                                             printEstimatorToFile(
                                             new File(outAlgDir, "avg.txt"));
@@ -833,6 +889,23 @@ public class BatchClassifierTester {
                                                 "run" + j + ".txt"));
                                     }
                                 }
+                                // Persist all fuzzy classifications as json.
+                                Gson gson = new Gson();
+                                String jsonAssignmentsString = gson.toJson(
+                                        averageFuzzyPredictions[cIndex],
+                                        float[][].class);
+                                File outFuzzyLabelAssignmentsFile = new File(
+                                        outAlgDir,
+                                        "avgProbClassAssignments.json");
+                                FileUtil.createFile(
+                                        outFuzzyLabelAssignmentsFile);
+                                try (PrintWriter pw = new PrintWriter(
+                                        new FileWriter(
+                                        outFuzzyLabelAssignmentsFile))) {
+                                    pw.write(jsonAssignmentsString);
+                                } catch (Exception e) {
+                                    throw e;
+                                }   
                             }
                         }
                     }

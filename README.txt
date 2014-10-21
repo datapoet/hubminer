@@ -23,6 +23,7 @@ This is the first release and updates are already under way, so - expect this li
 
 As for dependencies, these are is the current list:
 
+apiconnector-fat.jar
 collections-generic-4.01.jar
 colt-1.2.0.jar
 commons-codec-1.3.jar
@@ -61,6 +62,8 @@ TGGraphLayout.jar
 xercesImpl.jar
 xmlunit1.0.jar
 
-A dependency on OpenML is soon to be introduced, as integration with OpenML API is underway. All Hub Miner code is in Java and should be portable.
+A dependency on OpenML is apiconnector-fat.jar and it can be downloaded from http://openml.org/downloads/apiconnector-fat.jar
+
+All Hub Miner code is in Java and should be portable.
 
 A small part of library that has to do with SIFT feature analysis still relies on having the SiftWin binary in the path and ImageMagick. However, this is just a few methods and unless You plan to use Hub Miner for image feature extraction (which is not its main purpose) - You should be fine without it. I intend to remove this dependency in future builds and switch over to some Java-based image feature extraction libraries, as well as provide better support for OpenCV formats.

@@ -88,8 +88,8 @@ public class MultiCrossValidation {
     private ClassificationEstimator[] currEstimator = null;
     private ClassificationEstimator[] averageEstimator = null;
     private float[][] correctPointClassificationArray = null;
-    // numAlgorithms x numTimes x dataSize
-    private int[][][] allLabelAssignments = null;
+    // numAlgorithms x numTimes x dataSize x classSize
+    private float[][][][] allLabelAssignments = null;
     // The neighborhood sizes, in case of automatic k calculation within the
     // algorithms.
     private int kMin = 1;
@@ -378,10 +378,10 @@ public class MultiCrossValidation {
     }
     
     /**
-     * @return int[][][] representing all label assignments given per algorithm
-     * for all repetitions of the CV framework.
+     * @return int[][][][] representing all fuzzy label assignments given per
+     * algorithm for all repetitions of the CV framework.
      */
-    public int[][][] getAllLabelAssignments() {
+    public float[][][][] getAllFuzzyLabelAssignments() {
         return allLabelAssignments;
     }
 
@@ -796,12 +796,8 @@ public class MultiCrossValidation {
         averageEstimator = new ClassificationEstimator[numAlgs];
         correctPointClassificationArray =
                 new float[classifiers.length][data.size()];
-        allLabelAssignments = new int[classifiers.length][times][data.size()];
-        for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
-            for (int t = 0; t < times; t++) {
-                Arrays.fill(allLabelAssignments[algIndex][t], -1);
-            }
-        }
+        allLabelAssignments = new float[classifiers.length][times][data.size()][
+                numClasses];
         // Initialize the average estimator.
         for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
             averageEstimator[algIndex] = new ClassificationEstimator(

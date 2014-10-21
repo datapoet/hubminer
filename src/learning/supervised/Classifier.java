@@ -34,6 +34,7 @@ import learning.supervised.evaluation.ValidateableInterface;
 import learning.supervised.interfaces.DistToPointsQueryUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
 import preprocessing.instance_selection.InstanceSelector;
+import util.ArrayUtil;
 
 /**
  * This class implements the methods used for classifier training and testing.
@@ -729,22 +730,26 @@ public abstract class Classifier implements ValidateableInterface,
     }
     
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int numClasses,
             float[][] pointDistances) throws Exception {
+        float[][] probClassifications = new float[indexes.size()][];
         int[] classificationResult = new int[indexes.size()];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DistToPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((DistToPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i]);
+                probClassifications[i] =
+                        ((DistToPointsQueryUserInterface) this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] =
-                        classify(((DataSet) dataType).getInstance(
-                        indexes.get(i)));
+                probClassifications[i] = classifyProbabilistically(
+                        ((DataSet) dataType).getInstance(indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][((DataSet) dataType).
                     getLabelOf(indexes.get(i))]++;
@@ -752,7 +757,7 @@ public abstract class Classifier implements ValidateableInterface,
                     indexes.get(i))) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -761,29 +766,33 @@ public abstract class Classifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
             int numClasses, float[][] pointDistances) throws Exception {
+        float[][] probClassifications = new float[indexes.size()][];
         int[] classificationResult = new int[indexes.size()];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DistToPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((DistToPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i]);
+                probClassifications[i] = 
+                        ((DistToPointsQueryUserInterface)this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] =
-                        classify(((DataSet) dataType).getInstance(
-                        indexes.get(i)));
+                probClassifications[i] = classifyProbabilistically(
+                        ((DataSet) dataType).getInstance(indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][testLabelArray[
                     indexes.get(i)]]++;
             if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -792,27 +801,35 @@ public abstract class Classifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray, ArrayList<Integer> indexes,
             Object dataType, int numClasses, float[][] pointDistances,
             int[][] pointNeighbors) throws Exception {
+        float[][] probClassifications = new float[indexes.size()][];
         int[] classificationResult = new int[indexes.size()];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof NeighborPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((NeighborPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i], pointNeighbors[i]);
+                probClassifications[i] = 
+                        ((NeighborPointsQueryUserInterface) this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i],
+                        pointNeighbors[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else if (this instanceof DistToPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((DistToPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i]);
+                probClassifications[i] = 
+                        ((DistToPointsQueryUserInterface) this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] =
-                        classify(((DataSet) dataType).getInstance(
-                        indexes.get(i)));
+                probClassifications[i] = 
+                        classifyProbabilistically(
+                        ((DataSet) dataType).getInstance(indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][((DataSet) dataType).
                     getLabelOf(indexes.get(i))]++;
@@ -820,7 +837,7 @@ public abstract class Classifier implements ValidateableInterface,
                     indexes.get(i))) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -829,35 +846,44 @@ public abstract class Classifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType,
             int[] testLabelArray, int numClasses, float[][] pointDistances,
             int[][] pointNeighbors) throws Exception {
+        float[][] probClassifications = new float[indexes.size()][];
         int[] classificationResult = new int[indexes.size()];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof NeighborPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((NeighborPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i], pointNeighbors[i]);
+                probClassifications[i] = 
+                        ((NeighborPointsQueryUserInterface) this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i],
+                        pointNeighbors[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else if (this instanceof DistToPointsQueryUserInterface) {
-                classificationResult[i] =
-                        ((DistToPointsQueryUserInterface) this).classify(
-                        ((DataSet) dataType).getInstance(indexes.get(i)),
-                        pointDistances[i]);
+                probClassifications[i] = 
+                        ((DistToPointsQueryUserInterface) this).
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] =
-                        classify(((DataSet) dataType).getInstance(
-                        indexes.get(i)));
+                probClassifications[i] = 
+                        classifyProbabilistically(((DataSet) dataType).
+                        getInstance(indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][testLabelArray[
                     indexes.get(i)]]++;
             if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = 
+                    probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -866,7 +892,7 @@ public abstract class Classifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int numClasses)
             throws Exception {
@@ -897,15 +923,15 @@ public abstract class Classifier implements ValidateableInterface,
                             indexes.get(i));
                 }
             }
-            return test(predictedLabelsAllData, correctPointClassificationArray,
-                    testClasses);
+            return test(predictedProbLabelsAllData,
+                    correctPointClassificationArray, testClasses);
         } else {
             return null;
         }
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
             int numClasses) throws Exception {
@@ -932,8 +958,8 @@ public abstract class Classifier implements ValidateableInterface,
                             indexes.get(i));
                 }
             }
-            return test(predictedLabelsAllData, correctPointClassificationArray,
-                    testClasses);
+            return test(predictedProbLabelsAllData,
+                    correctPointClassificationArray, testClasses);
         } else {
             return null;
         }
@@ -942,9 +968,9 @@ public abstract class Classifier implements ValidateableInterface,
     /**
      * This method tests and evaluates the classifier.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationArray float[] that is updated with the
      * total point-wise classification precision.
      * @param dataClasses Array of data categories representing the test data.
@@ -952,28 +978,32 @@ public abstract class Classifier implements ValidateableInterface,
      * quality measures.
      * @throws Exception
      */
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             Category[] dataClasses) throws Exception {
         if ((dataClasses == null) || (dataClasses.length == 0)) {
             return null;
         } else {
+            float[][] probClassifications;
             int[] classificationResult;
             float[][] confusionMatrix = new float[dataClasses.length][
                     dataClasses.length];
             for (int Cindex = 0; Cindex < dataClasses.length; Cindex++) {
-                classificationResult = classify(dataClasses[Cindex].
-                        getAllInstances());
-                if (classificationResult != null) {
-                    for (int i = 0; i < classificationResult.length; i++) {
+                probClassifications = classifyProbabilistically(
+                        dataClasses[Cindex].getAllInstances());
+                if (probClassifications != null) {
+                    classificationResult = new int[probClassifications.length];
+                    for (int i = 0; i < probClassifications.length; i++) {
+                        classificationResult[i] = ArrayUtil.indexOfMax(
+                                probClassifications[i]);
                         confusionMatrix[classificationResult[i]][Cindex]++;
                         if (classificationResult[i] == Cindex) {
                             correctPointClassificationArray[
                                     dataClasses[Cindex].indexes.get(i)]++;
                         }
-                        predictedLabelsAllData[
+                        predictedProbLabelsAllData[
                                 dataClasses[Cindex].indexes.get(i)] =
-                                classificationResult[i];
+                                probClassifications[i];
                     }
                 }
             }

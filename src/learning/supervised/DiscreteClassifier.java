@@ -34,6 +34,7 @@ import java.io.Serializable;
 import learning.supervised.interfaces.DiscreteDistToPointsQueryUserInterface;
 import learning.supervised.interfaces.DiscreteNeighborPointsQueryUserInterface;
 import learning.supervised.interfaces.DistToPointsQueryUserInterface;
+import util.ArrayUtil;
 
 /**
  * This class implements the methods used for classifier training and testing on
@@ -694,9 +695,9 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
     /**
      * This method evaluates the trained model on the test data.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData  float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationArray float[] that is updated with the
      * total point-wise classification precision.
      * @param testClasses DiscreteCategory[] representing the test data.
@@ -704,27 +705,32 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
      * metrics.
      * @throws Exception
      */
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             DiscreteCategory[] testClasses) throws Exception {
         if ((testClasses == null) || (testClasses.length == 0)) {
             return null;
         } else {
             int[] classificationResult;
+            float[][] probClassifications;
             float[][] confusionMatrix = new float[testClasses.length][
                     testClasses.length];
             for (int cIndex = 0; cIndex < testClasses.length; cIndex++) {
-                classificationResult = classify(testClasses[cIndex].getData());
-                if (classificationResult != null) {
-                    for (int i = 0; i < classificationResult.length; i++) {
+                probClassifications = classifyProbabilistically(
+                        testClasses[cIndex].getData());
+                if (probClassifications != null) {
+                    classificationResult = new int[probClassifications.length];
+                    for (int i = 0; i < probClassifications.length; i++) {
+                        classificationResult[i] = ArrayUtil.indexOfMax(
+                                probClassifications[i]);
                         confusionMatrix[cIndex][classificationResult[i]]++;
                         if (classificationResult[i] == cIndex) {
                             correctPointClassificationArray[
                                     testClasses[cIndex].indexes.get(i)]++;
                         }
-                        predictedLabelsAllData[
+                        predictedProbLabelsAllData[
                                 testClasses[cIndex].indexes.get(i)] =
-                                classificationResult[i];
+                                probClassifications[i];
                     }
                 }
             }
@@ -736,7 +742,7 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
     }
     
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int numClasses)
             throws Exception {
@@ -753,15 +759,15 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
                 instance = discDSet.data.get(indexes.get(i));
                 testClasses[instance.getCategory()].indexes.add(indexes.get(i));
             }
-            return test(predictedLabelsAllData, correctPointClassificationArray,
-                    testClasses);
+            return test(predictedProbLabelsAllData,
+                    correctPointClassificationArray, testClasses);
         } else {
             return null;
         }
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
             int numClasses) throws Exception {
@@ -780,30 +786,37 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
                         indexes.get(i));
                 testClasses[instance.getCategory()].indexes.add(indexes.get(i));
             }
-            return test(predictedLabelsAllData, correctPointClassificationArray,
-                    testClasses);
+            return test(predictedProbLabelsAllData,
+                    correctPointClassificationArray, testClasses);
         } else {
             return null;
         }
     }
     
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int numClasses,
             float[][] pointDistances) throws Exception {
-        int[] classificationResult = null;
+        int[] classificationResult = new int[indexes.size()];
+        float[][] probClassifications = new float[indexes.size()][];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DiscreteDistToPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteDistToPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] =
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                probClassifications[i] =
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][
                     ((DiscretizedDataSet) dataType).getLabelOf(
@@ -813,7 +826,7 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
                     indexes.get(i))) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -822,29 +835,35 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
             int numClasses, float[][] pointDistances) throws Exception {
         int[] classificationResult = new int[indexes.size()];
+        float[][] probClassifications = new float[indexes.size()][];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DiscreteDistToPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteDistToPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] = classify(
+                probClassifications[i] = classifyProbabilistically(
                         ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][testLabelArray[
                     indexes.get(i)]]++;
             if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -853,27 +872,36 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int numClasses,
             float[][] pointDistances, int[][] pointNeighbors) throws Exception {
-        int[] classificationResult = null;
+        int[] classificationResult = new int[indexes.size()];
+        float[][] probClassifications = new float[indexes.size()][];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DiscreteNeighborPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteNeighborPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i], pointNeighbors[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else if (this instanceof DiscreteDistToPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteDistToPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] = classify(
+                probClassifications[i] = classifyProbabilistically(
                         ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][
                     ((DiscretizedDataSet) dataType).getLabelOf(
@@ -883,7 +911,7 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
                     indexes.get(i))) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);
@@ -892,35 +920,44 @@ public abstract class DiscreteClassifier implements ValidateableInterface,
     }
 
     @Override
-    public ClassificationEstimator test(int[] predictedLabelsAllData,
+    public ClassificationEstimator test(float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationArray,
             ArrayList<Integer> indexes, Object dataType, int[] testLabelArray,
             int numClasses, float[][] pointDistances, int[][] pointNeighbors)
             throws Exception {
+        float[][] probClassifications = new float[indexes.size()][];
         int[] classificationResult = new int[indexes.size()];
         float[][] confusionMatrix = new float[numClasses][numClasses];
         for (int i = 0; i < indexes.size(); i++) {
             if (this instanceof DiscreteNeighborPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteNeighborPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i], pointNeighbors[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else if (this instanceof DiscreteDistToPointsQueryUserInterface) {
-                classificationResult[i] =
+                probClassifications[i] =
                         ((DiscreteDistToPointsQueryUserInterface) this).
-                        classify(((DiscretizedDataSet) dataType).getInstance(
+                        classifyProbabilistically(
+                        ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)), pointDistances[i]);
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             } else {
-                classificationResult[i] = classify(
+                probClassifications[i] = classifyProbabilistically(
                         ((DiscretizedDataSet) dataType).getInstance(
                         indexes.get(i)));
+                classificationResult[i] = ArrayUtil.indexOfMax(
+                        probClassifications[i]);
             }
             confusionMatrix[classificationResult[i]][
                     testLabelArray[indexes.get(i)]]++;
             if (classificationResult[i] == testLabelArray[indexes.get(i)]) {
                 correctPointClassificationArray[indexes.get(i)]++;
             }
-            predictedLabelsAllData[indexes.get(i)] = classificationResult[i];
+            predictedProbLabelsAllData[indexes.get(i)] = probClassifications[i];
         }
         ClassificationEstimator estimator =
                 new ClassificationEstimator(confusionMatrix);

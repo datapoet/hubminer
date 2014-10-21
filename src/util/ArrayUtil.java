@@ -848,6 +848,81 @@ public class ArrayUtil {
             return res;
         }
     }
+    
+    /**
+     * This method returns the index of the maximum value..
+     *
+     * @param arr Double array.
+     * @return Integer that is the index of the maximum value.
+     */
+    public static int indexOfMax(double[] arr) {
+        if (arr == null || arr.length == 0) {
+            return -1;
+        } else {
+            double maxVal = -Double.MAX_VALUE;
+            int maxIndex = -1;
+            for (int i = 0; i < arr.length; i++) {
+                if (!DataMineConstants.isAcceptableDouble(arr[i])) {
+                    continue;
+                }
+                if (arr[i] > maxVal) {
+                    maxVal = arr[i];
+                    maxIndex = i;
+                }
+            }
+            return maxIndex;
+        }
+    }
+    
+    /**
+     * This method returns the index of the maximum value..
+     *
+     * @param arr Float array.
+     * @return Integer that is the index of the maximum value.
+     */
+    public static int indexOfMax(float[] arr) {
+        if (arr == null || arr.length == 0) {
+            return -1;
+        } else {
+            float maxVal = -Float.MAX_VALUE;
+            int maxIndex = -1;
+            for (int i = 0; i < arr.length; i++) {
+                if (!DataMineConstants.isAcceptableFloat(arr[i])) {
+                    continue;
+                }
+                if (arr[i] > maxVal) {
+                    maxVal = arr[i];
+                    maxIndex = i;
+                }
+            }
+            return maxIndex;
+        }
+    }
+    
+    /**
+     * This method returns the index of the maximum value..
+     *
+     * @param arr Integer array.
+     * @return Integer that is the index of the maximum value.
+     */
+    public static int indexOfMax(int[] arr) {
+        if (arr == null || arr.length == 0) {
+            return -1;
+        } else {
+            int maxVal = -Integer.MAX_VALUE;
+            int maxIndex = -1;
+            for (int i = 0; i < arr.length; i++) {
+                if (!DataMineConstants.isAcceptableInt(arr[i])) {
+                    continue;
+                }
+                if (arr[i] > maxVal) {
+                    maxVal = arr[i];
+                    maxIndex = i;
+                }
+            }
+            return maxIndex;
+        }
+    }
 
     /**
      * First return value is the value itself, second is its index.

@@ -344,9 +344,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -359,7 +359,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType, int numClasses)
             throws Exception;
@@ -368,9 +368,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -385,7 +385,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType,
             int[] testLabelArray, int numClasses) throws Exception;
@@ -394,9 +394,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -411,7 +411,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType,
             int numClasses, float[][] trainingToTestDistances) throws Exception;
@@ -420,9 +420,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -439,7 +439,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType,
             int[] testLabelArray, int numClasses,
@@ -449,9 +449,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -469,7 +469,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType, int numClasses,
             float[][] trainingToTestDistances, int[][] pointNeighbors)
@@ -479,9 +479,9 @@ public interface ValidateableInterface {
      * This method tests and evaluates the classifier, while keeping track of
      * correct classifications for each class.
      *
-     * @param predictedLabelsAllData int[] representing the current predicted
-     * labels for all data points (not only the test points in the current
-     * iteration, but rather all points from the original data.)
+     * @param predictedProbLabelsAllData float[][] representing the current
+     * predicted fuzzy labels for all data points (not only the test points in
+     * the current iteration, but rather all points from the original data.)
      * @param correctPointClassificationCounter float[] representing the counter
      * of correct class-specific classifications, for latter analysis.
      * @param indexes ArrayList<Integer> of test data indexes.
@@ -501,7 +501,7 @@ public interface ValidateableInterface {
      * @throws Exception
      */
     public ClassificationEstimator test(
-            int[] predictedLabelsAllData,
+            float[][] predictedProbLabelsAllData,
             float[] correctPointClassificationCounter,
             ArrayList<Integer> indexes, Object dataType,
             int[] testLabelArray, int numClasses,
