@@ -21,6 +21,7 @@ import data.representation.DataSet;
 import ioformat.SupervisedLoader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -49,6 +50,10 @@ public class ViperChartAPICall {
     private ArrayList<String> algorithmNames;
     private static final HashMap<ChartType, String> chartTypeToStringMap;
     private static final HashMap<String, ChartType> chartStringToTypeMap;
+    private float[] precisionValues;
+    private float[] recallValues;
+    private float[] fprValues;
+    private float[] tprValues;
     
     static {
         chartTypeToStringMap = new HashMap<>();
@@ -71,8 +76,6 @@ public class ViperChartAPICall {
         chartStringToTypeMap.put("ratedriven", ChartType.RATE_DRIVEN_CURVES);
         chartTypeToStringMap.put(ChartType.KENDALL_CURVES, "kendall");
         chartStringToTypeMap.put("kendall", ChartType.KENDALL_CURVES);
-        chartTypeToStringMap.put(ChartType.COLUMN_CHART, "column");
-        chartStringToTypeMap.put("column", ChartType.COLUMN_CHART);
     }
     
     /**
@@ -84,10 +87,16 @@ public class ViperChartAPICall {
      * @param binaryDataLabels int[] representing the ground truth labels.
      */
     public ViperChartAPICall(ArrayList<String> algorithmNames,
-            ArrayList<float[]> predictedDataLabels, int[] binaryDataLabels) {
+            ArrayList<float[]> predictedDataLabels, int[] binaryDataLabels,
+            float[] recallValues, float[] precisionValues, float[] fprValues,
+            float[] tprValues) {
         this.algorithmNames = algorithmNames;
         this.predictedDataLabels = predictedDataLabels;
         this.binaryDataLabels = binaryDataLabels;
+        this.recallValues = recallValues;
+        this.precisionValues = precisionValues;
+        this.fprValues = fprValues;
+        this.tprValues = tprValues;
     }
     
     /**
@@ -103,12 +112,30 @@ public class ViperChartAPICall {
         JSONObject jobj = new JSONObject();
         jobj.put("chart", chartTypeToStringMap.get(cType));
         List jList = new ArrayList();
-        for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
-            HashMap jMap = new HashMap();
-            jList.add(jMap);
-            jMap.put("name", algorithmNames.get(algIndex));
-            jMap.put("predicted", predictedDataLabels.get(algIndex));
-            jMap.put("actual", binaryDataLabels);
+        if (cType == ChartType.PR_SPACE) {
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                HashMap jMap = new HashMap();
+                jList.add(jMap);
+                jMap.put("name", algorithmNames.get(algIndex));
+                jMap.put("recall", recallValues[algIndex]);
+                jMap.put("precision", precisionValues[algIndex]);
+            }
+        } else if (cType == ChartType.ROC_SPACE) {
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                HashMap jMap = new HashMap();
+                jList.add(jMap);
+                jMap.put("name", algorithmNames.get(algIndex));
+                jMap.put("fpr", fprValues[algIndex]);
+                jMap.put("tpr", tprValues[algIndex]);
+            }
+        } else {
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                HashMap jMap = new HashMap();
+                jList.add(jMap);
+                jMap.put("name", algorithmNames.get(algIndex));
+                jMap.put("predicted", predictedDataLabels.get(algIndex));
+                jMap.put("actual", binaryDataLabels);
+            }
         }
         jobj.put("data", jList);
         final String jsonStringRep = jobj.toString();
@@ -198,24 +225,87 @@ public class ViperChartAPICall {
         int[] correctLabels = dset.obtainLabelArray();
         int positiveClassIndex = (Integer) clp.getParamValues(
                     "-positiveClassIndex").get(0);
+        int numClasses = dset.countCategories();
         int numAlgs = clp.getParamValues("-inAlgorithmDir").size();
         File[] algDirs = new File[numAlgs];
         ArrayList<String> algNames = new ArrayList<>(numAlgs);
         ArrayList<float[]> predictedDataLabels = new ArrayList<>(numAlgs);
+        int[] classFreqs = dset.getClassFrequencies();
+        float precisionValue = 0;
+        float recallValue = 0;
+        float fprValue = 0;
+        float tprValue = 0;
+        float[] precisionValues = new float[numAlgs];
+        float[] recallValues = new float[numAlgs];
+        float[] fprValues = new float[numAlgs];
+        float[] tprValues = new float[numAlgs];
         for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
             algDirs[algIndex] = new File((String) clp.getParamValues(
                     "-inAlgorithmDir").get(algIndex));
-            File inFile = new File(algDirs[algIndex],
+            File inPredictionsFile = new File(algDirs[algIndex],
                     "avgProbClassAssignments.json");
             float[] predictions = loadAverageProbabilisticClassifications(
-                    inFile, positiveClassIndex);
+                    inPredictionsFile, positiveClassIndex);
             predictedDataLabels.add(predictions);
             algNames.add(algDirs[algIndex].getName());
+            File inAvgsFile = new File(algDirs[algIndex], "avg.txt");
+            try (BufferedReader br = new BufferedReader(new InputStreamReader (
+                    new FileInputStream(inAvgsFile)))) {
+                // The header line.
+                br.readLine();
+                // The second line contains precision and recall values.
+                String line = br.readLine();
+                String[] lineItems = line.split(",");
+                precisionValue = Float.parseFloat(lineItems[1]);
+                recallValue = Float.parseFloat(lineItems[2]);
+                line = br.readLine();
+                while (line != null && !line.startsWith("confusion")) {
+                    line = br.readLine();
+                }
+                // On the next line the confusion matrix starts.
+                if (line == null) {
+                    // This should not happen, unless the file has been manually
+                    // corrupted.
+                    fprValue = 0;
+                    tprValue = 0;
+                } else {
+                    float[][] confusionMatrix = new float[numClasses][
+                            numClasses];
+                    for (int cIndex = 0; cIndex < numClasses; cIndex++) {
+                        line = br.readLine();
+                        lineItems = line.split("\\s+");
+                        for (int cSecond = 0; cSecond < numClasses; cSecond++) {
+                            confusionMatrix[cIndex][cSecond] =
+                                    Float.parseFloat(lineItems[cSecond]);
+                        }
+                    }
+                    float tpNum = confusionMatrix[positiveClassIndex][
+                            positiveClassIndex];
+                    int positiveClassSize = classFreqs[positiveClassIndex];
+                    int negativeClassSize = dset.size() - positiveClassSize;
+                    float fpNum = 0;
+                    for (int cSecond = 0; cSecond < positiveClassIndex;
+                            cSecond++) {
+                        fpNum += confusionMatrix[positiveClassIndex][cSecond];
+                    }
+                    for (int cSecond = positiveClassIndex + 1;
+                            cSecond < numClasses; cSecond++) {
+                        fpNum += confusionMatrix[positiveClassIndex][cSecond];
+                    }
+                    fprValue = fpNum / negativeClassSize;
+                    tprValue = tpNum / positiveClassSize;
+                }
+            }
+            precisionValues[algIndex] = precisionValue;
+            recallValues[algIndex] = recallValue;
+            fprValues[algIndex] = fprValue;
+            tprValues[algIndex] = tprValue;
         }
         String chartTypeStringCode = (String) clp.getParamValues(
                     "-chartTypeStringCode").get(0);
         ViperChartAPICall viperProxy = new ViperChartAPICall(algNames,
-                predictedDataLabels, correctLabels);
+                predictedDataLabels, correctLabels, recallValues,
+                precisionValues, fprValues, tprValues);
         ChartType cType = ChartType.ROC_CURVES;
         if (chartStringToTypeMap.containsKey(chartTypeStringCode)) {
             cType = chartStringToTypeMap.get(chartTypeStringCode);
