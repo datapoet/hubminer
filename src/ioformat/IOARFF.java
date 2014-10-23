@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -56,6 +57,172 @@ public class IOARFF {
     private ArrayList<HashMap> nominalHashes = new ArrayList<>(10);
     // Contains a vocabulary for each nominal feature.
     private ArrayList<String>[] nominalVocabularies = null;
+    
+    /**
+     * Parse ARFF data from OpenML service into the Hub Miner - usable form for
+     * classification experiments.
+     * 
+     * @param input Reader object to get the data from.
+     * @param targetFeatureName String that is the name of the class feature.
+     * @return 
+     */
+    public DataSet getDenseLabeledDataFromOpenMLArff(
+            Reader input,
+            String targetFeatureName) throws IOException {
+        IOARFF loader = new IOARFF();
+        DataSet dset;
+        try (BufferedReader br = new BufferedReader(input)) {
+            dset = loader.load(br, targetFeatureName);
+        }
+        if (dset == null || dset.isEmpty()) {
+            return new DataSet();
+        } else {
+            return dset;
+        }
+    }
+    
+    /**
+     * Parse a sparse ARFF data from OpenML service into the Hub Miner - usable
+     * form for classification experiments.
+     * 
+     * @param input Reader object to get the data from.
+     * @param targetFeatureName String that is the name of the class feature.
+     * @return 
+     */
+    public BOWDataSet getSparseLabeledDataFromOpenMLArff(
+            Reader input,
+            String targetFeatureName) throws Exception {
+        IOARFF loader = new IOARFF();
+        BOWDataSet bowDSet;
+        try (BufferedReader br = new BufferedReader(input)) {
+            bowDSet = loader.loadSparse(br, targetFeatureName);
+        } catch (Exception e) {
+            throw e;
+        }
+        if (bowDSet == null || bowDSet.isEmpty()) {
+            return new BOWDataSet();
+        }
+        return bowDSet;
+    }
+    
+    /**
+     * Parse ARFF data from OpenML service into the Hub Miner - usable form for
+     * classification experiments.
+     * 
+     * @param input Reader object to get the data from.
+     * @param targetFeatureName String that is the name of the class feature.
+     * @param admissibleFeatures ArrayList<String> of features to actually use.
+     * @return 
+     */
+    public DataSet getDenseLabeledDataFromOpenMLArff(Reader input,
+            String targetFeatureName,
+            ArrayList<String> admissibleFeatures) throws IOException {
+        IOARFF loader = new IOARFF();
+        DataSet dset;
+        try (BufferedReader br = new BufferedReader(input)) {
+            dset = loader.load(br, targetFeatureName);
+        }
+        if (dset == null || dset.isEmpty()) {
+            return new DataSet();
+        }
+        // Class feature is not going to be in these admissable lists, even
+        // though it was included in the admissibleFeatures parameter in the
+        // method declaration above.
+        ArrayList<Integer> admissibleFloatFeatureIndexes = new ArrayList<>();
+        ArrayList<Integer> admissibleIntegerFeatureIndexes = new ArrayList<>();
+        ArrayList<Integer> admissibleNominalFeatureIndexes = new ArrayList<>();
+        for (String admissibleFeatureName: admissibleFeatures) {
+            if (admissibleFeatureName.equals(targetFeatureName)) {
+                continue;
+            }
+            int[] featSpecPair = dset.getTypeAndIndexForAttrName(
+                    admissibleFeatureName);
+            if (featSpecPair[0] == -1 || featSpecPair[1] == -1) {
+                throw new IOException("Specified feature does not exist: " +
+                        admissibleFeatureName);
+            }
+            switch (featSpecPair[0]) {
+                case DataMineConstants.FLOAT:
+                    admissibleFloatFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                case DataMineConstants.INTEGER:
+                    admissibleIntegerFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                case DataMineConstants.NOMINAL:
+                    admissibleNominalFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                default:
+                    throw new IOException(
+                            "Specified feature not of acceptable type: " +
+                            admissibleFeatureName);
+            }
+        }
+        DataSet filteredDataSet = new DataSet();
+        String[] fAttNames = null;
+        String[] iAttNames = null;
+        String[] sAttNames = null;
+        int numFilteredFloats = admissibleFloatFeatureIndexes.size();
+        int numFilteredInts = admissibleIntegerFeatureIndexes.size();
+        int numFilteredNominals = admissibleNominalFeatureIndexes.size();
+        if (numFilteredFloats > 0) {
+            fAttNames = new String[admissibleFloatFeatureIndexes.size()];
+        }
+        if (numFilteredInts > 0) {
+            iAttNames = new String[admissibleIntegerFeatureIndexes.size()];
+        }
+        if (numFilteredNominals > 0) {
+            sAttNames = new String[admissibleNominalFeatureIndexes.size()];
+        }
+        filteredDataSet.fAttrNames = fAttNames;
+        filteredDataSet.iAttrNames = iAttNames;
+        filteredDataSet.sAttrNames = sAttNames;
+        filteredDataSet.data = new ArrayList<>(dset.size());
+        for (int i = 0; i < dset.size(); i++) {
+            DataInstance filteredInstance = new DataInstance(filteredDataSet);
+            DataInstance instance = dset.getInstance(i);
+            for (int attIndex = 0; attIndex < numFilteredFloats; attIndex++) {
+                filteredInstance.fAttr[attIndex] = instance.fAttr[
+                        admissibleFloatFeatureIndexes.get(attIndex)];
+            }
+            for (int attIndex = 0; attIndex < numFilteredInts; attIndex++) {
+                filteredInstance.iAttr[attIndex] = instance.iAttr[
+                        admissibleIntegerFeatureIndexes.get(attIndex)];
+            }
+            for (int attIndex = 0; attIndex < numFilteredNominals; attIndex++) {
+                filteredInstance.sAttr[attIndex] = instance.sAttr[
+                        admissibleNominalFeatureIndexes.get(attIndex)];
+            }
+            filteredInstance.embedInDataset(filteredDataSet);
+            filteredDataSet.addDataInstance(filteredInstance);
+        }
+        return filteredDataSet;
+    }
+    
+    /**
+     * Parse a sparse ARFF data from OpenML service into the Hub Miner - usable
+     * form for classification experiments.
+     * 
+     * @param input Reader object to get the data from.
+     * @param targetFeatureName String that is the name of the class feature.
+     * @param admissibleFeatures ArrayList<String> of features to actually use.
+     * @return 
+     */
+    public BOWDataSet getSparseLabeledDataFromOpenMLArff(Reader input,
+            String targetFeatureName,
+            ArrayList<String> admissibleFeatures) throws Exception {
+        IOARFF loader = new IOARFF();
+        BOWDataSet bowDSet;
+        try (BufferedReader br = new BufferedReader(input)) {
+            bowDSet = loader.loadSparse(br, targetFeatureName);
+        } catch (Exception e) {
+            throw e;
+        }
+        if (bowDSet == null || bowDSet.isEmpty()) {
+            return new BOWDataSet();
+        }
+        bowDSet.removeWords(admissibleFeatures);
+        return bowDSet;
+    }
 
     /**
      * A utility method for quickly persisting the medoids of a cluster
@@ -297,134 +464,170 @@ public class IOARFF {
         }
         return bowDSet;
     }
+    
+    /**
+     * Loads a sparse data representation. This is one of the two supported
+     * variants of the same format, where the class information does not need to
+     * be given as last.
+     *
+     * @param br BufferedReader to read the data from.
+     * @param classAttName String that is the class attribute name.
+     * @return BOWDataSet that is the sparse dataset object.
+     * @throws Exception
+     */
+    public BOWDataSet loadSparse(BufferedReader br, String classAttName)
+            throws Exception {
+        BOWDataSet bowDSet = new BOWDataSet();
+        HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
+        int maxClassIndex = -1;
+        bowDSet.data = new ArrayList<>(10000);
+        boolean dataMode = false;
+        // Whether there is class information will be determined.
+        boolean hasCategory = false;
+        // We specify the encoding explicitly, to avoid encoding issues.
+        String[] lineItems;
+        String[] pair;
+        String line = br.readLine();
+        // First line is the @RELATION line with the relation name.
+        try {
+            // Sometimes it might not be provided.
+            pair = line.split(" ");
+            bowDSet.setName(pair[1]);
+        } catch (Exception e) {
+        }
+        line = br.readLine();
+        int maxFeatureIndex = -1;
+        int featureIndex;
+        float featureValue;
+        int classAttIndex = -1;
+        while (line != null) {
+            line = line.trim();
+            if (!dataMode) {
+                if (line.startsWith("@ATTRIBUTE")
+                        || line.startsWith("@attribute")
+                        || line.startsWith("@Attribute")) {
+                    ++classAttIndex;
+                    lineItems = line.split(" ");
+                    if (lineItems[1].toLowerCase().
+                            equals(classAttName)) {
+                        // Labels exist in the representation.
+                        hasCategory = true;
+                    } else {
+                        maxFeatureIndex++;
+                    }
+                } else if (line.startsWith("@DATA")
+                        || line.startsWith("@data")
+                        || line.startsWith("@Data")) {
+                    // Entering the data mode.
+                    dataMode = true;
+                    ArrayList<String> vocabulary =
+                            new ArrayList<>(maxFeatureIndex + 1);
+                    ArrayList<Float> wordFrequencies =
+                            new ArrayList<>(maxFeatureIndex + 1);
+                    HashMap<String, Integer> vocabularyHash =
+                            new HashMap<>((maxFeatureIndex + 1) * 3, 500);
+                    for (int i = 0; i < maxFeatureIndex + 1; i++) {
+                        // Features are just numerated.
+                        String strInt = (new Integer(i)).toString();
+                        vocabulary.add(strInt);
+                        wordFrequencies.add(0f);
+                        vocabularyHash.put(strInt, i);
+                    }
+                    bowDSet.setVocabularyData(vocabulary, vocabularyHash,
+                            wordFrequencies);
+                }
+            } else {
+                line = line.trim();
+                line = line.substring(1, line.length() - 1);
+                if (line.equals("")) {
+                    line = br.readLine();
+                    BOWInstance instance = new BOWInstance(bowDSet);
+                    bowDSet.data.add(instance);
+                    continue;
+                }
+                lineItems = line.split(",");
+                BOWInstance instance = new BOWInstance(bowDSet);
+                if (!hasCategory) {
+                    // Class information is not present.
+                    try {
+                        for (int i = 0; i < lineItems.length; i++) {
+                            pair = lineItems[i].split(" ");
+                            featureIndex = Integer.parseInt(pair[0]);
+                            featureValue = Float.parseFloat(pair[1]);
+                            instance.addWord(featureIndex, featureValue);
+                        }
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                        throw e;
+                    }
+                } else {
+                    for (int i = 0; i < lineItems.length; i++) {
+                        pair = lineItems[i].split(" ");
+                        featureIndex = Integer.parseInt(pair[0]);
+                        if (featureIndex == classAttIndex) {
+                            String classNameString = pair[1];
+                            if (!classNameToIndexMap.containsKey(
+                                    classNameString)) {
+                                ++maxClassIndex;
+                                classNameToIndexMap.put(classNameString,
+                                        maxClassIndex);
+                            }
+                            instance.setCategory(classNameToIndexMap.get(
+                                    classNameString));
+                        } else {
+                            featureValue = Float.parseFloat(pair[1]);
+                            instance.addWord(featureIndex, featureValue);
+                        }
+                    }                        
+                }
+                bowDSet.data.add(instance);
+            }
+            line = br.readLine();
+        }
+        for (int i = 0; i < bowDSet.data.size(); i++) {
+            BOWInstance instance = (BOWInstance) (bowDSet.data.get(i));
+            HashMap<Integer, Float> indexMap = instance.getWordIndexesHash();
+            Set<Integer> keys = indexMap.keySet();
+            for (int index : keys) {
+                bowDSet.increaseFrequency(index, indexMap.get(index));
+            }
+        }
+        return bowDSet;
+    }
+    
+    /**
+     * Loads a sparse data representation. This is one of the two supported
+     * variants of the same format, where the class information does not need to
+     * be given as last.
+     *
+     * @param inPath String that is the path to the input file.
+     * @param classAttName String that is the class attribute name.
+     * @return BOWDataSet that is the sparse dataset object.
+     * @throws Exception
+     */
+    public BOWDataSet loadSparse(String inPath, String classAttName)
+            throws Exception {
+        BOWDataSet bowDSet = null;
+        try (BufferedReader br = new BufferedReader((new InputStreamReader(
+                new FileInputStream(new File(inPath)), "UTF-8")));) {
+            bowDSet = loadSparse(br, classAttName);
+        } catch (IOException e) {
+            throw e;
+        }
+        return bowDSet;
+    }
 
     /**
      * Loads a sparse data representation. This is one of the two supported
-     * variants of the same format, where the class information is given at the
-     * end of each line along with the number of features. Also, this variant
-     * ignores feature names and just numerates them.
+     * variants of the same format, where the class information does not need to
+     * be given as last.
      *
      * @param inPath String that is the path to the input file.
      * @return BOWDataSet that is the sparse dataset object.
      * @throws Exception
      */
     public BOWDataSet loadSparse(String inPath) throws Exception {
-        HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
-        int maxClassIndex = -1;
-        BOWDataSet bowDSet = new BOWDataSet();
-        bowDSet.data = new ArrayList<>(10000);
-        boolean dataMode = false;
-        // Whether there is class information will be determined.
-        boolean hasCategory = false;
-        // We specify the encoding explicitly, to avoid encoding issues.
-        try (BufferedReader br = new BufferedReader((new InputStreamReader(
-                new FileInputStream(new File(inPath)), "UTF-8")));) {
-            String[] lineItems;
-            String[] pair;
-            String line = br.readLine();
-            // First line is the @RELATION line with the relation name.
-            try {
-                // Sometimes it might not be provided.
-                pair = line.split(" ");
-                bowDSet.setName(pair[1]);
-            } catch (Exception e) {
-            }
-            line = br.readLine();
-            int maxFeatureIndex = -1;
-            int featureIndex;
-            float featureValue;
-            while (line != null) {
-                line = line.trim();
-                if (!dataMode) {
-                    if (line.startsWith("@ATTRIBUTE")
-                            || line.startsWith("@attribute")
-                            || line.startsWith("@Attribute")) {
-                        lineItems = line.split(" ");
-                        if (lineItems[1].toLowerCase().equals("class")) {
-                            // Labels exist in the representation.
-                            hasCategory = true;
-                        } else {
-                            maxFeatureIndex++;
-                        }
-                    } else if (line.startsWith("@DATA")
-                            || line.startsWith("@data")
-                            || line.startsWith("@Data")) {
-                        // Entering the data mode.
-                        dataMode = true;
-                        ArrayList<String> vocabulary =
-                                new ArrayList<>(maxFeatureIndex + 1);
-                        ArrayList<Float> wordFrequencies =
-                                new ArrayList<>(maxFeatureIndex + 1);
-                        HashMap<String, Integer> vocabularyHash =
-                                new HashMap<>((maxFeatureIndex + 1) * 3, 500);
-                        for (int i = 0; i < maxFeatureIndex + 1; i++) {
-                            // Features are just numerated.
-                            String strInt = (new Integer(i)).toString();
-                            vocabulary.add(strInt);
-                            wordFrequencies.add(0f);
-                            vocabularyHash.put(strInt, i);
-                        }
-                        bowDSet.setVocabularyData(vocabulary, vocabularyHash,
-                                wordFrequencies);
-                    }
-                } else {
-                    line = line.trim();
-                    line = line.substring(1, line.length() - 1);
-                    if (line.equals("")) {
-                        line = br.readLine();
-                        BOWInstance instance = new BOWInstance(bowDSet);
-                        bowDSet.data.add(instance);
-                        continue;
-                    }
-                    lineItems = line.split(",");
-                    BOWInstance instance = new BOWInstance(bowDSet);
-                    if (!hasCategory) {
-                        // Class information is not present.
-                        try {
-                            for (int i = 0; i < lineItems.length; i++) {
-                                pair = lineItems[i].split(" ");
-                                featureIndex = Integer.parseInt(pair[0]);
-                                featureValue = Float.parseFloat(pair[1]);
-                                instance.addWord(featureIndex, featureValue);
-                            }
-                        } catch (Exception e) {
-                            System.err.println(e.getMessage());
-                            throw e;
-                        }
-                    } else {
-                        for (int i = 0; i < lineItems.length - 1; i++) {
-                            pair = lineItems[i].split(" ");
-                            featureIndex = Integer.parseInt(pair[0]);
-                            featureValue = Float.parseFloat(pair[1]);
-                            instance.addWord(featureIndex, featureValue);
-                        }
-                        pair = lineItems[lineItems.length - 1].split(" ");
-                        String classNameString = pair[1];
-                        if (!classNameToIndexMap.containsKey(classNameString)) {
-                            ++maxClassIndex;
-                            classNameToIndexMap.put(classNameString,
-                                    maxClassIndex);
-                        }
-                        instance.setCategory(classNameToIndexMap.get(
-                                classNameString));
-                    }
-                    bowDSet.data.add(instance);
-                }
-                line = br.readLine();
-            }
-            for (int i = 0; i < bowDSet.data.size(); i++) {
-                BOWInstance instance = (BOWInstance) (bowDSet.data.get(i));
-                HashMap<Integer, Float> indexMap =
-                        instance.getWordIndexesHash();
-                Set<Integer> keys = indexMap.keySet();
-                for (int index : keys) {
-                    bowDSet.increaseFrequency(index, indexMap.get(index));
-                }
-            }
-        } catch (IOException e) {
-            throw e;
-        }
-        return bowDSet;
+        return loadSparse(inPath, "class");
     }
 
     /**
@@ -435,14 +638,54 @@ public class IOARFF {
      * @throws IOException
      */
     public DataSet load(String inPath) throws IOException {
+        DataSet dset = new DataSet();
+        // We specify the encoding explicitly, to avoid encoding issues.
+        try (BufferedReader br = new BufferedReader((new InputStreamReader(
+                new FileInputStream(new File(inPath)), "UTF-8")));) {
+            dset = load(br);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            return dset;
+        }
+    }
+    
+    /**
+     * This method performs the data load from the specified ARFF target.
+     *
+     * @param BufferedReader that is used for reading the data.
+     * @return DataSet object that is the loaded data.
+     * @throws IOException
+     */
+    public DataSet load(BufferedReader br) throws IOException {
+        DataSet dset = new DataSet();
+        ArrayList<DataFeature> features = loadFeatures(br);
+        setDefinition(dset, features);
+        loadRepresentation(dset, br, features);
+        // Initialize feature name hashes.
+        dset.makeFeatureMappings();
+        return dset;    
+    }
+    
+    /**
+     * This method performs the data load from the specified ARFF target.
+     *
+     * @param inPath String that is the path to the data file in ARFF format.
+     * @param classFeatureName String that is the name of the target class
+     * feature.
+     * @return DataSet object that is the loaded data.
+     * @throws IOException
+     */
+    public DataSet load(String inPath, String classFeatureName)
+            throws IOException {
         // We specify the encoding explicitly, to avoid encoding issues.
         BufferedReader br = new BufferedReader((new InputStreamReader(
                 new FileInputStream(new File(inPath)), "UTF-8")));
         DataSet dset = new DataSet();
         try {
             ArrayList<DataFeature> features = loadFeatures(br);
-            setDefinition(dset, features);
-            loadRepresentation(dset, br, features);
+            setDefinition(dset, features, classFeatureName);
+            loadRepresentation(dset, br, features, classFeatureName);
             // Initialize feature name hashes.
             dset.makeFeatureMappings();
         } catch (IOException e) {
@@ -454,6 +697,26 @@ public class IOARFF {
             }
             return dset;
         }
+    }
+    
+    /**
+     * This method performs the data load from the specified ARFF target.
+     *
+     * @param inputReader BufferedReader to read the data from.
+     * @param classFeatureName String that is the name of the target class
+     * feature.
+     * @return DataSet object that is the loaded data.
+     * @throws IOException
+     */
+    public DataSet load(BufferedReader inputReader, String classFeatureName)
+            throws IOException {
+        DataSet dset = new DataSet();
+        ArrayList<DataFeature> features = loadFeatures(inputReader);
+        setDefinition(dset, features, classFeatureName);
+        loadRepresentation(dset, inputReader, features, classFeatureName);
+        // Initialize feature name hashes.
+        dset.makeFeatureMappings();
+        return dset;
     }
 
     /**
@@ -467,6 +730,22 @@ public class IOARFF {
      */
     private void loadRepresentation(DataSet dset, BufferedReader br,
             ArrayList<DataFeature> features) throws IOException {
+        loadRepresentation(dset, br, features, "class");
+    }
+    
+    /**
+     * This method loads the representation from the BufferedReader for the
+     * specified list of features.
+     * 
+     * @param dset DataSet object to load into.
+     * @param br BufferedReader used as the source.
+     * @param features List of DataFeature feature specifications.
+     * @param classFeatureName String that is the name of the class feature.
+     * @throws IOException 
+     */
+    private void loadRepresentation(DataSet dset, BufferedReader br,
+            ArrayList<DataFeature> features, String classFeatureName)
+            throws IOException {
         String line = br.readLine();
         HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
         int maxClassIndex = -1;
@@ -478,6 +757,11 @@ public class IOARFF {
             }
         }
         while (line != null) {
+            line = line.trim();
+            if (line.startsWith("%")) {
+                line = br.readLine();
+                continue;
+            }
             DataInstance instance = new DataInstance(dset);
             StringTokenizer st = new StringTokenizer(line, ",");
             for (int i = 0; i < features.size(); i++) {
@@ -486,15 +770,30 @@ public class IOARFF {
                     case DataMineConstants.INTEGER: {
                         if (st.hasMoreTokens()) {
                             // Fill in an integer feature.
-                            instance.iAttr[feature.getFeatureIndex()] =
-                                    Integer.parseInt(st.nextToken());
+                            String token = st.nextToken();
+                            token = token.trim();
+                            if (token.equals("?")) {
+                                instance.iAttr[feature.getFeatureIndex()] =
+                                        Integer.MAX_VALUE;
+                            } else {
+                                instance.iAttr[feature.getFeatureIndex()] =
+                                        Integer.parseInt(token);
+                            }
                         }
                         break;
                     }
                     case DataMineConstants.FLOAT: {
                         if (st.hasMoreTokens()) {
-                            instance.fAttr[feature.getFeatureIndex()] =
-                                    Float.parseFloat(st.nextToken());
+                            // Fill in a float feature.
+                            String token = st.nextToken();
+                            token = token.trim();
+                            if (token.equals("?")) {
+                                instance.fAttr[feature.getFeatureIndex()] =
+                                        Float.NaN;
+                            } else {
+                                instance.fAttr[feature.getFeatureIndex()] =
+                                        Float.parseFloat(token);
+                            }
                         }
                         break;
                     }
@@ -513,7 +812,8 @@ public class IOARFF {
                             }
                             // Class is also written down as a nominal
                             // attribute.
-                            if (!feature.getFeatureName().equals("class")) {
+                            if (!feature.getFeatureName().equals(
+                                    classFeatureName)) {
                                 if (useNominalHashing) {
                                     int currIndex;
                                     if (!nominalHashes.get(
@@ -575,6 +875,19 @@ public class IOARFF {
      * @param features ArrayList<DataFeature> that holds the data definition.
      */
     private void setDefinition(DataSet dset, ArrayList<DataFeature> features) {
+        setDefinition(dset, features, "class");
+    }
+    
+    /**
+     * This method sets the feature definitions that have been parsed to the
+     * DataSet object.
+     *
+     * @param dset DataSet object to set the definitions to.
+     * @param classFeatureName String that is the target class feature name.
+     * @param features ArrayList<DataFeature> that holds the data definition.
+     */
+    private void setDefinition(DataSet dset, ArrayList<DataFeature> features,
+            String classFeatureName) {
         int numFloatFeatures = 0;
         int numIntFeatures = 0;
         int numNominalFeatures = 0;
@@ -589,7 +902,7 @@ public class IOARFF {
                     break;
                 }
                 case DataMineConstants.NOMINAL: {
-                    if (!feature.getFeatureName().equals("class")) {
+                    if (!feature.getFeatureName().equals(classFeatureName)) {
                         numNominalFeatures++;
                     }
                     break;
@@ -653,14 +966,26 @@ public class IOARFF {
                         "@ATTRIBUTE")) {
                     String featureSpecString = line.substring(
                             "@ATTRIBUTE".length()).trim();
-                    String featureType = featureSpecString.substring(
-                            featureSpecString.lastIndexOf(' ') + 1);
-                    String featureName = featureSpecString.substring(0,
-                            featureSpecString.lastIndexOf(' ')).trim();
+                    String[] tailItems = featureSpecString.split("\\s+");
+                    String featureName = tailItems[0];
+                    if (featureName.startsWith("'")) {
+                        featureName = featureName.substring(1);
+                    }
+                    if (featureName.endsWith("'")) {
+                        featureName = featureName.substring(0,
+                                featureName.length() - 1);
+                    }
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 1; i < tailItems.length; i++) {
+                        sb.append(tailItems[i]);
+                        sb.append(" ");
+                    }
+                    String featureType = sb.toString().trim();
                     DataFeature feature = new DataFeature();
                     feature.setFeatureName(featureName);
                     if (featureType.equalsIgnoreCase("string")
-                            || featureType.equalsIgnoreCase("nominal")) {
+                            || featureType.equalsIgnoreCase("nominal") ||
+                            featureType.startsWith("{")) {
                         feature.setFeatureType(DataMineConstants.NOMINAL);
                         feature.setFeatureIndex(numNominalFeatures++);
                         if (useNominalHashing) {
@@ -709,7 +1034,7 @@ public class IOARFF {
             }
             if (dset.hasFloatAttr()) {
                 for (String featureName : dset.fAttrNames) {
-                    pw.println("@ATTRIBUTE " + featureName + " real");
+                    pw.println("@ATTRIBUTE " + featureName + " numeric");
                 }
             }
             if (dset.hasNominalAttr()) {
@@ -783,7 +1108,7 @@ public class IOARFF {
             }
             pw.println("@RELATION " + bowDSet.getName());
             for (String word : vocabulary) {
-                pw.println("@ATTRIBUTE " + word + " real");
+                pw.println("@ATTRIBUTE " + word + " numeric");
             }
             pw.println("@DATA");
             for (int i = 0; i < bowDSet.size(); i++) {
@@ -838,7 +1163,7 @@ public class IOARFF {
             }
             pw.println("@RELATION " + bowDSet.getName());
             for (String word : vocabulary) {
-                pw.println("@ATTRIBUTE " + word + " real");
+                pw.println("@ATTRIBUTE " + word + " numeric");
             }
             pw.println("@ATTRIBUTE class string");
             pw.println("@DATA");
@@ -862,7 +1187,7 @@ public class IOARFF {
                 if (printSeparator) {
                     pw.print(",");
                 }
-                pw.print(keys.size());
+                pw.print(vocabulary.size());
                 pw.print(" ");
                 pw.print(instance.getCategory());
                 pw.print("}");
@@ -900,7 +1225,7 @@ public class IOARFF {
             }
             if (dset.hasFloatAttr()) {
                 for (String featureName : dset.fAttrNames) {
-                    pw.println("@ATTRIBUTE " + featureName + " real");
+                    pw.println("@ATTRIBUTE " + featureName + " numeric");
                 }
             }
             if (dset.hasNominalAttr()) {

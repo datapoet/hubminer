@@ -460,8 +460,7 @@ public class BOWDataSet extends DataSet {
     public void printVocabulary(String path) throws Exception {
         File outFile = new File(path);
         FileUtil.createFileFromPath(path);
-        PrintWriter pw = new PrintWriter(new FileWriter(outFile));
-        try {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(outFile))) {
             pw.println("vsize: " + numWords);
             for (int i = 0; i < numWords; i++) {
                 pw.println(vocabulary.get(i) + " "
@@ -469,8 +468,6 @@ public class BOWDataSet extends DataSet {
             }
         } catch (Exception e) {
             throw e;
-        } finally {
-            pw.close();
         }
     }
 
@@ -488,9 +485,8 @@ public class BOWDataSet extends DataSet {
         if (!outFile.exists()) {
             throw new Exception("File " + path + " does not exist");
         }
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(outFile)));
-        try {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                     new FileInputStream(outFile)))) {
             String[] wordAndFrequencyPair;
             String s = br.readLine();
             s = s.trim();
@@ -508,8 +504,6 @@ public class BOWDataSet extends DataSet {
         } catch (Exception e) {
             System.err.println(e.getMessage());
             throw e;
-        } finally {
-            br.close();
         }
     }
 
@@ -563,6 +557,29 @@ public class BOWDataSet extends DataSet {
         int index;
         for (int i = 0; i < words.length; i++) {
             index = getIndexForWord(words[i]);
+            if (index != -1) {
+                for (int j = 0; j < size(); j++) {
+                    ((BOWInstance) data.get(j)).removeWord(index);
+                }
+            }
+        }
+    }
+    
+    @Override
+    public ArrayList<String> getAllFeatureNames() {
+        return getVocabulary();
+    }
+    
+    /**
+     * Removes words from all sparse representations in the corpus. They remain
+     * in the vocabulary.
+     *
+     * @param words ArrayList<String> representing the words to remove.
+     */
+    public void removeWords(ArrayList<String> words) {
+        int index;
+        for (String word: words) {
+            index = getIndexForWord(word);
             if (index != -1) {
                 for (int j = 0; j < size(); j++) {
                     ((BOWInstance) data.get(j)).removeWord(index);

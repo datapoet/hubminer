@@ -47,6 +47,7 @@ import learning.supervised.evaluation.ClassificationEstimator;
 import learning.supervised.evaluation.ValidateableInterface;
 import learning.supervised.interfaces.DistMatrixUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
+import networked_experiments.HMOpenMLConnector;
 import preprocessing.instance_selection.InstanceSelector;
 import preprocessing.instance_selection.ReducersFactory;
 
@@ -61,6 +62,7 @@ import preprocessing.instance_selection.ReducersFactory;
  */
 public class BatchClassifierTester {
 
+    private HMOpenMLConnector openmlConnector;
     // Types of applicable secondary distances.
     public enum SecondaryDistance {
 
@@ -103,6 +105,10 @@ public class BatchClassifierTester {
     // metrics to be used, so this is why it is necessary to explicitly specify
     // a metric for each dataset.
     private ArrayList<CombinedMetric> dsMetric = new ArrayList<>(100);
+    private ArrayList<Integer>[][][] allDataSetFolds;
+    // An alternative specification to the fold specification above, used for
+    // OpenML compatibility.
+    public ArrayList<Integer>[][][][] trainTestIndexes;
     // Folds to use for testing on the dataset.
     private ArrayList<Integer>[][] dsFolds;
     // DataSet objects.
@@ -202,7 +208,7 @@ public class BatchClassifierTester {
      * configuration.
      */
     public void runAllTests() throws Exception {
-        int counter = 0;
+        int datasetIndex = 0;
         DataSet labelCol = null;
         if (multiLabelMode) {
             // Each label array is a column in the label file.
@@ -223,7 +229,7 @@ public class BatchClassifierTester {
         }
         // Iterate over all data representations / datasets.
         for (String dsPath : dsPaths) {
-            cmet = dsMetric.get(counter);
+            cmet = dsMetric.get(datasetIndex);
             File dsFile = new File(dsPath);
             originalDSet = SupervisedLoader.loadData(dsFile, multiLabelMode);
             System.out.println("Testing on: " + dsPath);
@@ -273,7 +279,7 @@ public class BatchClassifierTester {
                 }
             }
             dsFolds = null;
-            if (foldsDir != null) {
+            if (allDataSetFolds == null && foldsDir != null) {
                 File foldsFile = new File(foldsDir,
                         dsFile.getName().substring(0, dsFile.getName().
                         lastIndexOf(".")) + "_cv_" + numTimes + "_" + numFolds +
@@ -283,6 +289,8 @@ public class BatchClassifierTester {
                             foldsFile.getPath());
                     dsFolds = CVFoldsIO.loadAllFolds(foldsFile);
                 }
+            } else {
+                dsFolds = allDataSetFolds[datasetIndex];
             }
             int memCleanCount = 0;
             // Iterate over all the noise and mislabeling rates, for all the
@@ -591,18 +599,18 @@ public class BatchClassifierTester {
                                     }
                                 }
                                 File dMatFile = null;
-                                Class mcClass = originalDSet.getClass();
+                                Class cmetClass = originalDSet.getClass();
                                 if (dMatPath != null && noise == 0) {
                                     dMatFile = new File(distancesDir,
                                             dsFile.getName().substring(0,
                                             dsFile.getName().lastIndexOf(".")) +
                                             File.separator + dMatPath);
-                                    mcClass = Class.forName(dMatFile.
+                                    cmetClass = Class.forName(dMatFile.
                                             getParentFile().getName());
                                 }
                                 if (distMat == null) {
                                     if (dMatFile == null || !dMatFile.exists()
-                                            || !(mcClass.isInstance(
+                                            || !(cmetClass.isInstance(
                                             cmet.getFloatMetric()))) {
                                         System.out.print(
                                                 "Calculating distances-");
@@ -635,6 +643,14 @@ public class BatchClassifierTester {
                                                     currDiscDSet.data,
                                                     discreteArray,
                                                     distMat);
+                                    if (trainTestIndexes == null ||
+                                            trainTestIndexes[datasetIndex] ==
+                                            null) {
+                                        discreteCV.setAllFolds(dsFolds);
+                                    } else {
+                                        discreteCV.setTrainTestIndexes(
+                                                trainTestIndexes[datasetIndex]);
+                                    }
                                 }
                                 nonDiscreteCV =
                                         new MultiCrossValidation(
@@ -644,6 +660,14 @@ public class BatchClassifierTester {
                                                 currDSet,
                                                 currDSet.data,
                                                 nonDiscreteArray, distMat);
+                                if (trainTestIndexes == null ||
+                                            trainTestIndexes[datasetIndex] ==
+                                            null) {
+                                    nonDiscreteCV.setAllFolds(dsFolds);
+                                } else {
+                                    nonDiscreteCV.setTrainTestIndexes(
+                                            trainTestIndexes[datasetIndex]);
+                                }
                             } else {
                                 if (discreteExists) {
                                     discreteCV =
@@ -654,6 +678,14 @@ public class BatchClassifierTester {
                                                     currDiscDSet,
                                                     currDiscDSet.data,
                                                     discreteArray);
+                                    if (trainTestIndexes == null ||
+                                            trainTestIndexes[datasetIndex] ==
+                                            null) {
+                                        discreteCV.setAllFolds(dsFolds);
+                                    } else {
+                                        discreteCV.setTrainTestIndexes(
+                                                trainTestIndexes[datasetIndex]);
+                                    }
                                 }
                                 nonDiscreteCV =
                                         new MultiCrossValidation(
@@ -663,6 +695,14 @@ public class BatchClassifierTester {
                                                 currDSet,
                                                 currDSet.data,
                                                 nonDiscreteArray);
+                                if (trainTestIndexes == null ||
+                                            trainTestIndexes[datasetIndex] ==
+                                            null) {
+                                    nonDiscreteCV.setAllFolds(dsFolds);
+                                } else {
+                                    nonDiscreteCV.setTrainTestIndexes(
+                                            trainTestIndexes[datasetIndex]);
+                                }
                             }
                             // First handle the discretized case.
                             if (discreteExists && discreteCV != null) {
@@ -912,7 +952,7 @@ public class BatchClassifierTester {
                 }
                 distMat = null;
             }
-            counter++;
+            datasetIndex++;
             System.gc();
         }
         if (summaryDir != null) {
@@ -1000,7 +1040,7 @@ public class BatchClassifierTester {
         classifierNames = conf.classifierNames;
         dsPaths = conf.dsPaths;
         dsMetric = conf.dsMetric;
-        dsFolds = conf.dsFolds;
+        allDataSetFolds = conf.allDataSetFolds;
         multiLabelMode = conf.multiLabelMode;
         numDifferentLabelings = conf.numDifferentLabelings;
         lsep = conf.lsep;
@@ -1010,6 +1050,8 @@ public class BatchClassifierTester {
         selectorRate = conf.selectorRate;
         protoHubnessMode = conf.protoHubnessMode;
         numCommonThreads = conf.numCommonThreads;
+        openmlConnector = conf.getOpenMLConnector();
+        trainTestIndexes = conf.trainTestIndexes;
     }
 
     /**

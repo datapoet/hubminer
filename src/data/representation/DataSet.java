@@ -58,6 +58,114 @@ public class DataSet implements Serializable {
     public ArrayList<DataInstance> data;
     private static final int DEFAULT_INIT_CAPACITY = 1000;
     private int initCapacity;
+    
+    /**
+     * This method filters the features in the data and produces a filtered
+     * DataSet.
+     * 
+     * @param dsetAllFeatures DataSet to filter.
+     * @param admissibleFeatures ArrayList<String> of admissible feature names.
+     * @return DataSet that was filtered.
+     */
+    public static DataSet filterData(DataSet dsetAllFeatures,
+            ArrayList<String> admissibleFeatures) throws Exception {
+        ArrayList<Integer> admissibleFloatFeatureIndexes = new ArrayList<>();
+        ArrayList<Integer> admissibleIntegerFeatureIndexes = new ArrayList<>();
+        ArrayList<Integer> admissibleNominalFeatureIndexes = new ArrayList<>();
+        for (String admissibleFeatureName: admissibleFeatures) {
+            int[] featSpecPair = dsetAllFeatures.getTypeAndIndexForAttrName(
+                    admissibleFeatureName);
+            if (featSpecPair[0] == -1 || featSpecPair[1] == -1) {
+                throw new Exception("Specified feature does not exist: " +
+                        admissibleFeatureName);
+            }
+            switch (featSpecPair[0]) {
+                case DataMineConstants.FLOAT:
+                    admissibleFloatFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                case DataMineConstants.INTEGER:
+                    admissibleIntegerFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                case DataMineConstants.NOMINAL:
+                    admissibleNominalFeatureIndexes.add(featSpecPair[1]);
+                    break;
+                default:
+                    throw new Exception(
+                            "Specified feature not of acceptable type: " +
+                            admissibleFeatureName);
+            }
+        }
+        DataSet filteredDataSet = new DataSet();
+        String[] fAttNames = null;
+        String[] iAttNames = null;
+        String[] sAttNames = null;
+        int numFilteredFloats = admissibleFloatFeatureIndexes.size();
+        int numFilteredInts = admissibleIntegerFeatureIndexes.size();
+        int numFilteredNominals = admissibleNominalFeatureIndexes.size();
+        if (numFilteredFloats > 0) {
+            fAttNames = new String[admissibleFloatFeatureIndexes.size()];
+            for (int i = 0; i < numFilteredFloats; i++) {
+                fAttNames[i] = dsetAllFeatures.fAttrNames[
+                        admissibleFloatFeatureIndexes.get(i)];
+            }
+        }
+        if (numFilteredInts > 0) {
+            iAttNames = new String[admissibleIntegerFeatureIndexes.size()];
+            for (int i = 0; i < numFilteredInts; i++) {
+                iAttNames[i] = dsetAllFeatures.iAttrNames[
+                        admissibleIntegerFeatureIndexes.get(i)];
+            }
+        }
+        if (numFilteredNominals > 0) {
+            sAttNames = new String[admissibleNominalFeatureIndexes.size()];
+            for (int i = 0; i < numFilteredNominals; i++) {
+                sAttNames[i] = dsetAllFeatures.sAttrNames[
+                        admissibleNominalFeatureIndexes.get(i)];
+            }
+        }
+        filteredDataSet.fAttrNames = fAttNames;
+        filteredDataSet.iAttrNames = iAttNames;
+        filteredDataSet.sAttrNames = sAttNames;
+        filteredDataSet.data = new ArrayList<>(dsetAllFeatures.size());
+        for (int i = 0; i < dsetAllFeatures.size(); i++) {
+            DataInstance filteredInstance = new DataInstance(filteredDataSet);
+            DataInstance instance = dsetAllFeatures.getInstance(i);
+            for (int attIndex = 0; attIndex < numFilteredFloats; attIndex++) {
+                filteredInstance.fAttr[attIndex] = instance.fAttr[
+                        admissibleFloatFeatureIndexes.get(attIndex)];
+            }
+            for (int attIndex = 0; attIndex < numFilteredInts; attIndex++) {
+                filteredInstance.iAttr[attIndex] = instance.iAttr[
+                        admissibleIntegerFeatureIndexes.get(attIndex)];
+            }
+            for (int attIndex = 0; attIndex < numFilteredNominals; attIndex++) {
+                filteredInstance.sAttr[attIndex] = instance.sAttr[
+                        admissibleNominalFeatureIndexes.get(attIndex)];
+            }
+            filteredInstance.embedInDataset(filteredDataSet);
+            filteredInstance.setCategory(instance.getCategory());
+            filteredDataSet.addDataInstance(filteredInstance);
+        }
+        return filteredDataSet;
+    }
+    
+    /**
+     * @return ArrayList<String> containing all feature names. The ordering is
+     * not guaranteed.
+     */
+    public ArrayList<String> getAllFeatureNames() {
+        ArrayList<String> featureNames = new ArrayList<>();
+        if (fAttrNames != null) {
+            featureNames.addAll(Arrays.asList(fAttrNames));
+        }
+        if (iAttrNames != null) {
+            featureNames.addAll(Arrays.asList(iAttrNames));
+        }
+        if (sAttrNames != null) {
+            featureNames.addAll(Arrays.asList(sAttrNames));
+        }
+        return featureNames;
+    }
 
     /**
      * Makes a cluster that contains all data in this DataSet.

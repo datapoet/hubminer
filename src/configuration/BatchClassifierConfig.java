@@ -17,11 +17,14 @@
 package configuration;
 
 import com.google.gson.Gson;
+import data.representation.DataSet;
+import data.representation.sparse.BOWDataSet;
 import distances.primary.CombinedMetric;
 import distances.primary.DistanceMeasure;
 import distances.sparse.SparseCombinedMetric;
 import distances.sparse.SparseMetric;
 import ioformat.FileUtil;
+import ioformat.IOARFF;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,8 +33,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.evaluation.cv.BatchClassifierTester;
+import learning.supervised.evaluation.cv.CVFoldsIO;
 import learning.supervised.evaluation.cv.MultiCrossValidation;
+import networked_experiments.DataFromOpenML;
+import networked_experiments.HMOpenMLConnector;
 import preprocessing.instance_selection.InstanceSelector;
 import preprocessing.instance_selection.ReducersFactory;
 import util.ReaderToStringUtil;
@@ -53,6 +60,13 @@ public class BatchClassifierConfig {
     public BatchClassifierConfig() {
     }
     
+    private String openmlUsername;
+    private String openmlPassword;
+    public ArrayList<Integer> openMLTaskIDList = new ArrayList<>();
+    public ArrayList<String> openMLTaskDataSetNameList = new ArrayList<>();
+    public ArrayList<Integer> openMLTaskDataIndex = new ArrayList<>();
+    public HashMap<Integer, Integer> dataIndexToOpenMLCounterMap =
+            new HashMap<>();
     public BatchClassifierTester.SecondaryDistance secondaryDistanceType =
             BatchClassifierTester.SecondaryDistance.NONE;
     public int secondaryDistanceK = 50;
@@ -69,13 +83,17 @@ public class BatchClassifierConfig {
             mlWeightsDir, foldsDir;
     public ArrayList<String> classifierNames = new ArrayList<>(10);
     // List of paths to the datasets that the experiment is to be executed on.
+    // In the OpenML mode, the data is saved to these paths prior to using it.
     public ArrayList<String> dsPaths = new ArrayList<>(100);
     // List of CombinedMetric objects for distance calculations that correspond
     // to different datasets. Different datasets might require different
     // metrics to be used, so this is why it is necessary to explicitly specify
     // a metric for each dataset.
     public ArrayList<CombinedMetric> dsMetric = new ArrayList<>(100);
-    public ArrayList<Integer>[][] dsFolds;
+    public ArrayList<Integer>[][][] allDataSetFolds;
+    // An alternative specification to the fold specification above, used for
+    // OpenML compatibility.
+    public ArrayList<Integer>[][][][] trainTestIndexes;
     // Whether we are in the multi-label experimental mode, where we are testing
     // different representations of the same underlying dataset that has
     // multiple label distributions / classification problems defined on top.
@@ -98,6 +116,36 @@ public class BatchClassifierConfig {
     public int protoHubnessMode = MultiCrossValidation.PROTO_UNBIASED;
     // The number of threads used for distance matrix and kNN set calculations.
     public int numCommonThreads = 8;
+    
+    /**
+     * Check whether a dataset that is listed is an openML task or an ordinary
+     * local dataset. The index that is given as a parameter is the index of
+     * the dataset in the list of datasets parsed from the configuration file.
+     * 
+     * @param datasetIndex Integer that is the index of the dataset in the list
+     * of datasets parsed from the configuration file.
+     * @return True if the corresponding dataset is of OpenML variety or false
+     * if it is a local dataset.
+     */
+    public boolean dataIndexIsForOpenML(int datasetIndex) {
+        if (dataIndexToOpenMLCounterMap != null) {
+            return dataIndexToOpenMLCounterMap.containsKey(datasetIndex);
+        } else {
+            return false;
+        }
+    }
+    
+    /**
+     * @return OpenMLConnector object corresponding to the provided
+     * authentication specification.
+     */
+    public HMOpenMLConnector getOpenMLConnector() {
+        if (openmlUsername != null && openmlPassword != null) {
+            return new HMOpenMLConnector(openmlUsername, openmlPassword);
+        } else {
+            return null;
+        }
+    }
     
     /**
      * This method prints the classification configuration to a Json string.
@@ -181,6 +229,7 @@ public class BatchClassifierConfig {
             Class currIntMetric;
             Class currFloatMetric;
             // Go through the configuration file.
+            int dataIndex = -1;
             while (s != null) {
                 s = s.trim();
                 if (s.startsWith("@algorithm")) {
@@ -188,6 +237,54 @@ public class BatchClassifierConfig {
                     lineItems = s.split("\\s+");
                     classifierNames.add(lineItems[1]);
                     System.out.println("Preparing to test " + lineItems[1]);
+                } else if (s.startsWith("@openml_authentication")) {
+                    // Specification of OpenML authentication.
+                    lineItems = s.split("\\s+");
+                    openmlUsername = lineItems[1];
+                    openmlPassword = lineItems[2];
+                } else if (s.startsWith("@openml_task")) {
+                    dataIndex++;
+                    // Specification of an OpenML task. The first parameters is
+                    // the path to where the dataset is to be persisted, that is
+                    // fetched via the OpenML connection. The second and the
+                    // third parameter correspond to integer and float metrics,
+                    // as usual. The fourth and the last parameter is the actual
+                    // task ID from OpenML, used to identify the data and fetch
+                    // the data and the folds.
+                    lineItems = s.split("\\s+");
+                    dsPaths.add(lineItems[1]);
+                    if (lineItems[1].startsWith("sparse:")) {
+                        // Sparse datasets in the sparse format should be
+                        // precluded with "sparse:".
+                        // The second item is the SparseMetric specification.
+                        SparseCombinedMetric smc = new SparseCombinedMetric(
+                                null, null, (SparseMetric) (
+                                Class.forName(lineItems[2]).newInstance()),
+                                CombinedMetric.DEFAULT);
+                        dsMetric.add(smc);
+                    } else {
+                        // The second item is the CombinedMetric specification.
+                        CombinedMetric dsCmet = new CombinedMetric();
+                        if (!lineItems[2].equals("null")) {
+                            currIntMetric = Class.forName(lineItems[3]);
+                            dsCmet.setIntegerMetric((DistanceMeasure)
+                                    (currIntMetric.newInstance()));
+                        }
+                        if (!lineItems[3].equals("null")) {
+                            currFloatMetric = Class.forName(lineItems[3]);
+                            dsCmet.setFloatMetric((DistanceMeasure)
+                                    (currFloatMetric.newInstance()));
+                        }
+                        dsCmet.setCombinationMethod(CombinedMetric.DEFAULT);
+                        dsMetric.add(dsCmet);
+                    }
+                    int taskId = Integer.parseInt(lineItems[4]);
+                    openMLTaskIDList.add(taskId);
+                    openMLTaskDataIndex.add(dataIndex);
+                    openMLTaskDataSetNameList.add(getOpenMLConnector().
+                            getDataSetNameForTaskID(taskId));
+                    dataIndexToOpenMLCounterMap.put(dataIndex,
+                            openMLTaskIDList.size() - 1);
                 } else if (s.startsWith("@cross_validation")) {
                     // Specify the number of times and folds.
                     lineItems = s.split("\\s+");
@@ -364,6 +461,7 @@ public class BatchClassifierConfig {
                     lineItems = s.split("\\s+");
                     numCommonThreads = Integer.parseInt(lineItems[1]);
                 } else if (s.startsWith("@dataset")) {
+                    dataIndex++;
                     // Dataset specification.
                     lineItems = s.split("\\s+");
                     dsPaths.add(lineItems[1]);
@@ -410,6 +508,53 @@ public class BatchClassifierConfig {
                             dsPaths.get(i).substring(
                             dsPaths.get(i).indexOf(":") + 1,
                             dsPaths.get(i).length()))).getPath());
+                }
+            }
+            // If the data source is an OpenML data source, we fetch the data
+            // here and save it to the specified path as ARFF, so that it can
+            // be loaded later into the cross-validation batch experimentational
+            // framework.
+            trainTestIndexes = new ArrayList[dsPaths.size()][][][];
+            if (dataIndexToOpenMLCounterMap.containsKey(dataIndex)) {
+                HMOpenMLConnector openMLProxy = getOpenMLConnector();
+                int openMLArrIndex = dataIndexToOpenMLCounterMap.get(dataIndex);
+                int taskID = openMLTaskIDList.get(openMLArrIndex);
+                DataFromOpenML openMLData = openMLProxy.fetchExperimentData(
+                        taskID);
+                DataSet dset = openMLData.filteredDSet;
+                trainTestIndexes[dataIndex] = openMLData.trainTestIndexes;
+                String dataSavePath =
+                        dsPaths.get(dataIndex).startsWith("sparse:") ?
+                        dsPaths.get(dataIndex).substring(7) :
+                        dsPaths.get(dataIndex);
+                IOARFF saver = new IOARFF();
+                if (dsPaths.get(dataIndex).startsWith("sparse:")) {
+                    saver.saveSparseLabeled((BOWDataSet) dset, dataSavePath);
+                    System.out.println("Data downloaded to: " + dataSavePath);
+                } else {
+                    saver.saveLabeled(dset, dataSavePath);
+                    System.out.println("Data downloaded to: " + dataSavePath);
+                }
+            }
+            allDataSetFolds = new ArrayList[dsPaths.size()][][];
+            if (foldsDir != null) {
+                int datasetIndex = -1;
+                for (String dsPath : dsPaths) {
+                    datasetIndex++;
+                    if (!dataIndexIsForOpenML(datasetIndex)) {
+                        File dsFile = new File(dsPath);
+                        File foldsFile = new File(foldsDir,
+                                dsFile.getName().substring(0, dsFile.getName().
+                                lastIndexOf(".")) + "_cv_" + numTimes + "_" +
+                                numFolds + ".json");
+                        if (foldsFile.exists()) {
+                            System.out.println(
+                                    "Loading the existing folds from: " +
+                                    foldsFile.getPath());
+                            allDataSetFolds[datasetIndex] =
+                                    CVFoldsIO.loadAllFolds(foldsFile);
+                        }
+                    }
                 }
             }
         } catch (Exception e) {

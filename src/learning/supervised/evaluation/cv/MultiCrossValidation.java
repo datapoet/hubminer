@@ -117,6 +117,11 @@ public class MultiCrossValidation {
     private ArrayList<Integer>[] foldIndexes = null;
     private ArrayList<Integer> currentTrainingIndexes;
     private ArrayList<Integer> currentTestIndexes;
+    // This is used for external train/test index setting for OpenML
+    // compatibility. In that case, the generated or disk-loaded folds are not
+    // used, but ignored. The 0th index of trainTestIndexes[i][j] contains
+    // i-times j-fold train indexes and the 1st index contains the test indexes.
+    private ArrayList<Integer>[][][] trainTestIndexes;
     // In case of instance selection.
     private ArrayList<Integer> currentPrototypeIndexes;
     // A separate label array is kept to be used in case of mislabeling data
@@ -286,6 +291,52 @@ public class MultiCrossValidation {
         execTimeTotal = new double[classifiers.length];
         this.numClasses = numClasses;
         this.totalDistMat = totalDistMat;
+    }
+    
+    /**
+     * This method sets the train/test indexes explicitly and is used for OpenML
+     * compatibility. It should not be used otherwise, but standard split/fold
+     * configurations should be provided, as that is a more fine-grained control
+     * of what goes on in cross-validation. This explicit train/test
+     * specification might be more flexible, but also allows some less favorable
+     * configurations if no checks are performed.
+     * 
+     * @param trainTestIndexes ArrayList<Integer>[][][] representing the train
+     * and test index lists for all repetitions and folds.
+     */
+    public void setTrainTestIndexes(ArrayList<Integer>[][][] trainTestIndexes) {
+        this.trainTestIndexes = trainTestIndexes;
+    }
+    
+    /**
+     * This method gives the used train and test indexes, if the folds have been
+     * tracked or the train/test configuration was set externally.
+     * 
+     * @return ArrayList<Integer>[][][] that are the train / test indexes.
+     */
+    public ArrayList<Integer>[][][] getTrainTestIndexes() {
+        if (trainTestIndexes == null && allFolds != null) {
+            trainTestIndexes = new ArrayList[times][numFolds][2];
+            for (int i = 0; i < times; i++) {
+                for (int j = 0; j < numFolds; j++) {
+                    trainTestIndexes[i][j][0] = new ArrayList<>();
+                    trainTestIndexes[i][j][1] = new ArrayList<>();
+                }
+            }
+            for (int i = 0; i < times; i++) {
+                for (int j = 0; j < numFolds; j++) {
+                    // Test indexes.
+                    trainTestIndexes[i][j][1] = allFolds[i][j];
+                    for (int k = 0; k < j; k++) {
+                        trainTestIndexes[i][j][0].addAll(allFolds[i][j]);
+                    }
+                    for (int k = j + 1; k < numFolds; k++) {
+                        trainTestIndexes[i][j][0].addAll(allFolds[i][j]);
+                    }
+                }
+            }
+        }
+        return trainTestIndexes;
     }
     
     /**
@@ -873,16 +924,23 @@ public class MultiCrossValidation {
             // Now go through all the folds.
             for (int j = 0; j < numFolds; j++) { 
                 // Create the training and test data structures.
-                currentTestIndexes = foldIndexes[j];
-                currentTraining = new ArrayList();
-                currentTrainingIndexes = new ArrayList();
-                for (int k = 0; k < j; k++) {
-                    currentTraining.addAll(dataFolds[k]);
-                    currentTrainingIndexes.addAll(foldIndexes[k]);
-                }
-                for (int k = j + 1; k < numFolds; k++) {
-                    currentTraining.addAll(dataFolds[k]);
-                    currentTrainingIndexes.addAll(foldIndexes[k]);
+                if (trainTestIndexes == null) {
+                    currentTestIndexes = foldIndexes[j];
+                    currentTraining = new ArrayList();
+                    currentTrainingIndexes = new ArrayList();
+                    for (int k = 0; k < j; k++) {
+                        currentTraining.addAll(dataFolds[k]);
+                        currentTrainingIndexes.addAll(foldIndexes[k]);
+                    }
+                    for (int k = j + 1; k < numFolds; k++) {
+                        currentTraining.addAll(dataFolds[k]);
+                        currentTrainingIndexes.addAll(foldIndexes[k]);
+                    }
+                } else {
+                    currentTrainingIndexes = trainTestIndexes[i][j][0];
+                    currentTestIndexes = trainTestIndexes[i][j][1];
+                    currentTraining = new ArrayList();
+                    currentTraining.addAll(currentTrainingIndexes);
                 }
                 float[][] foldDistMatrix = null;
                 float[][] pointDistances = null;
@@ -1100,11 +1158,14 @@ public class MultiCrossValidation {
                             for (int indexFirst = 0; indexFirst <
                                     currentTestIndexes.size(); indexFirst++) {
                                 for (int indexSecond = 0; indexSecond <
-                                        trainingIndexesReArr.size(); indexSecond++) {
+                                        trainingIndexesReArr.size();
+                                        indexSecond++) {
                                     firstInstance = (DataInstance) (data.get(
-                                            currentTestIndexes.get(indexFirst)));
+                                            currentTestIndexes.get(
+                                            indexFirst)));
                                     secondInstance = (DataInstance) (data.get(
-                                            trainingIndexesReArr.get(indexSecond)));
+                                            trainingIndexesReArr.get(
+                                            indexSecond)));
                                     pointDistances[indexFirst][indexSecond] =
                                             snc.dist(firstInstance,
                                             secondInstance, pointNeighborsSec[
@@ -1146,12 +1207,14 @@ public class MultiCrossValidation {
                             for (int indexFirst = 0; indexFirst <
                                     currentTestIndexes.size(); indexFirst++) {
                                 for (int indexSecond = 0; indexSecond <
-                                        trainingIndexesReArr.size(); indexSecond++) {
+                                        trainingIndexesReArr.size();
+                                        indexSecond++) {
                                     firstInstance = (DataInstance) (data.get(
                                             currentTestIndexes.get(
                                             indexFirst)));
                                     secondInstance = (DataInstance) (data.get(
-                                            trainingIndexesReArr.get(indexSecond)));
+                                            trainingIndexesReArr.get(
+                                            indexSecond)));
                                     int[] firstNeighbors = pointNeighborsSec[
                                             indexFirst];
                                     float[] kDistsFirst = new float[secondaryK];

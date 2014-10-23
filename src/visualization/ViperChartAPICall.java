@@ -54,6 +54,7 @@ public class ViperChartAPICall {
     private float[] recallValues;
     private float[] fprValues;
     private float[] tprValues;
+    private boolean openInBrowser = false;
     
     static {
         chartTypeToStringMap = new HashMap<>();
@@ -100,6 +101,14 @@ public class ViperChartAPICall {
     }
     
     /**
+     * @param openInBrowser Boolean flag indicating whether to open the received
+     * link in a browser.
+     */
+    public void openInBrowser(boolean openInBrowser) {
+        this.openInBrowser = openInBrowser;
+    }
+    
+    /**
      * This method makes the API call for the specified chart type.
      * 
      * @param cType ChartType to be calculated by ViperCharts.
@@ -109,8 +118,10 @@ public class ViperChartAPICall {
      */
     public String generateChartForType(ChartType cType) throws Exception {
         int numAlgs = algorithmNames.size();
-        JSONObject jobj = new JSONObject();
-        jobj.put("chart", chartTypeToStringMap.get(cType));
+        JSONObject jObj = new JSONObject();
+        jObj.put("chart", chartTypeToStringMap.get(cType));
+        jObj.put("legend", "true");
+        jObj.put("embedded", "false");
         List jList = new ArrayList();
         if (cType == ChartType.PR_SPACE) {
             for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
@@ -137,8 +148,8 @@ public class ViperChartAPICall {
                 jMap.put("actual", binaryDataLabels);
             }
         }
-        jobj.put("data", jList);
-        final String jsonStringRep = jobj.toString();
+        jObj.put("data", jList);
+        final String jsonStringRep = jObj.toString();
         System.out.println("Sending the following JSON request:" +
                 jsonStringRep);
         byte[] jsonBytes = jsonStringRep.getBytes();
@@ -162,6 +173,15 @@ public class ViperChartAPICall {
             resultString = br.readLine();
         }
         System.out.println("Server response: " + resultString);
+        if (openInBrowser) {
+            Gson gson = new Gson();
+            HashMap responseMap = gson.fromJson(resultString, HashMap.class);
+            if (responseMap.containsKey("url")) {
+                String resultUrl = (String) responseMap.get("url");
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create(
+                    resultUrl));
+            }
+        }
         return resultString;
     }
     
@@ -219,6 +239,8 @@ public class ViperChartAPICall {
                 CommandLineParser.STRING, true, false);
         clp.addParam("-positiveClassIndex", "Index of the positive class.",
                 CommandLineParser.INTEGER, true, false);
+        clp.addParam("-openInBrowser", "Whether to open the link immediately.",
+                CommandLineParser.BOOLEAN, false, false);
         clp.parseLine(args);
         DataSet dset = SupervisedLoader.loadData((String) clp.getParamValues(
                 "-inDataFile").get(0), false);
@@ -227,14 +249,20 @@ public class ViperChartAPICall {
                     "-positiveClassIndex").get(0);
         int numClasses = dset.countCategories();
         int numAlgs = clp.getParamValues("-inAlgorithmDir").size();
+        boolean openInBrowser = false;
+        if (clp.getParamValues("-openInBrowser") != null &&
+                clp.getParamValues("-openInBrowser").size() > 0) {
+            openInBrowser = (Boolean)
+                    clp.getParamValues("-openInBrowser").get(0);
+        }
         File[] algDirs = new File[numAlgs];
         ArrayList<String> algNames = new ArrayList<>(numAlgs);
         ArrayList<float[]> predictedDataLabels = new ArrayList<>(numAlgs);
         int[] classFreqs = dset.getClassFrequencies();
-        float precisionValue = 0;
-        float recallValue = 0;
-        float fprValue = 0;
-        float tprValue = 0;
+        float precisionValue;
+        float recallValue;
+        float fprValue;
+        float tprValue;
         float[] precisionValues = new float[numAlgs];
         float[] recallValues = new float[numAlgs];
         float[] fprValues = new float[numAlgs];
@@ -310,6 +338,7 @@ public class ViperChartAPICall {
         if (chartStringToTypeMap.containsKey(chartTypeStringCode)) {
             cType = chartStringToTypeMap.get(chartTypeStringCode);
         }
+        viperProxy.openInBrowser(openInBrowser);
         viperProxy.generateChartForType(cType);
     }
 }
