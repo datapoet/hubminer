@@ -17,6 +17,7 @@
 package configuration;
 
 import com.google.gson.Gson;
+import com.google.inject.TypeLiteral;
 import data.representation.DataSet;
 import data.representation.sparse.BOWDataSet;
 import distances.primary.CombinedMetric;
@@ -34,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import learning.supervised.evaluation.cv.BatchClassifierTester;
 import learning.supervised.evaluation.cv.CVFoldsIO;
 import learning.supervised.evaluation.cv.MultiCrossValidation;
@@ -87,7 +89,10 @@ public class BatchClassifierConfig {
             mlMax = 0, mlStep = 1;
     public File inDir, outDir, summaryDir, inLabelFile, distancesDir,
             mlWeightsDir, foldsDir;
+    // Algorithm names.
     public ArrayList<String> classifierNames = new ArrayList<>(10);
+    // Possible parameter value maps to use with certain algorithms.
+    public HashMap<String, HashMap<String, Object>> algorithmParametrizationMap;
     // List of paths to the datasets that the experiment is to be executed on.
     // In the OpenML mode, the data is saved to these paths prior to using it.
     public ArrayList<String> dsPaths = new ArrayList<>(100);
@@ -228,6 +233,7 @@ public class BatchClassifierConfig {
      * @throws Exception 
      */
     public void loadParameters(File inConfigFile) throws Exception {
+        algorithmParametrizationMap = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 new FileInputStream(inConfigFile)));) {
             String s = br.readLine();
@@ -243,6 +249,24 @@ public class BatchClassifierConfig {
                     lineItems = s.split("\\s+");
                     classifierNames.add(lineItems[1]);
                     System.out.println("Preparing to test " + lineItems[1]);
+                    // If there is one more field, it is a JSON specification of
+                    // the parameters to use along with the algorithm.
+                    if (lineItems.length > 2) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 2; i < lineItems.length - 1; i++) {
+                            sb.append(lineItems[i]);
+                            sb.append(" ");
+                        }
+                        sb.append(lineItems[lineItems.length - 1]);
+                        Gson gson = new Gson();
+                        HashMap<String, Object> paramValuesMap =
+                                gson.fromJson(sb.toString(),
+                                new TypeLiteral<HashMap<String, Object>>() {
+                                }.getType());
+                        algorithmParametrizationMap.put(
+                                classifierNames.get(
+                                classifierNames.size() - 1), paramValuesMap);
+                    }
                 } else if (s.startsWith("@hubminer_source_directory")) {
                     lineItems = s.split("\\s+");
                     hubMinerSourceDir = new File(lineItems[1]);

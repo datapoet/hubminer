@@ -25,6 +25,7 @@ import distances.kernel.MinKernel;
 import distances.primary.CombinedMetric;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -69,6 +70,17 @@ public class KernelGHPKM extends ClusteringAlg implements
     boolean history = false;
     private ArrayList<int[]> historyIndexArrayList;
     private ArrayList<DataInstance[]> historyDIArrayList;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("unsupervisedHubness", "If true, total neighbor occurrence"
+                + "frequencies are used for deriving the weights. If false,"
+                + "class-conditional occurrences are also taken into account.");
+        paramMap.put("ker", "Kernel.");
+        return paramMap;
+    }
 
     public KernelGHPKM() {
     }

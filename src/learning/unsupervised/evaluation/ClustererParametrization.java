@@ -14,34 +14,33 @@
 * You should have received a copy of the GNU General Public License along with
 * this program. If not, see <http://www.gnu.org/licenses/>.
 */
-package learning.supervised.evaluation;
+package learning.unsupervised.evaluation;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import learning.unsupervised.ClusteringAlg;
 
 /**
- * This class lists and sets the parameter values for classification algorithms.
- * 
+ * This class lists and sets the parameter values for clustering algorithms.
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class ClassifierParametrization {
-    
+public class ClustererParametrization {
     /**
      * This method gets a HashMap containing the values of parameters used in
-     * a particular classifier.
+     * a particular clustering algorithm.
      * 
-     * @param classifier ValidateableInterface classifier to get the values for.
+     * @param clusterer ClusteringAlg to get the values for.
      * @return HashMap<String, Object> representing the classifier parameter
      * values.
      */
-    public static HashMap<String, Object> getClassifierParameterValues(
-            ValidateableInterface classifier) {
-        Class clClass = classifier.getClass();
+    public static HashMap<String, Object> getClustererParameterValues(
+            ClusteringAlg clusterer) {
+        Class clClass = clusterer.getClass();
         HashMap<String, String> paramNameDescMap =
-                classifier.getParameterNamesAndDescriptions();
+                clusterer.getParameterNamesAndDescriptions();
         Set<String> paramNames = paramNameDescMap.keySet();
         HashMap<String, Object> paramNameValueMap =
                 new HashMap<>(paramNames.size());
@@ -49,7 +48,7 @@ public class ClassifierParametrization {
             try {
                 Field fld = clClass.getDeclaredField(paramName);
                 fld.setAccessible(true);
-                Object fieldValue = fld.get(classifier);
+                Object fieldValue = fld.get(clusterer);
                 paramNameValueMap.put(paramName, fieldValue);
             } catch (NoSuchFieldException | SecurityException |
                     IllegalAccessException e) {
@@ -57,12 +56,12 @@ public class ClassifierParametrization {
             }
         }
         // Handle the metrics, as they are not explicitly specified by
-        // individual classifier objects in parameter lists, since they are the
-        // parameter of the base classifier class.
+        // individual clusterer objects in parameter lists, since they are the
+        // parameter of the base clusterer class.
         try {
             Field fld = clClass.getSuperclass().getDeclaredField("cmet");
             fld.setAccessible(true);
-            Object fieldValue = fld.get(classifier);
+            Object fieldValue = fld.get(clusterer);
             paramNameValueMap.put("cmet", fieldValue);
         } catch (NoSuchFieldException | SecurityException |
                     IllegalAccessException e) {
@@ -73,16 +72,16 @@ public class ClassifierParametrization {
     
     /**
      * This method gets a HashMap containing the values of parameters used in
-     * a particular classifier, as strings.
+     * a particular clusterer, as strings.
      * 
-     * @param classifier ValidateableInterface classifier to get the values for.
-     * @return HashMap<String, Object> representing the classifier parameter
+     * @param clusterer ClusteringAlg to get the values for.
+     * @return HashMap<String, Object> representing the clusterer parameter
      * values.
      */
-    public static HashMap<String, String> getClassifierParameterStringValues(
-            ValidateableInterface classifier) {
+    public static HashMap<String, String> getClustererParameterStringValues(
+            ClusteringAlg clusterer) {
         HashMap<String, Object> paramValueMap =
-                getClassifierParameterValues(classifier);
+                getClustererParameterValues(clusterer);
         HashMap<String, String> paramStringValueMap = new HashMap<>();
         if (paramValueMap == null || paramValueMap.isEmpty()) {
             return paramStringValueMap;
@@ -96,24 +95,23 @@ public class ClassifierParametrization {
     }
     
     /**
-     * This method sets the provided parameter values to a classifier. It throws
+     * This method sets the provided parameter values to a clusterer. It throws
      * an Exception if a wrong parameter name is provided, which does not exist
      * in the implementation.
      * 
-     * @param classifier ValidateableInterface that is the classifier to set the
-     * parameter values to.
+     * @param clusterer ClusteringAlg to get the values for.
      * @param paramValuesMap HashMap<String, Object> that maps the parameter
-     * values to set to the classifier.
+     * values to set to the clusterer.
      */
-    public static void setParameterValuesToClassifier(
-            ValidateableInterface classifier,
+    public static void setParameterValuesToClusterer(
+            ClusteringAlg clusterer,
             HashMap<String, Object> paramValuesMap)
             throws NoSuchFieldException, IllegalArgumentException,
             IllegalAccessException {
-        if (classifier == null || paramValuesMap == null) {
+        if (clusterer == null || paramValuesMap == null) {
             return;
         }
-        Class clClass = classifier.getClass();
+        Class clClass = clusterer.getClass();
         Set<String> paramNames = paramValuesMap.keySet();
         for (String paramName: paramNames) {
             Object paramValue = paramValuesMap.get(paramName);
@@ -125,7 +123,7 @@ public class ClassifierParametrization {
                             paramValue.getClass().equals(
                             Class.forName("java.lang.Double"))) {
                         float fValue = ((Double) paramValue).floatValue();
-                        fld.set(classifier, fValue);
+                        fld.set(clusterer, fValue);
                     } else if (fld.getType().equals(Integer.TYPE) &&
                             (paramValue.getClass().equals(
                             Class.forName("java.lang.Double")) ||
@@ -133,13 +131,13 @@ public class ClassifierParametrization {
                             Class.forName("java.lang.Float")))) {
                         int iValue = Math.round(
                                 ((Double) paramValue).floatValue());
-                        fld.set(classifier, iValue);
+                        fld.set(clusterer, iValue);
                     } else {
-                        fld.set(classifier, paramValue);
+                        fld.set(clusterer, paramValue);
                     }
                 } catch (ClassNotFoundException ex) {
                     Logger.getLogger(
-                            ClassifierParametrization.class.getName()).log(
+                            ClustererParametrization.class.getName()).log(
                             Level.SEVERE, null, ex);
                 }
             }

@@ -22,6 +22,7 @@ import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
 import learning.unsupervised.initialization.PlusPlusSeeder;
@@ -46,6 +47,12 @@ public class KMeansPlusPlus extends ClusteringAlg {
     // When the change in calculateIterationError falls below a threshold, we
     // declare convergence and end the clustering run.
     private static final double ERROR_THRESHOLD = 0.001;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
 
     /**
      * Empty constructor.

@@ -16,6 +16,7 @@
 */
 package distances.kernel;
 
+import com.google.gson.Gson;
 import data.representation.DataInstance;
 import data.representation.sparse.BOWInstance;
 import java.util.HashMap;
@@ -61,5 +62,15 @@ public abstract class Kernel {
         } else {
             return dot(firstInstance.fAttr, secondInstance.fAttr);
         }
+    }
+    
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getClass().getCanonicalName());
+        sb.append(":");
+        sb.append(gson.toJson(this, this.getClass()));
+        return sb.toString();
     }
 }

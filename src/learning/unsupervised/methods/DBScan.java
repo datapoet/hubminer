@@ -23,6 +23,7 @@ import data.representation.DataSet;
 import distances.primary.CombinedMetric;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Stack;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -54,6 +55,15 @@ public class DBScan extends ClusteringAlg implements
     private float epsilonNeighborhoodDist = Float.MAX_VALUE;
     // Noise percentage should be carefully set.
     private float noisePerc = 0.15f;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("minPoints", "Minimal number of points in a neighborhood"
+                + "so that the point is not considered to be noise.");
+        return paramMap;
+    }
 
     /**
      * This method searches for a good parameter configuration. This is achieved

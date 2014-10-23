@@ -17,6 +17,7 @@
 package configuration;
 
 import com.google.gson.Gson;
+import com.google.inject.TypeLiteral;
 import distances.kernel.Kernel;
 import distances.primary.CombinedMetric;
 import distances.primary.DistanceMeasure;
@@ -32,6 +33,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.evaluation.cv.BatchClassifierTester;
 import learning.unsupervised.evaluation.BatchClusteringTester;
 import util.ReaderToStringUtil;
@@ -63,7 +65,10 @@ public class BatchClusteringConfig {
     public int timesOnDataSet = 30;
     // The preferred number of iterations, where applicable.
     public int minIter;
+    // Names of clustering algorithms to use.
     public ArrayList<String> clustererNames = new ArrayList<>(10);
+    // Possible parameter value maps to use with certain algorithms.
+    public HashMap<String, HashMap<String, Object>> algorithmParametrizationMap;
     // The experimental neighborhood range, with default values.
     public int kMin = 5, kMax = 5, kStep = 1;
     // Noise and mislabeling experimental ranges, with default values.
@@ -171,7 +176,7 @@ public class BatchClusteringConfig {
             String[] lineParse;
             Class currIntMet;
             Class currFloatMet;
-
+            algorithmParametrizationMap = new HashMap<>();
             while (s != null) {
                 s = s.trim();
                 if (s.startsWith("@algorithm")) {
@@ -179,7 +184,25 @@ public class BatchClusteringConfig {
                     // defining multiple algorithms for comparisons.
                     lineParse = s.split(" ");
                     clustererNames.add(lineParse[1].toLowerCase());
-                    System.out.println("Gonna test " + lineParse[1]);
+                    System.out.print("Gonna test " + lineParse[1]);
+                    // If there is one more field, it is a JSON specification of
+                    // the parameters to use along with the algorithm.
+                    if (lineParse.length > 2) {
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 2; i < lineParse.length - 1; i++) {
+                            sb.append(lineParse[i]);
+                            sb.append(" ");
+                        }
+                        sb.append(lineParse[lineParse.length - 1]);
+                        Gson gson = new Gson();
+                        HashMap<String, Object> paramValuesMap =
+                                gson.fromJson(sb.toString(),
+                                new TypeLiteral<HashMap<String, Object>>() {
+                                }.getType());
+                        algorithmParametrizationMap.put(
+                                clustererNames.get(
+                                clustererNames.size() - 1), paramValuesMap);
+                    }
                 } else if (s.startsWith("@in_directory")) {
                     // Directory containing the datasets to be clustered.
                     lineParse = s.split("\\s+");

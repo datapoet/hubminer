@@ -50,6 +50,10 @@ import distances.secondary.MutualProximityCalculator;
 import distances.secondary.NICDMCalculator;
 import distances.secondary.snd.SharedNeighborCalculator;
 import ioformat.DistanceMatrixIO;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import learning.supervised.evaluation.cv.BatchClassifierTester.SecondaryDistance;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClustererFactory;
@@ -100,6 +104,8 @@ public class BatchClusteringTester {
     // The preferred number of iterations, where applicable.
     private int minIter;
     private ArrayList<String> clustererNames = new ArrayList<>(10);
+    // Possible parameter value maps to use with certain algorithms.
+    public HashMap<String, HashMap<String, Object>> algorithmParametrizationMap;
     // The experimental neighborhood range, with default values.
     private int kMin = 5, kMax = 5, kStep = 1;
     private int kGenMin = 1;
@@ -450,9 +456,17 @@ public class BatchClusteringTester {
                             new ArrayList<>(20);
                     for (int i = 0; i < clustererNames.size(); i++) {
                         String cName = clustererNames.get(i);
-                        ClusteringAlg cInstance = getClustererForName(
-                                cName, currDSet, i, kMin, distMat,
-                                null, null, null, numCategories);
+                        ClusteringAlg cInstance;
+                        if (algorithmParametrizationMap.containsKey(cName)) {
+                            cInstance = getClustererForName(
+                                    cName, currDSet, i, kMin, distMat,
+                                    null, null, null, numCategories,
+                                    algorithmParametrizationMap.get(cName));
+                        } else {
+                            cInstance = getClustererForName(
+                                    cName, currDSet, i, kMin, distMat,
+                                    null, null, null, numCategories, null);
+                        }
                         if (discrete[i]) {
                             discreteAlgs.add(cInstance);
                         } else {
@@ -1475,10 +1489,13 @@ public class BatchClusteringTester {
                                     new Thread[clustererNames.size()];
                             for (int i = 0; i < clustererNames.size(); i++) {
                                 String cName = clustererNames.get(i);
+                                // No need to set the additional parameters,
+                                // this auxiliary variable is just set for
+                                // interface implementation checks.
                                 ClusteringAlg cTemp = getClustererForName(
                                         cName, trainingSet, i, k, trainingDist,
                                         nsf, trainingKernelMat, nsfKernel,
-                                        numCategories);
+                                        numCategories, null);
                                 globalIterationCounter = 0;
                                 System.out.println();
                                 if ((cTemp instanceof NSFUserInterface)
@@ -1629,6 +1646,8 @@ public class BatchClusteringTester {
      * @param trainingKernelMat Kernel matrix.
      * @param nsfKernel Kernel kNN object.
      * @param numClusters Number of clusters.
+     * @param algorithmParametrization HashMap<String, Object> representing
+     * additional parameter values to set to the clusterer.
      * @return
      */
     public ClusteringAlg getClustererForName(
@@ -1640,10 +1659,22 @@ public class BatchClusteringTester {
             NeighborSetFinder nsf,
             float[][] trainingKernelMat,
             NeighborSetFinder nsfKernel,
-            int nClust) {
+            int nClust,
+            HashMap<String, Object> algorithmParametrization) {
         discrete[index] = false;
-        return ClustererFactory.getClustererForName(cName, dset, k, distMat,
-                nsf, trainingKernelMat, nsfKernel, nClust, currCmet, ker);
+        ClusteringAlg clusterer = ClustererFactory.getClustererForName(
+                cName, dset, k, distMat, nsf, trainingKernelMat, nsfKernel,
+                nClust, currCmet, ker);
+        try {
+            ClustererParametrization.setParameterValuesToClusterer(clusterer,
+                    algorithmParametrization);
+        } catch (NoSuchFieldException | IllegalArgumentException |
+                IllegalAccessException ex) {
+            Logger.getLogger(
+                    BatchClusteringTester.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        return clusterer;
     }
     
     /**
@@ -1685,6 +1716,7 @@ public class BatchClusteringTester {
         approximateNeighborsAlpha = conf.approximateNeighborsAlpha;
         approximateNeighbors = conf.approximateNeighbors;
         numCommonThreads = conf.numCommonThreads;
+        algorithmParametrizationMap = conf.algorithmParametrizationMap;
     }
 
     /**
@@ -1968,16 +2000,31 @@ public class BatchClusteringTester {
                     // it breaks - 10 consecutive misses by default.
                     do {
                         // Initialize the clusterer object.
-                        clusterer = getClustererForName(
-                                cName,
-                                dsetTraining,
-                                clustererIndex,
-                                k,
-                                trainingDist,
-                                nsf,
-                                trainingKernelMat,
-                                nsfKernel,
-                                numClusters);
+                        if (algorithmParametrizationMap.containsKey(cName)) {
+                            clusterer = getClustererForName(
+                                    cName,
+                                    dsetTraining,
+                                    clustererIndex,
+                                    k,
+                                    trainingDist,
+                                    nsf,
+                                    trainingKernelMat,
+                                    nsfKernel,
+                                    numClusters,
+                                    algorithmParametrizationMap.get(cName));
+                        } else {
+                            clusterer = getClustererForName(
+                                    cName,
+                                    dsetTraining,
+                                    clustererIndex,
+                                    k,
+                                    trainingDist,
+                                    nsf,
+                                    trainingKernelMat,
+                                    nsfKernel,
+                                    numClusters,
+                                    null);
+                        }
                         clusterer.setMinIterations(minIter);
                         long allTestStartTime = System.nanoTime();
                         try {

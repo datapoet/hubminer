@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * This class implements the functionality for a clustering algorithm.
@@ -54,6 +55,12 @@ public abstract class ClusteringAlg extends Thread {
     private CombinedMetric cmet = null;
     // The log file.
     private File clusteringLog;
+    
+    /**
+     * @return HashMap<String, String> that maps the parameters used in the
+     * algorithm to their descriptions.
+     */
+    public abstract HashMap<String, String> getParameterNamesAndDescriptions();
 
     /**
      * @param dset DataSet to be clustered.

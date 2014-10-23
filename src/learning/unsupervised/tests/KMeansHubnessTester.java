@@ -28,6 +28,7 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
 import static learning.unsupervised.ClusteringAlg.MIN_ITERATIONS;
@@ -56,6 +57,12 @@ public class KMeansHubnessTester extends ClusteringAlg {
     ArrayList<Float> mAvgVect = new ArrayList<>(300);
     ArrayList<Float> mMinVect = new ArrayList<>(300);
     ArrayList<Float> mMaxVect = new ArrayList<>(300);
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
 
 
     /**

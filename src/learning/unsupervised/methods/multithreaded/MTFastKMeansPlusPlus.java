@@ -25,6 +25,7 @@ import data.structures.KDTree;
 import distances.primary.CombinedMetric;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
 import learning.unsupervised.ClusteringError;
@@ -55,6 +56,17 @@ public class MTFastKMeansPlusPlus extends ClusteringAlg {
     private Object[] linintLock;
     private Object[] linfloatLock;
     private Object[] instanceAddLock;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("alpha", "Weight of the descriptors.");
+        paramMap.put("beta", "Weight of the color information.");
+        paramMap.put("minClusters", "Minimal number of clusters to try.");
+        paramMap.put("maxClusters", "Maximal number of clusters to try.");
+        paramMap.put("repetitions", "How many times to repeat for each K.");
+        return paramMap;
+    }
 
     public MTFastKMeansPlusPlus() {
     }

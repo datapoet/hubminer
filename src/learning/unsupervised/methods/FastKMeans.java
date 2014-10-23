@@ -25,6 +25,7 @@ import data.structures.KDTree;
 import distances.primary.CombinedMetric;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -47,6 +48,13 @@ public class FastKMeans extends ClusteringAlg {
     private float[][] clusterLinearFloatSums = null;
     private DataInstance[] endCentroids = null;
     private int maxIterations = DEFAULT_MAX_ITERATIONS;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("maxIterations", "Maximum number of iterations to run.");
+        return paramMap;
+    }
 
     public FastKMeans() {
     }

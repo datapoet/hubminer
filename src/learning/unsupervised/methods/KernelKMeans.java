@@ -25,6 +25,7 @@ import distances.kernel.KernelMatrixUserInterface;
 import distances.kernel.MinKernel;
 import distances.primary.CombinedMetric;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -49,6 +50,13 @@ public class KernelKMeans extends ClusteringAlg implements
     private static final float ERROR_THRESHOLD = (float) 0.003;
     private float[] instanceWeights;
     private DataInstance[] endCentroids = null;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("ker", "Kernel.");
+        return paramMap;
+    }
 
     public KernelKMeans() {
     }

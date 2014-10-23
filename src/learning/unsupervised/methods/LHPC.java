@@ -22,6 +22,7 @@ import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -45,6 +46,13 @@ public class LHPC extends ClusteringAlg
     private double[] cumulativeProbabilities = null;
     private int k = 5;
     DataInstance[] endCentroids;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
 
     public LHPC() {
     }

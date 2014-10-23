@@ -28,6 +28,7 @@ import distances.primary.CombinedMetric;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import util.ArrayUtil;
 
 /**
@@ -59,6 +60,16 @@ public class GHPKM extends ClusteringAlg implements
     boolean history = false;
     ArrayList<int[]> historyIndexArrayList;
     ArrayList<DataInstance[]> historyDIArrayList;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("unsupervisedHubness", "If true, total neighbor occurrence"
+                + "frequencies are used for deriving the weights. If false,"
+                + "class-conditional occurrences are also taken into account.");
+        return paramMap;
+    }
 
     public GHPKM() {
     }

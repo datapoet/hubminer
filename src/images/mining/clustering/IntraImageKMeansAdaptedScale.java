@@ -30,6 +30,7 @@ import distances.primary.SIFTSpatialMetric;
 import images.mining.calc.AverageColorGrabber;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -70,6 +71,18 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
     private boolean randomInit = false;
     // The image where the features are being clustered.
     private BufferedImage image;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("alpha", "Weight of the descriptors.");
+        paramMap.put("beta", "Weight of the color information.");
+        paramMap.put("gamma", "Weight of the scale features.");
+        paramMap.put("minClusters", "Minimal number of clusters to try.");
+        paramMap.put("maxClusters", "Maximal number of clusters to try.");
+        paramMap.put("repetitions", "How many times to repeat for each K.");
+        return paramMap;
+    }
 
     /**
      * Initialization.

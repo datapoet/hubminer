@@ -33,6 +33,7 @@ commons-httpclient-3.0.1.jar
 commons-logging-1.1.jar
 concurrent-1.3.4.jar
 gson-2.3.jar
+guice-3.0.jar
 iText-2.1.7_mx-1.0.jar
 Jama-1.0.2.jar
 jcommon-1.0.17.jar

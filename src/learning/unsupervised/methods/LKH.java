@@ -22,6 +22,7 @@ import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
 import learning.unsupervised.initialization.PlusPlusSeeder;
@@ -43,6 +44,13 @@ public class LKH extends ClusteringAlg implements
     private float[][] distances = null;
     DataInstance[] endCentroids;
     private int k = 10;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
 
     public LKH() {
     }

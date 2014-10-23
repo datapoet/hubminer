@@ -41,9 +41,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import learning.supervised.ClassifierFactory;
 import learning.supervised.DiscreteClassifier;
 import learning.supervised.evaluation.ClassificationEstimator;
+import learning.supervised.evaluation.ClassifierParametrization;
 import learning.supervised.evaluation.ValidateableInterface;
 import learning.supervised.interfaces.DistMatrixUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
@@ -105,6 +110,8 @@ public class BatchClassifierTester {
             inLabelFile, distancesDir, mlWeightsDir, foldsDir;
     // A list of classifier names to use in the experiment.
     private ArrayList<String> classifierNames = new ArrayList<>(10);
+    // Possible parameter value maps to use with certain algorithms.
+    HashMap<String, HashMap<String, Object>> algorithmParametrizationMap;
     // List of paths to the datasets that the experiment is to be executed on.
     private ArrayList<String> dsPaths = new ArrayList<>(100);
     // List of CombinedMetric objects for distance calculations that correspond
@@ -322,7 +329,8 @@ public class BatchClassifierTester {
                             // appropriate labels to the data points.
                             for (int dInd = 0; dInd < currDSet.size(); dInd++) {
                                 currDSet.data.get(dInd).setCategory(
-                                        labelCol.getInstance(dInd).iAttr[lIndex]);
+                                        labelCol.getInstance(
+                                        dInd).iAttr[lIndex]);
                             }
                             numCategories = currDSet.countCategories();
                             originalLabels = currDSet.obtainLabelArray();
@@ -469,9 +477,18 @@ public class BatchClassifierTester {
                                     classifierNames.size(); cIndex++) {
                                 // Place the algorithm in the appropriate list.
                                 String cName = classifierNames.get(cIndex);
-                                ValidateableInterface cInstance =
-                                        getClassifierForName(cName,
-                                        cIndex, numCategories, cmet, k);
+                                ValidateableInterface cInstance ;
+                                if (algorithmParametrizationMap.containsKey(
+                                        cName)) {
+                                    cInstance = getClassifierForName(cName,
+                                            cIndex, numCategories, cmet, k,
+                                            algorithmParametrizationMap.get(
+                                            cName));
+                                } else {
+                                    cInstance = getClassifierForName(cName,
+                                            cIndex, numCategories, cmet, k,
+                                            null);
+                                }
                                 if (cInstance instanceof DiscreteClassifier) {
                                     isDiscreteAlgorithm[cIndex] = true;
                                 }
@@ -866,8 +883,8 @@ public class BatchClassifierTester {
                                     for (int i = 0; i < currDSet.size(); i++) {
                                         for (int c = 0; c < numCategories;
                                                 c++) {
-                                            averageFuzzyPredictions[cIndex][i][c] /=
-                                                    numTimes;
+                                            averageFuzzyPredictions[cIndex][i][
+                                                    c] /= numTimes;
                                         }
                                     }
                                     avgDiscrete[discreteCounter].
@@ -910,8 +927,8 @@ public class BatchClassifierTester {
                                     for (int i = 0; i < currDSet.size(); i++) {
                                         for (int c = 0; c < numCategories;
                                                 c++) {
-                                            averageFuzzyPredictions[cIndex][i][c] /=
-                                                    numTimes;
+                                            averageFuzzyPredictions[cIndex][i][
+                                                    c] /= numTimes;
                                         }
                                     }
                                     avgNonDiscrete[nonDiscreteCounter].
@@ -1000,16 +1017,37 @@ public class BatchClassifierTester {
      * @param algName String that is the algorithm name.
      * @param index Integer that is the internal algorithm index.
      * @param numClasses Integer that is the number of classes in the data.
-     * @param cmet
-     * @param k
+     * @param cmet CombinedMetric object for distance calculations.
+     * @param k Integer representing the neighborhood size.
+     * @param algorithmParametrization HashMap<String, Object> representing the
+     * parameter values to set to the algorithm.
      * @return 
      */
     private ValidateableInterface getClassifierForName(String algName,
-            int index, int numClasses, CombinedMetric cmet, int k) {
-        System.out.println("testing " + algName);
+            int index, int numClasses, CombinedMetric cmet, int k,
+            HashMap<String, Object> algorithmParametrization) {
+        System.out.print("testing " + algName);
         ClassifierFactory cfact = new ClassifierFactory();
         ValidateableInterface classAlg = cfact.getClassifierForName(algName,
                 numClasses, cmet, k);
+        try {
+            ClassifierParametrization.setParameterValuesToClassifier(classAlg,
+                    algorithmParametrization);
+            if (algorithmParametrization != null) {
+                Set<String> paramNames = algorithmParametrization.keySet();
+                System.out.print(" with ");
+                for (String paramName: paramNames) {
+                    System.out.print(paramName + "=" +
+                            algorithmParametrization.get(paramName) + " ");
+                }
+            }
+        } catch (NoSuchFieldException | IllegalArgumentException |
+                IllegalAccessException ex) {
+            Logger.getLogger(
+                    BatchClassifierTester.class.getName()).log(
+                    Level.SEVERE, null, ex);
+        }
+        System.out.println();
         isDiscreteAlgorithm[index] = classAlg instanceof DiscreteClassifier;
         return classAlg;
     }
@@ -1060,6 +1098,7 @@ public class BatchClassifierTester {
         openmlConnector = conf.getOpenMLConnector();
         trainTestIndexes = conf.trainTestIndexes;
         hubMinerSourceDir = conf.hubMinerSourceDir;
+        algorithmParametrizationMap = conf.algorithmParametrizationMap;
     }
 
     /**

@@ -22,6 +22,7 @@ import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.ClusteringAlg;
 
@@ -42,6 +43,13 @@ public class HarmonicKMeans extends ClusteringAlg {
     // When the change in calculateIterationError falls below a threshold, we
     // declare convergence and end the clustering run.
     private static final double ERROR_THRESHOLD = 0.001;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("p", "Exponent for harmonic mean calculations.");
+        return paramMap;
+    }
 
     /**
      * Empty constructor.

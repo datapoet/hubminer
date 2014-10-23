@@ -25,6 +25,7 @@ import data.structures.KDTree;
 import distances.primary.CombinedMetric;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
@@ -55,6 +56,12 @@ public class MTFastKMeans extends ClusteringAlg {
     private Object[] linintLock;
     private Object[] linfloatLock;
     private Object[] instanceAddLock;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
 
     public MTFastKMeans() {
     }
