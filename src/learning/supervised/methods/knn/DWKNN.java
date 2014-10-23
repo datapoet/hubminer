@@ -28,6 +28,7 @@ import learning.supervised.interfaces.DistToPointsQueryUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * This class implements the distance-weighted extension of the basic k-nearest
@@ -50,10 +51,25 @@ public class DWKNN extends Classifier implements DistToPointsQueryUserInterface,
     private float[] classPriors;
     // The distance weighting parameter.
     private float mValue = 2;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("mValue", "Exponent for distance weighting. Defaults"
+                + " to 2.");
+
+        return paramMap;
+    }
 
     @Override
     public String getName() {
         return "dwKNN";
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     /**

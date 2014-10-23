@@ -23,6 +23,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
@@ -62,6 +63,18 @@ public class PKNN extends Classifier implements Serializable {
     private static final int MIN_SAMPLE_SIZE = 3000;
     private static final int EARLY_STOP_K_DELTA = 3;
     private static final float EARLY_STOP_BETA_DELTA = 0.3f;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("kMax", "Maximum neighborhood size to consider.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

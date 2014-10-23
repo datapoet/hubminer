@@ -24,6 +24,7 @@ import data.representation.DataSet;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -54,6 +55,18 @@ public class HwKNN extends Classifier implements AutomaticKFinderInterface,
     private float[][] distMat = null;
     private NeighborSetFinder nsf = null;
     private int k = 5;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public void noRecalcs() {

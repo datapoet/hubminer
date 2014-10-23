@@ -23,6 +23,7 @@ import data.representation.DataSet;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.evaluation.ValidateableInterface;
 import learning.supervised.interfaces.DistMatrixUserInterface;
@@ -58,6 +59,19 @@ public class HwKNNBoostable extends BoostableClassifier implements
     public static final int B1 = 0;
     public static final int B2 = 1;
     private int boostingMode = B1;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("boostingMode", "Type of re-weighting procedure.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     /**
      * @param boostingMode Integer that is the current boosting mode: B1 or B2.

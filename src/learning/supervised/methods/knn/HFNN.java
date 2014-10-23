@@ -25,6 +25,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
@@ -85,10 +86,25 @@ public class HFNN extends Classifier implements AutomaticKFinderInterface,
     public static final int LOCALF = 2;
     public static final int LABEL = 3;
     private boolean noRecalc = false;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("thetaCutoff", "Anti-hub cut-off point for treating"
+                + "anti-hubs as a special case.");
+        paramMap.put("localEstimateMethod", "Anti-hub handling strategy.");
+        return paramMap;
+    }
 
     @Override
     public void noRecalcs() {
         noRecalc = true;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

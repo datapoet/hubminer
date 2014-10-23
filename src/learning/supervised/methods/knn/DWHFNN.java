@@ -25,6 +25,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -86,6 +87,18 @@ public class DWHFNN extends Classifier implements AutomaticKFinderInterface,
     public static final int LOCAL = 1;
     public static final int LOCALF = 2;
     public static final int LABEL = 3;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("thetaCutoff", "Anti-hub cut-off point for treating"
+                + "anti-hubs as a special case.");
+        paramMap.put("mValue", "Exponent for distance weighting. Defaults"
+                + " to 2.");
+        paramMap.put("localEstimateMethod", "Anti-hub handling strategy.");
+        return paramMap;
+    }
 
     /**
      * @param methodIndex Integer that indicates which estimation method to use.
@@ -94,6 +107,11 @@ public class DWHFNN extends Classifier implements AutomaticKFinderInterface,
      */
     public void setAntiHubVoteEstimateMethod(int methodIndex) {
         localEstimateMethod = methodIndex % 4;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

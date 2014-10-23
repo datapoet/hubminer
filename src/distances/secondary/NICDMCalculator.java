@@ -41,6 +41,15 @@ public class NICDMCalculator extends CombinedMetric implements Serializable {
         this.nsf = nsf;
         kDistAvgs = nsf.getAvgDistToNeighbors(getK());
     }
+    
+    @Override
+    public String toString() {
+        if (nsf != null) {
+            return "NICDM, k:" + nsf.getCurrK();
+        } else {
+            return "NICDM";
+        }
+    }
 
     /**
      * Calculates the secondary distance matrix based on NICDM.

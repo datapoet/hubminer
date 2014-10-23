@@ -16,6 +16,7 @@
 */
 package distances.primary;
 
+import com.google.gson.Gson;
 import data.representation.DataInstance;
 import data.representation.util.DataMineConstants;
 import java.io.Serializable;
@@ -82,6 +83,104 @@ public class CombinedMetric implements Serializable {
         this.integerMetric = integerMetric;
         this.floatMetric = floatMetric;
         this.combineBy = combineBy;
+    }
+    
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        StringBuilder sb = new StringBuilder();
+        if (integerMetric != null) {
+            sb.append("integers");
+            sb.append(":");
+            sb.append(integerMetric.getClass().getCanonicalName());
+            sb.append(":");
+            String jsonString = gson.toJson(integerMetric,
+                    integerMetric.getClass());
+            sb.append(jsonString);
+            sb.append(" ");
+        }
+        if (floatMetric != null) {
+            sb.append("floats");
+            sb.append(":");
+            sb.append(floatMetric.getClass().getCanonicalName());
+            sb.append(":");
+            String jsonString = gson.toJson(floatMetric,
+                    floatMetric.getClass());
+            sb.append(jsonString);
+            sb.append(" ");
+        }
+        sb.append("\"combineBy\":");
+        sb.append(combineBy);
+        return sb.toString();
+    }
+    
+    /**
+     * This method obtains the object from a String representation.
+     * @param stringRep String to obtain the object from, analogous to the one
+     * produced by the toString() method.
+     * @return CombinedMetric object corresponding to the string.
+     */
+    public static CombinedMetric fromString(String stringRep) throws Exception {
+        CombinedMetric cmet = new CombinedMetric();
+        String[] lineItems = stringRep.split("\\s+");
+        if (lineItems.length == 2) {
+            processMetricStringItem(cmet, lineItems[0]);
+        } else if (lineItems.length == 3) {
+            processMetricStringItem(cmet, lineItems[0]);
+            processMetricStringItem(cmet, lineItems[1]);
+        }
+        switch (lineItems[lineItems.length - 1]) {
+            case "\"combineBy\":SUM":
+                cmet.combineBy = Mixer.SUM;
+                break;
+            case "\"combineBy\":PRODUCT":
+                cmet.combineBy = Mixer.PRODUCT;
+                break;
+            case "\"combineBy\":MIN":
+                cmet.combineBy = Mixer.MIN;
+                break;
+            case "\"combineBy\":MAX":
+                cmet.combineBy = Mixer.MAX;
+                break;
+            case "\"combineBy\":AVERAGE":
+                cmet.combineBy = Mixer.AVERAGE;
+                break;
+            case "\"combineBy\":EUCLIDEAN":
+                cmet.combineBy = Mixer.EUCLIDEAN;
+                break;
+        }
+        return cmet;
+    }
+    
+    /**
+     * Process the individual metric string when reading the CombinedMetric
+     * object from a string of the form that toString() prints to. Internal
+     * method.
+     * 
+     * @param cmet CombinedMetric object to load into.
+     * @param metricStringItem String that is the individual metric String item.
+     * @throws Exception 
+     */
+    private static void processMetricStringItem(CombinedMetric cmet,
+            String metricStringItem) throws Exception {
+        Gson gson = new Gson();
+        String[] metricLineItems = metricStringItem.split(":");
+        String metricClassString = metricLineItems[1];
+        Class metricClass = Class.forName(metricClassString);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 2; i < metricLineItems.length; i++) {
+            sb.append(metricLineItems[i]);
+            if (i < metricLineItems.length - 1) {
+                sb.append(":");
+            }
+        }
+        String jsonString = sb.toString();
+        Object metric = gson.fromJson(jsonString, metricClass);
+        if (metricLineItems[0].equals("integers")) {
+            cmet.integerMetric = (DistanceMeasure) metric;
+        } else {
+            cmet.floatMetric = (DistanceMeasure) metric;
+        }
     }
 
     /**

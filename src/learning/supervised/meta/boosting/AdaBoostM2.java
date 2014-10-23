@@ -24,6 +24,7 @@ import data.representation.util.DataMineConstants;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -76,6 +77,24 @@ public class AdaBoostM2 extends Classifier implements
     // For corrections when the weights approach the minimal double value too
     // much.
     private static final double SAFE_FACTOR = Math.pow(2, 50);
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("numIterationsTrain", "Number of iterations to use for"
+                + "boosting.");
+        HashMap<String, String> baseParamMap =
+                weakLearner.getParameterNamesAndDescriptions();
+        HashMap<String, String> resultingMap = new HashMap<>();
+        resultingMap.putAll(paramMap);
+        baseParamMap.putAll(baseParamMap);
+        return resultingMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     /**
      * Initialization.

@@ -60,13 +60,19 @@ public class BatchClassifierConfig {
     public BatchClassifierConfig() {
     }
     
+    // OpenML authentication. Required if OpenML data sources are pulled for
+    // experiments, not necessary otherwise.
     private String openmlUsername;
     private String openmlPassword;
+    // List of the specified OpenML task IDs.
     public ArrayList<Integer> openMLTaskIDList = new ArrayList<>();
+    // List of dataset names that the task IDs correspond to.
     public ArrayList<String> openMLTaskDataSetNameList = new ArrayList<>();
     public ArrayList<Integer> openMLTaskDataIndex = new ArrayList<>();
     public HashMap<Integer, Integer> dataIndexToOpenMLCounterMap =
             new HashMap<>();
+    // This is used for registering versioned source code files with OpenML.
+    public File hubMinerSourceDir;
     public BatchClassifierTester.SecondaryDistance secondaryDistanceType =
             BatchClassifierTester.SecondaryDistance.NONE;
     public int secondaryDistanceK = 50;
@@ -237,6 +243,9 @@ public class BatchClassifierConfig {
                     lineItems = s.split("\\s+");
                     classifierNames.add(lineItems[1]);
                     System.out.println("Preparing to test " + lineItems[1]);
+                } else if (s.startsWith("@hubminer_source_directory")) {
+                    lineItems = s.split("\\s+");
+                    hubMinerSourceDir = new File(lineItems[1]);
                 } else if (s.startsWith("@openml_authentication")) {
                     // Specification of OpenML authentication.
                     lineItems = s.split("\\s+");

@@ -24,6 +24,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -69,6 +70,20 @@ public class RRKNN extends Classifier implements DistMatrixUserInterface,
     private int kVoting;
     private DWKNN knnInternal;
     private boolean noRecalc = false;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("kVoting", "Neighborhood size to use on re-ranked sub-kNN"
+                + "sets for voting and prediction.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

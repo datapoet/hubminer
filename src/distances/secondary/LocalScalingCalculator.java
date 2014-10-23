@@ -42,6 +42,15 @@ implements Serializable {
     public LocalScalingCalculator(NeighborSetFinder nsf) {
         this.nsf = nsf;
     }
+    
+    @Override
+    public String toString() {
+        if (nsf != null) {
+            return "LocalScaling, k:" + nsf.getCurrK();
+        } else {
+            return "LocalScaling";
+        }
+    }
 
     /**
      * Transforms a primary into secondary distance matrix, based on kNN

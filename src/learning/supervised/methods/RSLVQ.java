@@ -23,6 +23,7 @@ import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -49,6 +50,19 @@ public class RSLVQ extends Classifier implements Serializable {
     //the learning rates
     float alphaProto = 0.5f;
     float alphaVariance = 0.3f;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("alphaProto", "Learning rate.");
+        paramMap.put("alphaVariance", "Learning rate.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

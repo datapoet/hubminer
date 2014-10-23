@@ -25,6 +25,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
@@ -69,6 +70,18 @@ public class HIKNNNonDW extends Classifier implements
     private float[][] distMat;
     private boolean noRecalc = false;
     private int dataSize;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public void setDistMatrix(float[][] distMatrix) {

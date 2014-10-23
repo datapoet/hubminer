@@ -84,6 +84,21 @@ implements Serializable {
         this.usedWeighting = WeightingType.HUBNESS_INFORMATION;
         snf.obtainWeightsFromHubnessInformation(theta);
     }
+    
+    @Override
+    public String toString() {
+        if (snf != null) {
+            if (usedWeighting == WeightingType.NONE) {
+                return "simcos, k:" + snf.getSNK();
+            } else if (usedWeighting == WeightingType.HUBNESS) {
+                return "simhub_inf, k:" + snf.getSNK();
+            } else {
+                return "simhub, k:" + snf.getSNK();
+            }
+        } else {
+            return "SharedNeighborDistance";
+        }
+    }
 
     /**
      * @return CombinedMetric object for primary distance calculations, used in

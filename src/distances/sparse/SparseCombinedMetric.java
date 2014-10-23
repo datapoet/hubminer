@@ -16,6 +16,7 @@
 */
 package distances.sparse;
 
+import com.google.gson.Gson;
 import data.representation.DataInstance;
 import data.representation.sparse.BOWInstance;
 import data.representation.util.DataMineConstants;
@@ -55,6 +56,125 @@ public class SparseCombinedMetric extends CombinedMetric {
             Mixer combMethod) {
         super(integerMetric, floatMetric, combMethod);
         this.sparseMetric = sparseMetric;
+    }
+    
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        StringBuilder sb = new StringBuilder();
+        if (getIntegerMetric() != null) {
+            sb.append("integers");
+            sb.append(":");
+            sb.append(getIntegerMetric().getClass().getCanonicalName());
+            sb.append(":");
+            String jsonString = gson.toJson(getIntegerMetric(),
+                    getIntegerMetric().getClass());
+            sb.append(jsonString);
+            sb.append(" ");
+        }
+        if (getFloatMetric() != null) {
+            sb.append("floats");
+            sb.append(":");
+            sb.append(getFloatMetric().getClass().getCanonicalName());
+            sb.append(":");
+            String jsonString = gson.toJson(getFloatMetric(),
+                    getFloatMetric().getClass());
+            sb.append(jsonString);
+            sb.append(" ");
+        }
+        if (sparseMetric != null) {
+            sb.append("sparse");
+            sb.append(":");
+            sb.append(sparseMetric.getClass().getCanonicalName());
+            sb.append(":");
+            String jsonString = gson.toJson(sparseMetric,
+                    sparseMetric.getClass());
+            sb.append(jsonString);
+            sb.append(" ");
+        }
+        sb.append("\"combineBy\":");
+        sb.append(getCombinationMethod());
+        return sb.toString();
+    }
+    
+    /**
+     * This method obtains the object from a String representation.
+     * @param stringRep String to obtain the object from, analogous to the one
+     * produced by the toString() method.
+     * @return SparseCombinedMetric object corresponding to the string.
+     */
+    public static SparseCombinedMetric fromString(String stringRep)
+            throws Exception {
+        SparseCombinedMetric scmet = new SparseCombinedMetric();
+        String[] lineItems = stringRep.split("\\s+");
+        if (lineItems.length == 2) {
+            processMetricStringItem(scmet, lineItems[0]);
+        } else if (lineItems.length == 3) {
+            processMetricStringItem(scmet, lineItems[0]);
+            processMetricStringItem(scmet, lineItems[1]);
+        } else if (lineItems.length == 4) {
+            processMetricStringItem(scmet, lineItems[0]);
+            processMetricStringItem(scmet, lineItems[1]);
+            processMetricStringItem(scmet, lineItems[2]);
+        }
+        switch (lineItems[lineItems.length - 1]) {
+            case "\"combineBy\":SUM":
+                scmet.setCombinationMethod(Mixer.SUM);
+                break;
+            case "\"combineBy\":PRODUCT":
+                scmet.setCombinationMethod(Mixer.PRODUCT);
+                break;
+            case "\"combineBy\":MIN":
+                scmet.setCombinationMethod(Mixer.MIN);
+                break;
+            case "\"combineBy\":MAX":
+                scmet.setCombinationMethod(Mixer.MAX);
+                break;
+            case "\"combineBy\":AVERAGE":
+                scmet.setCombinationMethod(Mixer.AVERAGE);
+                break;
+            case "\"combineBy\":EUCLIDEAN":
+                scmet.setCombinationMethod(Mixer.EUCLIDEAN);
+                break;
+        }
+        return scmet;
+    }
+    
+    /**
+     * Process the individual metric string when reading the
+     * SparseCombinedMetric object from a string of the form that toString()
+     * prints to. Internal method.
+     * 
+     * @param cmet SparseCombinedMetric object to load into.
+     * @param metricStringItem String that is the individual metric String item.
+     * @throws Exception 
+     */
+    private static void processMetricStringItem(SparseCombinedMetric cmet,
+            String metricStringItem) throws Exception {
+        Gson gson = new Gson();
+        String[] metricLineItems = metricStringItem.split(":");
+        String metricClassString = metricLineItems[1];
+        Class metricClass = Class.forName(metricClassString);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 2; i < metricLineItems.length; i++) {
+            sb.append(metricLineItems[i]);
+            if (i < metricLineItems.length - 1) {
+                sb.append(":");
+            }
+        }
+        String jsonString = sb.toString();
+        Object metric = gson.fromJson(jsonString, metricClass);
+        switch (metricLineItems[0]) {
+            case "integers":
+                cmet.setIntegerMetric((DistanceMeasure) metric);
+                break;
+            case "float":
+                cmet.setFloatMetric((DistanceMeasure) metric);
+                break;
+            default:
+                cmet.setSparseMetric((SparseMetric) metric);
+                break;
+        }
     }
 
     /**

@@ -22,6 +22,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -51,6 +52,22 @@ public class NWKNN extends Classifier implements DistMatrixUserInterface,
     private float[] classWeights;
     private float weightExponent = 0.25f;
     private float mValue = 2;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("weightExponent", "Exponent for class-specific vote "
+                + "weights.");
+        paramMap.put("mValue", "Exponent for distance weighting. Defaults"
+                + " to 2.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

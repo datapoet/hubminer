@@ -23,6 +23,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -56,10 +57,22 @@ public class AKNN extends Classifier implements DistMatrixUserInterface,
     private float[] classPriors;
     // The corrective diameters for the adaptive kNN rule.
     private float[] diameters;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
 
     @Override
     public String getName() {
         return "AKNN";
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

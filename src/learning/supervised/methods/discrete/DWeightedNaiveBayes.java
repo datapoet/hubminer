@@ -21,6 +21,7 @@ import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.DiscreteCategory;
 import learning.supervised.DiscreteClassifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -48,7 +49,21 @@ implements Serializable {
     // Whether to use the instance weights for calculating the prior class
     // distribution as well.
     private boolean isWeightedApriori = true;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("laplaceEstimator", "Laplace estimator for smoothing."
+                + "Defaults to 1.");
+        paramMap.put("isWeightedApriori", "Whether instance weights are used"
+                + "for calculating class priors.");
+        return paramMap;
+    }
 
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
     
     @Override
     public String getName() {

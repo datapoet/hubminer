@@ -20,6 +20,7 @@ import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.DiscreteCategory;
 import learning.supervised.DiscreteClassifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -39,6 +40,19 @@ public class DNaiveBayes extends DiscreteClassifier implements Serializable {
     private float[] classPriors = null;
     // Laplace estimator for distribution smoothing.
     private float laplaceEstimator = 1f;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("laplaceEstimator", "Laplace estimator used for"
+                + "smoothing. Defaults to 1.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

@@ -24,6 +24,7 @@ import data.representation.DataSet;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -49,6 +50,15 @@ public class FNN extends Classifier implements AutomaticKFinderInterface,
     private int numClasses = 0;
     private float laplaceEstimator = 0.001f;
     private float[][] localClassDistribution = null;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("mFactor", "Exponent for distance weighting. Defaults"
+                + " to 2.");
+        return paramMap;
+    }
 
     @Override
     public void noRecalcs() {
@@ -57,6 +67,11 @@ public class FNN extends Classifier implements AutomaticKFinderInterface,
     @Override
     public String getName() {
         return "FNN";
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

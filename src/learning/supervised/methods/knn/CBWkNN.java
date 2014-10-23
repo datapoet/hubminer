@@ -23,6 +23,7 @@ import data.representation.DataSet;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -59,6 +60,16 @@ public class CBWkNN extends Classifier implements DistMatrixUserInterface,
     // k/mValue first neighbors is used to calculate the weighting factors for
     // the query point.
     private int mValue = 2;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("mValue", "Denominator to divide the neighborhood size by"
+                + "in order to obtain the number of neighbors for weighting"
+                + "calculations for the query point.");
+        return paramMap;
+    }
 
     @Override
     public void noRecalcs() {
@@ -78,6 +89,11 @@ public class CBWkNN extends Classifier implements DistMatrixUserInterface,
      */
     public int getM() {
         return mValue;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

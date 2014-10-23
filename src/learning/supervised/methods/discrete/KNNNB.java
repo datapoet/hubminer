@@ -22,6 +22,7 @@ import data.representation.discrete.DiscretizedDataSet;
 import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.DiscreteCategory;
 import learning.supervised.DiscreteClassifier;
@@ -45,6 +46,15 @@ public class KNNNB extends DiscreteClassifier
     private float laplaceEstimator = 1f;
     // Neighborhood size.
     private int k = DEFAULT_NEIGHBORHOOD_SIZE;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("laplaceEstimator", "Laplace estimator for smoothing."
+                + "Defaults to 1.");
+        return paramMap;
+    }
 
     @Override
     public String getName() {
@@ -203,6 +213,11 @@ public class KNNNB extends DiscreteClassifier
      */
     public void setLaplaceEstimator(float laplaceEstimator) {
         this.laplaceEstimator = laplaceEstimator;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     

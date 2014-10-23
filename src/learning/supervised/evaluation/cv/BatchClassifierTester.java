@@ -62,7 +62,14 @@ import preprocessing.instance_selection.ReducersFactory;
  */
 public class BatchClassifierTester {
 
+    // Connector for API calls to OpenML in case when networked experiments are
+    // performed and data and training/test splits are obtained from OpenML
+    // over the network.
     private HMOpenMLConnector openmlConnector;
+    // This directory specification is necessary for registering versioned
+    // algorithm source files with OpenML. It is not necessary otherwise, for
+    // local experiments.
+    private File hubMinerSourceDir;
     // Types of applicable secondary distances.
     public enum SecondaryDistance {
 
@@ -1052,6 +1059,7 @@ public class BatchClassifierTester {
         numCommonThreads = conf.numCommonThreads;
         openmlConnector = conf.getOpenMLConnector();
         trainTestIndexes = conf.trainTestIndexes;
+        hubMinerSourceDir = conf.hubMinerSourceDir;
     }
 
     /**

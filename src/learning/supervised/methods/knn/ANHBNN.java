@@ -91,6 +91,15 @@ public class ANHBNN extends Classifier implements DistMatrixUserInterface,
     private float[][] distMat = null;
     private boolean noRecalc = false;
     private int dataSize;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("thetaValue", "Anti-hub cut-off point for treating"
+                + "anti-hubs as a special case.");
+        return paramMap;
+    }
 
     @Override
     public void setDistMatrix(float[][] distMatrix) {
@@ -105,6 +114,11 @@ public class ANHBNN extends Classifier implements DistMatrixUserInterface,
     @Override
     public String getName() {
         return "ANHBNN";
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     @Override

@@ -25,6 +25,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
@@ -100,8 +101,23 @@ public class NHBNN extends Classifier implements AutomaticKFinderInterface,
     // Estimation type constants.
     public static final int GLOBAL = 0;
     public static final int LOCALH = 1;
-    private int K_LOCAL_APPROXIMATION = 20;
+    private static final int K_LOCAL_APPROXIMATION = 20;
     private boolean noRecalc = false;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("thetaValue", "Anti-hub cut-off point for treating"
+                + "anti-hubs as a special case.");
+        paramMap.put("localEstimateMethod", "Anti-hub handling strategy.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

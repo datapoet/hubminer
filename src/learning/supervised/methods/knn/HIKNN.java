@@ -25,6 +25,7 @@ import distances.primary.CombinedMetric;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 import learning.supervised.Category;
 import learning.supervised.Classifier;
@@ -69,6 +70,20 @@ public class HIKNN extends Classifier implements AutomaticKFinderInterface,
     // The distance matrix.
     private float[][] distMat;
     private int dataSize;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        paramMap.put("mValue", "Exponent for distance weighting. Defaults"
+                + " to 2.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

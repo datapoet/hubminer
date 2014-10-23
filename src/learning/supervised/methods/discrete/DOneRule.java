@@ -47,6 +47,17 @@ public class DOneRule extends DiscreteClassifier implements Serializable {
     private HashMap<Integer, Integer> valueClassMap;
     private float[] classPriors;
     private int majorityClassIndex;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

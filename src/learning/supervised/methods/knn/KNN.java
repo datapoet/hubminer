@@ -29,6 +29,7 @@ import learning.supervised.interfaces.DistToPointsQueryUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * This class implements the basic k-nearest neighbor classifier.
@@ -49,6 +50,18 @@ public class KNN extends Classifier implements AutomaticKFinderInterface,
     private int k = 1;
     // The prior class distribution.
     float[] classPriors;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        paramMap.put("k", "Neighborhood size.");
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

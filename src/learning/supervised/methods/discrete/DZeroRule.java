@@ -19,6 +19,7 @@ package learning.supervised.methods.discrete;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
+import java.util.HashMap;
 import learning.supervised.DiscreteCategory;
 import learning.supervised.DiscreteClassifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -34,6 +35,17 @@ public class DZeroRule extends DiscreteClassifier implements Serializable {
 
     private int majorityClassIndex = 0;
     private float[] classDistributions = null;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
+    }
 
     @Override
     public String getName() {

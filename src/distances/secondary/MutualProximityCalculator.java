@@ -49,6 +49,11 @@ implements Serializable {
     DataSet dset;
     // CombinedMetric object for distance calculations.
     CombinedMetric cmet;
+    
+    @Override
+    public String toString() {
+        return "MutualProximity";
+    }
 
     /**
      * Initialization of the model.

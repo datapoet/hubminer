@@ -24,6 +24,7 @@ import feature.evaluation.Info;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import learning.supervised.DiscreteCategory;
 import learning.supervised.DiscreteClassifier;
 import learning.supervised.evaluation.ValidateableInterface;
@@ -53,6 +54,12 @@ public class DCT_ID3 extends DiscreteClassifier implements Serializable {
     private float[] classPriors;
     private int totalNumAtt;
     private int currDepth = 0;
+    
+    @Override
+    public HashMap<String, String> getParameterNamesAndDescriptions() {
+        HashMap<String, String> paramMap = new HashMap<>();
+        return paramMap;
+    }
 
     @Override
     public String getName() {
@@ -87,6 +94,12 @@ public class DCT_ID3 extends DiscreteClassifier implements Serializable {
     public DCT_ID3(DiscretizedDataSet discDSet, DiscreteCategory[] dataClasses) {
         setClasses(dataClasses);
         setDataType(discDSet);
+    }
+    
+    
+    @Override
+    public long getVersion() {
+        return serialVersionUID;
     }
 
     

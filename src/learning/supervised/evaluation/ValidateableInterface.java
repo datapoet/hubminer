@@ -17,6 +17,7 @@
 package learning.supervised.evaluation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import preprocessing.instance_selection.InstanceSelector;
 
 /**
@@ -26,6 +27,17 @@ import preprocessing.instance_selection.InstanceSelector;
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public interface ValidateableInterface {
+    
+    /**
+     * @return HashMap<String, String> that maps the parameters used in the
+     * algorithm to their descriptions.
+     */
+    public abstract HashMap<String, String> getParameterNamesAndDescriptions();
+    
+    /**
+     * @return Long value that is the current version of the implementation. 
+     */
+    public abstract long getVersion();
 
     /**
      * @return String that is the classifier name.
