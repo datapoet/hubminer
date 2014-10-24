@@ -375,13 +375,17 @@ public class ClassificationResultHandler {
             for (int i = 0; i < keyList.size(); i++) {
                 keyArr[i] = keyList.get(i);
             }
-            if(!parameterStringValues.isEmpty())
-                setupString += (" -- " + keyArr);
+            if(!parameterStringValues.isEmpty()) {
+                setupString += (" -- ");
+                for (String par: keyArr) {
+                    setupString += (keyArr + ",");
+                }
+            }
             // Generate the Run object.
             List<Parameter_setting> list =
                     ClassifierRegistrationOpenML.getParameterSettingFromStrVals(
                     parameterStringValues, impConfirmed);
-            run = new Run(task.getTask_id(), "", impConfirmed.getId(),
+            run = new Run(task.getTask_id(), null, impConfirmed.getId(),
                     setupString, list.toArray(
                     new Parameter_setting[list.size()]) );
         }

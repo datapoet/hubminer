@@ -162,7 +162,7 @@ public class ClassifierRegistrationOpenML {
                 String paramType = fld.getType().toString();
                 String defaultValue = fld.get(classifier) != null ?
                         fld.get(classifier).toString() : "NULL";
-                imp.addParameter(paramType, paramType, defaultValue,
+                imp.addParameter(paramName, paramType, defaultValue,
                         paramDescription);
             }
         }
