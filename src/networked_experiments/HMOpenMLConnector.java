@@ -25,8 +25,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.openml.apiconnector.algorithms.TaskInformation;
-import org.openml.apiconnector.io.ApiSessionHash;
 import org.openml.apiconnector.io.OpenmlConnector;
+import org.openml.apiconnector.settings.Settings;
 import org.openml.apiconnector.xml.DataSetDescription;
 import org.openml.apiconnector.xml.Task;
 import org.openml.apiconnector.xml.Task.Input.Data_set;
@@ -44,7 +44,6 @@ import util.HTTPUtil;
 public class HMOpenMLConnector {
     
     OpenmlConnector client;
-    ApiSessionHash hashFetcher;
     
     /**
      * Initialization.
@@ -54,8 +53,6 @@ public class HMOpenMLConnector {
      */
     public HMOpenMLConnector(String username, String password) {
         client = new OpenmlConnector(username, password);
-        hashFetcher = new ApiSessionHash(client);
-        hashFetcher.set(username, password);
     }
     
     /**
@@ -164,7 +161,6 @@ public class HMOpenMLConnector {
      * @throws Exception 
      */
     public DataFromOpenML fetchExperimentData(int taskId) throws Exception {
-        hashFetcher.getSessionHash();
         System.out.println("OpenML data fetch initiated for taskID " + taskId);
         Task task = client.openmlTaskGet(taskId);
         Estimation_procedure est = TaskInformation.getEstimationProcedure(task);
@@ -176,7 +172,7 @@ public class HMOpenMLConnector {
         fetchedData.numFolds = TaskInformation.getNumberOfFolds(task);
         fetchedData.numTimes = TaskInformation.getNumberOfRepeats(task);
         fetchedData.classNames = TaskInformation.getClassNames(
-                client, hashFetcher, task);
+                client, task);
         // Not to confuse with Hub Miner's DataSet class.
         Data_set dsObj = TaskInformation.getSourceData(task);
         DataSetDescription dataDescription =

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Set;
 import learning.supervised.evaluation.ValidateableInterface;
 import org.openml.apiconnector.algorithms.Conversion;
-import org.openml.apiconnector.io.ApiSessionHash;
 import org.openml.apiconnector.io.OpenmlConnector;
 import org.openml.apiconnector.xml.Implementation;
 import org.openml.apiconnector.xml.Implementation.Parameter;
@@ -62,14 +61,13 @@ public class ClassifierRegistrationOpenML {
      * @param classifier classifierClass Class of the algorithm used in
      * classification.
      * @param client OpenmlConnector client for communicating with OpenML.
-     * @param hashFetcher ApiSessionHash object for obtaining the session hash.
      * @return Integer that is the implementation ID obtained from the OpenML
      * servers.
      * @throws Exception 
      */
     public static int getImplementationId(Implementation implementation,
             Class classifierClass, File hubMinerSourceDir,
-            OpenmlConnector client, ApiSessionHash hashFetcher)
+            OpenmlConnector client)
             throws Exception {
         if (classifierClass == null) {
             throw new Exception("Null algorithm class provided.");
@@ -81,13 +79,13 @@ public class ClassifierRegistrationOpenML {
                     implementation.getExternal_version());
         } catch (Exception e) {
             return registerImplementation(implementation, classifierClass,
-                    hubMinerSourceDir, client, hashFetcher);
+                    hubMinerSourceDir, client);
         }
         if(result != null && result.exists()) {
             return result.getId();
         } else {
             return registerImplementation(implementation, classifierClass,
-                    hubMinerSourceDir, client, hashFetcher);
+                    hubMinerSourceDir, client);
         }
     }
     
@@ -100,14 +98,13 @@ public class ClassifierRegistrationOpenML {
      * @param classifier classifierClass Class of the algorithm used in
      * classification.
      * @param client OpenmlConnector client for communicating with OpenML.
-     * @param hashFetcher ApiSessionHash object for obtaining the session hash.
      * @return Integer that is the implementation ID obtained from the OpenML
      * servers.
      * @throws Exception 
      */
     private static int registerImplementation(Implementation implementation,
             Class classifierClass, File hubMinerSourceDir,
-            OpenmlConnector client, ApiSessionHash hashFetcher)
+            OpenmlConnector client)
             throws Exception {
         String xml = XstreamXmlMapping.getInstance().toXML(implementation);
         File implementationFile = Conversion.stringToTempFile(
@@ -121,8 +118,7 @@ public class ClassifierRegistrationOpenML {
                     sourceFile.getPath());
         }
         UploadImplementation ui = client.openmlImplementationUpload(
-                implementationFile, null, sourceFile,
-                hashFetcher.getSessionHash());
+                implementationFile, null, sourceFile);
         return ui.getId();
     }
     
