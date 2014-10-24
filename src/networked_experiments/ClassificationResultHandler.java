@@ -378,7 +378,7 @@ public class ClassificationResultHandler {
             if(!parameterStringValues.isEmpty()) {
                 setupString += (" -- ");
                 for (String par: keyArr) {
-                    setupString += (keyArr + ",");
+                    setupString += (keyArr + " ");
                 }
             }
             // Generate the Run object.
