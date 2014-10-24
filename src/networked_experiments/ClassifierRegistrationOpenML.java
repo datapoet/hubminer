@@ -17,12 +17,18 @@
 package networked_experiments;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import learning.supervised.evaluation.ValidateableInterface;
 import org.openml.apiconnector.algorithms.Conversion;
 import org.openml.apiconnector.io.ApiSessionHash;
 import org.openml.apiconnector.io.OpenmlConnector;
 import org.openml.apiconnector.xml.Implementation;
+import org.openml.apiconnector.xml.Implementation.Parameter;
 import org.openml.apiconnector.xml.ImplementationExists;
+import org.openml.apiconnector.xml.Run.Parameter_setting;
 import org.openml.apiconnector.xml.UploadImplementation;
 import org.openml.apiconnector.xstream.XstreamXmlMapping;
 
@@ -120,6 +126,91 @@ public class ClassifierRegistrationOpenML {
         return ui.getId();
     }
     
+    /**
+     * This method creates an implementation object with the specified parameter
+     * descriptions.
+     * 
+     * @param classifierClass Class that is the class of the classifier.
+     * @param parameterDescriptions HashMap<String, String> mapping parameter
+     * names to parameter descriptions.
+     * @return Implementation that corresponds to the specified classifier class
+     * and the specified list of parameters.
+     * @throws Exception 
+     */
+    public static Implementation create(Class classifierClass,
+            HashMap<String, String> parameterDescriptions) throws Exception {
+        if (classifierClass == null) {
+            return null;
+        }
+        ValidateableInterface classifier = (ValidateableInterface) (
+                classifierClass.newInstance());
+        String version = Long.toString(classifier.getVersion());
+        String classPath = classifierClass.getName();
+        String classifierName = classPath.substring(
+                classPath.lastIndexOf('.') + 1);
+        String description = "HubMiner implementation of " + classifierName;
+        Implementation imp = new Implementation(classifierName, version,
+                description, "java", " ");
+        if (parameterDescriptions != null) {
+            Set<String> paramNames = parameterDescriptions.keySet();
+            for (String paramName: paramNames) {
+                String paramDescription = parameterDescriptions.get(paramName);
+                Field fld = classifierClass.getDeclaredField(paramName);
+                fld.setAccessible(true);
+                String paramType = fld.getType().toString();
+                String defaultValue = fld.get(classifier).toString();
+                imp.addParameter(paramType, paramType, defaultValue,
+                        paramDescription);
+            }
+        }
+        // Now add the special "external_preprocessing" parameter that is going
+        // to be set by the experimental framework itself.
+        String envParamName = "external_preprocessing";
+        // This may be changes to set a formal type, but for now it is just a
+        // concatenated description of pre-processing steps from the
+        // experimental environment.
+        String envParamType = "String";
+        String envDefaultValue = "feature_noise_rate:0, label_noise_rate:0, "
+                + "noise_type:uniform instance_selection:NONE, "
+                + "proto_hubness:UNBIASED, app_knn_sets:FALSE";
+        String envParamDescription = "This parameter is actually a list of the"
+                + "parameters of the experimental framework that affect the"
+                + "performance of algorithms that are being tested. Since they"
+                + "greatly affect the results, they are reported in order to"
+                + "distinguish between different result uploads and make"
+                + "smarter comparisons.";
+        imp.addParameter(envParamName, envParamType, envDefaultValue,
+                envParamDescription);
+        return imp;
+    }
     
+    /**
+     * This method gets the list of current parameter values restricted on the
+     * definitions in the implementation object.
+     * 
+     * @param paramValuesMap HashMap<String, Object> mapping parameter names to
+     * their current values.
+     * @param imp Implementation that holds the parametrization definitions.
+     * @return ArrayList<Parameter_setting> that contains the current parameter
+     * values.
+     */
+    public static ArrayList<Parameter_setting> getParameterSetting(
+            HashMap<String, Object> paramValuesMap, Implementation imp) {
+        ArrayList<Parameter_setting> settings = new ArrayList<>();
+        for(Parameter p : imp.getParameter()) {
+            try {
+                String paramName = p.getName();
+                if (paramValuesMap.containsKey(paramName)) {
+                    String paramValue =
+                            paramValuesMap.get(paramName).toString();
+                    settings.add(new Parameter_setting(imp.getId(),
+                            p.getName(), paramValue));
+                }
+            } catch (Exception e) {
+                // Parameter not found.
+            }
+        }
+        return settings;
+    }
     
 }
