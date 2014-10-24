@@ -24,7 +24,6 @@ import java.util.Set;
 import learning.supervised.evaluation.ValidateableInterface;
 import org.openml.apiconnector.algorithms.Conversion;
 import org.openml.apiconnector.io.OpenmlConnector;
-import org.openml.apiconnector.settings.Settings;
 import org.openml.apiconnector.xml.Implementation;
 import org.openml.apiconnector.xml.Implementation.Parameter;
 import org.openml.apiconnector.xml.ImplementationExists;
@@ -73,17 +72,17 @@ public class ClassifierRegistrationOpenML {
         if (classifierClass == null) {
             throw new Exception("Null algorithm class provided.");
         }
-        ImplementationExists result;
+        ImplementationExists queriedImp;
         try {
-            result = client.openmlImplementationExists(
+            queriedImp = client.openmlImplementationExists(
                     implementation.getName(),
                     implementation.getExternal_version());
         } catch (Exception e) {
             return registerImplementation(implementation, classifierClass,
                     hubMinerSourceDir, client);
         }
-        if(result != null && result.exists()) {
-            return result.getId();
+        if(queriedImp != null && queriedImp.exists()) {
+            return queriedImp.getId();
         } else {
             return registerImplementation(implementation, classifierClass,
                     hubMinerSourceDir, client);

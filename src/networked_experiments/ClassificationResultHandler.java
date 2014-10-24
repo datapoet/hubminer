@@ -124,6 +124,9 @@ public class ClassificationResultHandler {
                 allLabelAssignments);
         Conversion.log("INFO", "Upload Run", "Starting send run process... ");
         if (useBenchmarker) {
+            // The benchmarker tests JVM performance on the local machine, in
+            // order to compare total execution times. It is a time-consuming
+            // thing, so this should only be done when time is not an issue.
             executedTask.getRun().addOutputEvaluation("os_information",
                     "openml.userdefined.os_information(1.0)", null, "[" +
                     StringUtils.join(benchmarker.getOsInfo(), ", " ) + "]" );
@@ -133,15 +136,19 @@ public class ClassificationResultHandler {
                     benchmarker.getStringArray(), ", " ) + "]");
         }
         XStream xstream = XstreamXmlMapping.getInstance();
+        // Save the classification predictions to a temporary file for later
+        // upload.
         IOARFF pers = new IOARFF();
-        String tmpFileName = "classificationPredictions";
-        File tmpPredictionsFile = File.createTempFile(tmpFileName, ".arff");
+        String tmpPredictionsFileName = "classificationPredictions";
+        File tmpPredictionsFile = File.createTempFile(tmpPredictionsFileName,
+                ".arff");
         try (PrintWriter writer = new PrintWriter(new FileWriter(
                 tmpPredictionsFile))) {
             pers.saveUnlabeled(executedTask.preparedPredictions, writer);
         }
         Map<String, File> outputFiles = new HashMap<>();
         outputFiles.put("predictions", tmpPredictionsFile);
+        // Meta-information file.
         File tmpDescriptionFile = Conversion.stringToTempFile(xstream.toXML(
                 executedTask.getRun()), "hubminer_generated_run", "xml");
         try { 
@@ -164,17 +171,10 @@ public class ClassificationResultHandler {
      * servers.
      */
     private class OpenmlExecutedTask {
-        private int taskId;
-        private Task task;
-        private ValidateableInterface classifier;
-        private int classifierIndex;
-        private float[][][][] allLabelAssignments;
-        private ArrayList<Integer>[][][] foldTrainTestIndexes;
+        
         private String[] classNames;
         private Run run;
         private int implementationId;
-        private int folds;
-        private int times;
         private DataSet preparedPredictions;
 
         /**
@@ -204,10 +204,6 @@ public class ClassificationResultHandler {
                 ArrayList<Integer>[][][] foldTrainTestIndexes,
                 float[][][][] allLabelAssignments)
                 throws Exception {
-            this.classifier = classifier;
-            this.classifierIndex = classifierIndex;
-            this.allLabelAssignments = allLabelAssignments;
-            this.foldTrainTestIndexes = foldTrainTestIndexes;
             if (allLabelAssignments == null) {
                 throw new Exception("Label assignments not provided.");
             }
@@ -222,10 +218,6 @@ public class ClassificationResultHandler {
             for (int cIndex = 0; cIndex < classNames.length; cIndex++) {
                 classNameToIndexMap.put(classNames[cIndex], cIndex);
             }
-            this.task = task;
-            taskId = task.getTask_id();
-            this.times = times;
-            this.folds = folds;
             // Generate an initial feature list.
             ArrayList<DataFeature> attInfo = new ArrayList<>();
             // Counters to incrementally determine the feature indexes within
