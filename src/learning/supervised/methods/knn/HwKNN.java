@@ -56,6 +56,12 @@ public class HwKNN extends Classifier implements AutomaticKFinderInterface,
     private NeighborSetFinder nsf = null;
     private int k = 5;
     
+    /**
+     * Default constructor.
+     */
+    public HwKNN() {
+    }
+    
     @Override
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();

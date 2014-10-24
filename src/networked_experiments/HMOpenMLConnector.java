@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.openml.apiconnector.algorithms.TaskInformation;
 import org.openml.apiconnector.io.OpenmlConnector;
-import org.openml.apiconnector.settings.Settings;
 import org.openml.apiconnector.xml.DataSetDescription;
 import org.openml.apiconnector.xml.Task;
 import org.openml.apiconnector.xml.Task.Input.Data_set;
@@ -53,6 +52,23 @@ public class HMOpenMLConnector {
      */
     public HMOpenMLConnector(String username, String password) {
         client = new OpenmlConnector(username, password);
+    }
+    
+    /**
+     * @return OpenmlConnector for working with the OpenML API.
+     */
+    public OpenmlConnector getConnector() {
+        return client;
+    }
+    
+    /**
+     * @param taskId Integer that is the task ID to get the task for.
+     * 
+     * @return Task that is an OpenML task corresponding to the provided taskID. 
+     */
+    public Task getTaskForTaskID(int taskId) throws Exception {
+        Task openmlTask = client.openmlTaskGet(taskId);
+        return openmlTask;
     }
     
     /**

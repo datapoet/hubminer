@@ -24,6 +24,7 @@ import java.util.Set;
 import learning.supervised.evaluation.ValidateableInterface;
 import org.openml.apiconnector.algorithms.Conversion;
 import org.openml.apiconnector.io.OpenmlConnector;
+import org.openml.apiconnector.settings.Settings;
 import org.openml.apiconnector.xml.Implementation;
 import org.openml.apiconnector.xml.Implementation.Parameter;
 import org.openml.apiconnector.xml.ImplementationExists;
@@ -151,10 +152,17 @@ public class ClassifierRegistrationOpenML {
             Set<String> paramNames = parameterDescriptions.keySet();
             for (String paramName: paramNames) {
                 String paramDescription = parameterDescriptions.get(paramName);
-                Field fld = classifierClass.getDeclaredField(paramName);
+                Field fld;
+                if (paramName.equals("cmet")) {
+                    fld = classifierClass.getSuperclass().getDeclaredField(
+                            paramName);
+                } else {
+                    fld = classifierClass.getDeclaredField(paramName);
+                }
                 fld.setAccessible(true);
                 String paramType = fld.getType().toString();
-                String defaultValue = fld.get(classifier).toString();
+                String defaultValue = fld.get(classifier) != null ?
+                        fld.get(classifier).toString() : "NULL";
                 imp.addParameter(paramType, paramType, defaultValue,
                         paramDescription);
             }
@@ -199,6 +207,35 @@ public class ClassifierRegistrationOpenML {
                 if (paramValuesMap.containsKey(paramName)) {
                     String paramValue =
                             paramValuesMap.get(paramName).toString();
+                    settings.add(new Parameter_setting(imp.getId(),
+                            p.getName(), paramValue));
+                }
+            } catch (Exception e) {
+                // Parameter not found.
+            }
+        }
+        return settings;
+    }
+    
+    /**
+     * This method gets the list of current parameter values restricted on the
+     * definitions in the implementation object.
+     * 
+     * @param paramValuesMap HashMap<String, String> mapping parameter names to
+     * their current values.
+     * @param imp Implementation that holds the parametrization definitions.
+     * @return ArrayList<Parameter_setting> that contains the current parameter
+     * values.
+     */
+    public static ArrayList<Parameter_setting> getParameterSettingFromStrVals(
+            HashMap<String, String> paramValuesMap, Implementation imp) {
+        ArrayList<Parameter_setting> settings = new ArrayList<>();
+        for(Parameter p : imp.getParameter()) {
+            try {
+                String paramName = p.getName();
+                if (paramValuesMap.containsKey(paramName)) {
+                    String paramValue =
+                            paramValuesMap.get(paramName);
                     settings.add(new Parameter_setting(imp.getId(),
                             p.getName(), paramValue));
                 }

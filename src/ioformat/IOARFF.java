@@ -1,19 +1,20 @@
 /**
-* Hub Miner: a hubness-aware machine learning experimentation library.
-* Copyright (C) 2014  Nenad Tomasev. Email: nenad.tomasev at gmail.com
-* 
+ * Hub Miner: a hubness-aware machine learning experimentation library.
+ * Copyright (C) 2014 Nenad Tomasev. Email: nenad.tomasev at gmail.com
+ * 
 * This program is free software: you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free Software
-* Foundation, either version 3 of the License, or (at your option) any later
-* version.
-* 
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ * 
 * This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-*
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ * 
 * You should have received a copy of the GNU General Public License along with
-* this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 package ioformat;
 
 import data.representation.DataInstance;
@@ -57,14 +58,14 @@ public class IOARFF {
     private ArrayList<HashMap> nominalHashes = new ArrayList<>(10);
     // Contains a vocabulary for each nominal feature.
     private ArrayList<String>[] nominalVocabularies = null;
-    
+
     /**
      * Parse ARFF data from OpenML service into the Hub Miner - usable form for
      * classification experiments.
-     * 
+     *
      * @param input Reader object to get the data from.
      * @param targetFeatureName String that is the name of the class feature.
-     * @return 
+     * @return
      */
     public DataSet getDenseLabeledDataFromOpenMLArff(
             Reader input,
@@ -80,14 +81,14 @@ public class IOARFF {
             return dset;
         }
     }
-    
+
     /**
      * Parse a sparse ARFF data from OpenML service into the Hub Miner - usable
      * form for classification experiments.
-     * 
+     *
      * @param input Reader object to get the data from.
      * @param targetFeatureName String that is the name of the class feature.
-     * @return 
+     * @return
      */
     public BOWDataSet getSparseLabeledDataFromOpenMLArff(
             Reader input,
@@ -104,15 +105,15 @@ public class IOARFF {
         }
         return bowDSet;
     }
-    
+
     /**
      * Parse ARFF data from OpenML service into the Hub Miner - usable form for
      * classification experiments.
-     * 
+     *
      * @param input Reader object to get the data from.
      * @param targetFeatureName String that is the name of the class feature.
      * @param admissibleFeatures ArrayList<String> of features to actually use.
-     * @return 
+     * @return
      */
     public DataSet getDenseLabeledDataFromOpenMLArff(Reader input,
             String targetFeatureName,
@@ -131,15 +132,15 @@ public class IOARFF {
         ArrayList<Integer> admissibleFloatFeatureIndexes = new ArrayList<>();
         ArrayList<Integer> admissibleIntegerFeatureIndexes = new ArrayList<>();
         ArrayList<Integer> admissibleNominalFeatureIndexes = new ArrayList<>();
-        for (String admissibleFeatureName: admissibleFeatures) {
+        for (String admissibleFeatureName : admissibleFeatures) {
             if (admissibleFeatureName.equals(targetFeatureName)) {
                 continue;
             }
             int[] featSpecPair = dset.getTypeAndIndexForAttrName(
                     admissibleFeatureName);
             if (featSpecPair[0] == -1 || featSpecPair[1] == -1) {
-                throw new IOException("Specified feature does not exist: " +
-                        admissibleFeatureName);
+                throw new IOException("Specified feature does not exist: "
+                        + admissibleFeatureName);
             }
             switch (featSpecPair[0]) {
                 case DataMineConstants.FLOAT:
@@ -153,8 +154,8 @@ public class IOARFF {
                     break;
                 default:
                     throw new IOException(
-                            "Specified feature not of acceptable type: " +
-                            admissibleFeatureName);
+                            "Specified feature not of acceptable type: "
+                            + admissibleFeatureName);
             }
         }
         DataSet filteredDataSet = new DataSet();
@@ -197,15 +198,15 @@ public class IOARFF {
         }
         return filteredDataSet;
     }
-    
+
     /**
      * Parse a sparse ARFF data from OpenML service into the Hub Miner - usable
      * form for classification experiments.
-     * 
+     *
      * @param input Reader object to get the data from.
      * @param targetFeatureName String that is the name of the class feature.
      * @param admissibleFeatures ArrayList<String> of features to actually use.
-     * @return 
+     * @return
      */
     public BOWDataSet getSparseLabeledDataFromOpenMLArff(Reader input,
             String targetFeatureName,
@@ -266,7 +267,7 @@ public class IOARFF {
             saveLabeled(dset, outPath);
         }
         if (idPath != null) {
-            saveUnlabeled(dset.getIdentifiers(), idPath);
+            saveUnlabeled(dset.getIdentifiers(), new File(idPath));
         }
     }
 
@@ -284,7 +285,7 @@ public class IOARFF {
             saveLabeled(dset, outFile.getPath());
         }
         if (idFile != null) {
-            saveUnlabeled(dset.getIdentifiers(), idFile.getPath());
+            saveUnlabeled(dset.getIdentifiers(), new File(idFile.getPath()));
         }
     }
 
@@ -300,11 +301,24 @@ public class IOARFF {
      */
     public void save(DataSet dset, String outPath, String idPath)
             throws IOException {
-        if (outPath != null) {
-            saveUnlabeled(dset, outPath);
+        save(dset, new File(outPath), new File(idPath));
+    }
+
+    /**
+     * Saves the data into an ARFF format.
+     *
+     * @param dset DataSet object to persist.
+     * @param outFile to store the data.
+     * @param idFile to store the ID data.
+     * @throws IOException
+     */
+    public void save(DataSet dset, File outFile, File idFile)
+            throws IOException {
+        if (outFile != null) {
+            saveUnlabeled(dset, outFile);
         }
-        if (idPath != null) {
-            saveUnlabeled(dset.getIdentifiers(), idPath);
+        if (idFile != null) {
+            saveUnlabeled(dset.getIdentifiers(), idFile);
         }
     }
 
@@ -362,7 +376,7 @@ public class IOARFF {
         boolean dataMode = false;
         ArrayList<String> featureNameList = new ArrayList<>(10000);
         try (BufferedReader br = new BufferedReader((new InputStreamReader(
-                     new FileInputStream(new File(inPath)), "UTF-8")))) {
+                new FileInputStream(new File(inPath)), "UTF-8")))) {
             String[] pair;
             String[] lineItems;
             String line = br.readLine();
@@ -464,7 +478,7 @@ public class IOARFF {
         }
         return bowDSet;
     }
-    
+
     /**
      * Loads a sparse data representation. This is one of the two supported
      * variants of the same format, where the class information does not need to
@@ -578,7 +592,7 @@ public class IOARFF {
                             featureValue = Float.parseFloat(pair[1]);
                             instance.addWord(featureIndex, featureValue);
                         }
-                    }                        
+                    }
                 }
                 bowDSet.data.add(instance);
             }
@@ -594,7 +608,7 @@ public class IOARFF {
         }
         return bowDSet;
     }
-    
+
     /**
      * Loads a sparse data representation. This is one of the two supported
      * variants of the same format, where the class information does not need to
@@ -649,7 +663,7 @@ public class IOARFF {
             return dset;
         }
     }
-    
+
     /**
      * This method performs the data load from the specified ARFF target.
      *
@@ -664,9 +678,9 @@ public class IOARFF {
         loadRepresentation(dset, br, features);
         // Initialize feature name hashes.
         dset.makeFeatureMappings();
-        return dset;    
+        return dset;
     }
-    
+
     /**
      * This method performs the data load from the specified ARFF target.
      *
@@ -698,7 +712,7 @@ public class IOARFF {
             return dset;
         }
     }
-    
+
     /**
      * This method performs the data load from the specified ARFF target.
      *
@@ -722,26 +736,26 @@ public class IOARFF {
     /**
      * This method loads the representation from the BufferedReader for the
      * specified list of features.
-     * 
+     *
      * @param dset DataSet object to load into.
      * @param br BufferedReader used as the source.
      * @param features List of DataFeature feature specifications.
-     * @throws IOException 
+     * @throws IOException
      */
     private void loadRepresentation(DataSet dset, BufferedReader br,
             ArrayList<DataFeature> features) throws IOException {
         loadRepresentation(dset, br, features, "class");
     }
-    
+
     /**
      * This method loads the representation from the BufferedReader for the
      * specified list of features.
-     * 
+     *
      * @param dset DataSet object to load into.
      * @param br BufferedReader used as the source.
      * @param features List of DataFeature feature specifications.
      * @param classFeatureName String that is the name of the class feature.
-     * @throws IOException 
+     * @throws IOException
      */
     private void loadRepresentation(DataSet dset, BufferedReader br,
             ArrayList<DataFeature> features, String classFeatureName)
@@ -854,7 +868,7 @@ public class IOARFF {
                                             maxClassIndex);
                                 }
                                 instance.setCategory(classNameToIndexMap.get(
-                                            nominalValue));
+                                        nominalValue));
                             }
                         }
                         break;
@@ -877,7 +891,7 @@ public class IOARFF {
     private void setDefinition(DataSet dset, ArrayList<DataFeature> features) {
         setDefinition(dset, features, "class");
     }
-    
+
     /**
      * This method sets the feature definitions that have been parsed to the
      * DataSet object.
@@ -984,8 +998,8 @@ public class IOARFF {
                     DataFeature feature = new DataFeature();
                     feature.setFeatureName(featureName);
                     if (featureType.equalsIgnoreCase("string")
-                            || featureType.equalsIgnoreCase("nominal") ||
-                            featureType.startsWith("{")) {
+                            || featureType.equalsIgnoreCase("nominal")
+                            || featureType.startsWith("{")) {
                         feature.setFeatureType(DataMineConstants.NOMINAL);
                         feature.setFeatureIndex(numNominalFeatures++);
                         if (useNominalHashing) {
@@ -1014,17 +1028,81 @@ public class IOARFF {
      * This method saves data in an unlabeled way.
      *
      * @param dset DataSet object to save.
-     * @param outPath String that is the output path to save the object to.
+     * @param pw PrintWriter to use to write the data.
      * @throws IOException
      */
-    public void saveUnlabeled(DataSet dset, String outPath)
+    public void saveUnlabeled(DataSet dset, PrintWriter pw)
             throws IOException {
         if (dset == null) {
             throw new IOException("Null data provided.");
         }
-        FileUtil.createFileFromPath(outPath);
+        pw.println("@RELATION " + dset.getName());
+        if (dset.hasIntAttr()) {
+            for (String featureName : dset.iAttrNames) {
+                pw.println("@ATTRIBUTE " + featureName + " integer");
+            }
+        }
+        if (dset.hasFloatAttr()) {
+            for (String featureName : dset.fAttrNames) {
+                pw.println("@ATTRIBUTE " + featureName + " numeric");
+            }
+        }
+        if (dset.hasNominalAttr()) {
+            for (String featureName : dset.sAttrNames) {
+                pw.println("@ATTRIBUTE " + featureName + " string");
+            }
+        }
+        pw.println("@DATA");
+        for (DataInstance instance : dset.data) {
+            // It will be set to true as soon as anything is printed on this
+            // line.
+            boolean printSeparator = false;
+            if (dset.hasIntAttr()) {
+                for (int iVal : instance.iAttr) {
+                    if (printSeparator) {
+                        pw.print(",");
+                    }
+                    pw.print(iVal);
+                    printSeparator = true;
+                }
+            }
+            if (dset.hasFloatAttr()) {
+                for (float fVal : instance.fAttr) {
+                    if (printSeparator) {
+                        pw.print(",");
+                    }
+                    pw.print(fVal);
+                    printSeparator = true;
+                }
+            }
+            if (dset.hasNominalAttr()) {
+                for (String sVal : instance.sAttr) {
+                    if (printSeparator) {
+                        pw.print(",");
+                    }
+                    pw.print("'" + sVal + "'");
+                    printSeparator = true;
+                }
+            }
+            pw.println();
+        }
+    }
+
+    /**
+     * This method saves data in an unlabeled way.
+     *
+     * @param dset DataSet object to save.
+     * @param outFile File where to save the data.
+     * @throws IOException
+     */
+    public void saveUnlabeled(DataSet dset, File outFile)
+            throws IOException {
+        if (dset == null) {
+            throw new IOException("Null data provided.");
+        }
+        FileUtil.createFileFromPath(outFile.getPath());
         PrintWriter pw = new PrintWriter(new OutputStreamWriter(
-                new FileOutputStream(new File(outPath)), "UTF-8"));
+                new FileOutputStream(new File(outFile.getPath())), "UTF-8"));
         try {
             pw.println("@RELATION " + dset.getName());
             if (dset.hasIntAttr()) {

@@ -51,6 +51,12 @@ public class KNN extends Classifier implements AutomaticKFinderInterface,
     // The prior class distribution.
     float[] classPriors;
     
+    /**
+     * Default constructor.
+     */
+    public KNN() {
+    }
+    
     @Override
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();

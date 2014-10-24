@@ -52,6 +52,7 @@ import learning.supervised.evaluation.ClassifierParametrization;
 import learning.supervised.evaluation.ValidateableInterface;
 import learning.supervised.interfaces.DistMatrixUserInterface;
 import learning.supervised.interfaces.NeighborPointsQueryUserInterface;
+import networked_experiments.ClassificationResultHandler;
 import networked_experiments.HMOpenMLConnector;
 import preprocessing.instance_selection.InstanceSelector;
 import preprocessing.instance_selection.ReducersFactory;
@@ -112,6 +113,8 @@ public class BatchClassifierTester {
     private ArrayList<String> classifierNames = new ArrayList<>(10);
     // Possible parameter value maps to use with certain algorithms.
     HashMap<String, HashMap<String, Object>> algorithmParametrizationMap;
+    // Classifier prototype arrays.
+    ValidateableInterface[] nonDiscreteArray, discreteArray;
     // List of paths to the datasets that the experiment is to be executed on.
     private ArrayList<String> dsPaths = new ArrayList<>(100);
     // List of CombinedMetric objects for distance calculations that correspond
@@ -178,6 +181,11 @@ public class BatchClassifierTester {
     private int protoHubnessMode = MultiCrossValidation.PROTO_UNBIASED;
     // The number of threads used for distance matrix and kNN set calculations.
     private int numCommonThreads = 8;
+    // OpenML taskID-s and a map that checks whether a particular dataset is a
+    // OpenML data source.
+    public ArrayList<Integer> openMLTaskIDList;
+    public HashMap<Integer, Integer> dataIndexToOpenMLCounterMap =
+            new HashMap<>();
 
     /**
      * Get the human-readable name of a secondary distance type.
@@ -498,14 +506,14 @@ public class BatchClassifierTester {
                                     nonDiscreteAlgs.add(cInstance);
                                 }
                             }
-                            ValidateableInterface[] discreteArray =
+                            discreteArray =
                                     new ValidateableInterface[
                                             discreteAlgs.size()];
                             if (discreteArray.length > 0) {
                                 discreteArray = discreteAlgs.toArray(
                                         discreteArray);
                             }
-                            ValidateableInterface[] nonDiscreteArray =
+                            nonDiscreteArray =
                                     new ValidateableInterface[
                                             nonDiscreteAlgs.size()];
                             if (nonDiscreteArray.length > 0) {
@@ -765,6 +773,7 @@ public class BatchClassifierTester {
                                         discreteCV.setDataReducer(
                                                 selector, selectorRate);
                                     }
+                                    // Perform the tests.
                                     discreteCV.performAllTests();
                                     System.out.println();
                                     if (foldsDir != null) {
@@ -810,6 +819,7 @@ public class BatchClassifierTester {
                                             secondaryDistanceType,
                                             secondaryDistanceK);
                                 }
+                                // Perform the tests.
                                 nonDiscreteCV.performAllTests();
                                 System.out.print("tEstTraining: " + (long) (
                                         nonDiscreteCV.execTimeAllOneRun));
@@ -841,6 +851,30 @@ public class BatchClassifierTester {
                             if (nonDiscreteCV != null) {
                                 allFuzzyPredictionsNonDisc =
                                     nonDiscreteCV.getAllFuzzyLabelAssignments();
+                                if (dataIndexToOpenMLCounterMap.containsKey(
+                                        datasetIndex)) {
+                                    for (int algIndex = 0; algIndex < 
+                                            nonDiscreteArray.length; algIndex++) {
+                                        ClassificationResultHandler handler =
+                                                new ClassificationResultHandler
+                                                (openmlConnector.getConnector(),
+                                                hubMinerSourceDir, currDSet);
+                                        handler.uploadClassificationResults(
+                                                openmlConnector.getTaskForTaskID(
+                                                    openMLTaskIDList.get(
+                                                    dataIndexToOpenMLCounterMap.get(
+                                                    datasetIndex))),
+                                                    nonDiscreteArray[algIndex],
+                                                algIndex,
+                                                ClassifierParametrization.
+                                                    getClassifierParameterStringValues(
+                                                    nonDiscreteArray[algIndex]),
+                                                numTimes,
+                                                numFolds,
+                                                trainTestIndexes[datasetIndex],
+                                                allFuzzyPredictionsNonDisc);
+                                    }
+                                }
                             }
                             float[][][][] allFuzzyPredictionsDisc = null;
                             if (discreteCV != null) {
@@ -1099,6 +1133,8 @@ public class BatchClassifierTester {
         trainTestIndexes = conf.trainTestIndexes;
         hubMinerSourceDir = conf.hubMinerSourceDir;
         algorithmParametrizationMap = conf.algorithmParametrizationMap;
+        openMLTaskIDList = conf.openMLTaskIDList;
+        dataIndexToOpenMLCounterMap = conf.dataIndexToOpenMLCounterMap;
     }
 
     /**

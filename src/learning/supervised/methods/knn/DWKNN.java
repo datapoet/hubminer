@@ -52,6 +52,12 @@ public class DWKNN extends Classifier implements DistToPointsQueryUserInterface,
     // The distance weighting parameter.
     private float mValue = 2;
     
+    /**
+     * Default constructor.
+     */
+    public DWKNN() {
+    }
+    
     @Override
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();

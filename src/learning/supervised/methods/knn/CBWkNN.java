@@ -61,6 +61,12 @@ public class CBWkNN extends Classifier implements DistMatrixUserInterface,
     // the query point.
     private int mValue = 2;
     
+    /**
+     * Default constructor.
+     */
+    public CBWkNN() {
+    }
+    
     @Override
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();

@@ -35,7 +35,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import learning.supervised.evaluation.cv.BatchClassifierTester;
 import learning.supervised.evaluation.cv.CVFoldsIO;
 import learning.supervised.evaluation.cv.MultiCrossValidation;

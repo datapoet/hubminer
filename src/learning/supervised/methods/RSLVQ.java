@@ -68,6 +68,12 @@ public class RSLVQ extends Classifier implements Serializable {
     public String getName() {
         return "Robust Stochastic Learning Vector Quantization";
     }
+    
+    /**
+     * Default constructor.
+     */
+    public RSLVQ() {
+    }
 
     /**
      * Initialization.
