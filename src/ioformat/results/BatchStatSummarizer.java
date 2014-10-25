@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import statistics.tests.TTests;
 import util.AuxSort;
@@ -404,6 +405,20 @@ public class BatchStatSummarizer {
         }
         for (int k = 0; k < fileListKValues.length; k++) {
             initialRecurseInKDir(fileListKValues[k]);
+        }
+        if (currMLArray != null) {
+            Collections.sort(currMLArray);
+            mlNameToIndexMap = new HashMap<>(currMLArray.size());
+            for (int i = 0; i < currMLArray.size(); i++) {
+                mlNameToIndexMap.put(currMLArray.get(i), i);
+            }
+        }
+        if (currNOArray != null) {
+            Collections.sort(currNOArray);
+            noiseNameToIndexMap = new HashMap<>(currNOArray.size());
+            for (int i = 0; i < currNOArray.size(); i++) {
+                noiseNameToIndexMap.put(currNOArray.get(i), i);
+            }
         }
     }
     
