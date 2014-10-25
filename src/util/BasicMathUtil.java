@@ -16,6 +16,8 @@
 */
 package util;
 
+import data.representation.util.DataMineConstants;
+
 /**
  * Some basic math utility methods.
  *
@@ -53,6 +55,9 @@ public class BasicMathUtil {
      * @return The float value with certain decimals cut off.
      */
     public static float makeADecimalCutOff(float x, int numDecimalPlaces) {
+        if (!DataMineConstants.isAcceptableFloat(x)) {
+            return x;
+        }
         float tenPower = (float) Math.pow(10, numDecimalPlaces);
         float result = tenPower * x;
         int resultInt = (int) result;

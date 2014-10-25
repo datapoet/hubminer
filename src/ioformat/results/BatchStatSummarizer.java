@@ -16,6 +16,7 @@
 */
 package ioformat.results;
 
+import data.representation.util.DataMineConstants;
 import ioformat.FileUtil;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import statistics.tests.TTests;
 import util.AuxSort;
 import util.BasicMathUtil;
@@ -48,11 +51,17 @@ public class BatchStatSummarizer {
     // The results for different mislabeling and noise levels are also contained
     // in separate subdirectories. These arrays hold all the used mislabeling
     // and noise levels.
-    private String[] currMLArray;
-    private String[] currNOArray;
+    private HashMap<String, Integer> mlNameToIndexMap;
+    private HashMap<String, Integer> noiseNameToIndexMap;
+    private HashMap<String, Integer> algNameToIndexMap;
+    private HashMap<String, Integer> kNameToIndexMap;
+    private ArrayList<String> currMLArray;
+    private ArrayList<String> currNOArray;
+    // The names of classifiers in the comparisons.
+    ArrayList<String> classifierNames = null;
+    private ArrayList<String> kVals;
     // This array holds the used neighborhood sizes.
-    private String[] kVals;
-    private int[] kIntVals;
+    private ArrayList<Integer> kIntVals;
     // Indexes that hold the currently examined experimental setup during the
     // result traversal.
     private int currMLIndex = -1;
@@ -70,8 +79,6 @@ public class BatchStatSummarizer {
     float[][][][] precMatricesStDev = null;
     float[][][][] recallMatricesStDev = null;
     float[][][][] fMatricesStDev = null;
-    // The names of classifiers in the comparisons.
-    String[] classifierNames = null;
     // Parameters of the underlying cross-validation protocol.
     private int numTimes = 10;
     private int numFolds = 10;
@@ -120,41 +127,41 @@ public class BatchStatSummarizer {
             FileUtil.createDirectory(outDataDirList[dataIndex]);
             // This call performs the traversal of all the results for that
             // dataset and gets all the work done.
+            initialRecurseForFullClassifierList(dataResultsList[dataIndex]);
             summarizeDataset(dataResultsList[dataIndex]);
-            for (int methodIndex = 0; methodIndex < classifierNames.length;
+            for (int methodIndex = 0; methodIndex < classifierNames.size();
                     methodIndex++) {
                 // We create a summary file for each algorithm, where we will
                 // write its performance over all the k values, noise and
                 // mislabeling rates, etc.
                 File currAlgOutFile = new File(outDataDirList[dataIndex],
-                        classifierNames[methodIndex] + ".txt");
+                        classifierNames.get(methodIndex) + ".txt");
                 FileUtil.createFile(currAlgOutFile);
-                PrintWriter pw = new PrintWriter(
-                        new FileWriter(currAlgOutFile));
-                try {
+                try (PrintWriter pw = new PrintWriter(
+                             new FileWriter(currAlgOutFile))) {
                     // First we write the actual mislabeling and noise rates.
                     pw.print("ML: ");
-                    pw.print(currMLArray[0].substring(2));
-                    for (int ml = 1; ml < currMLArray.length; ml++) {
-                        pw.print("," + currMLArray[ml].substring(2));
+                    pw.print(currMLArray.get(0).substring(2));
+                    for (int ml = 1; ml < currMLArray.size(); ml++) {
+                        pw.print("," + currMLArray.get(ml).substring(2));
                     }
                     pw.println();
                     pw.print("NO: ");
-                    pw.print(currNOArray[0].substring(5));
-                    for (int no = 1; no < currNOArray.length; no++) {
-                        pw.print("," + currNOArray[no].substring(5));
+                    pw.print(currNOArray.get(0).substring(5));
+                    for (int no = 1; no < currNOArray.size(); no++) {
+                        pw.print("," + currNOArray.get(no).substring(5));
                     }
                     pw.println();
                     pw.println();
-                    for (int k = 0; k < kVals.length; k++) {
-                        pw.println("k: " + kVals[k].substring(1));
+                    for (int k = 0; k < kVals.size(); k++) {
+                        pw.println("k: " + kVals.get(k).substring(1));
                         pw.println();
                         pw.println("accMat: ");
                         pw.println();
-                        for (int ml = 0; ml < currMLArray.length; ml++) {
+                        for (int ml = 0; ml < currMLArray.size(); ml++) {
                             pw.print(BasicMathUtil.makeADecimalCutOff(
                                     accMatrices[methodIndex][k][ml][0], 3));
-                            for (int no = 1; no < currMLArray.length; no++) {
+                            for (int no = 1; no < currNOArray.size(); no++) {
                                 pw.print("," + BasicMathUtil.makeADecimalCutOff(
                                         accMatrices[methodIndex][k][ml][no],
                                         3));
@@ -165,10 +172,10 @@ public class BatchStatSummarizer {
 
                         pw.println("precMat: ");
                         pw.println();
-                        for (int ml = 0; ml < currMLArray.length; ml++) {
+                        for (int ml = 0; ml < currMLArray.size(); ml++) {
                             pw.print(BasicMathUtil.makeADecimalCutOff(
                                     precMatrices[methodIndex][k][ml][0], 3));
-                            for (int no = 1; no < currMLArray.length; no++) {
+                            for (int no = 1; no < currNOArray.size(); no++) {
                                 pw.print("," + BasicMathUtil.makeADecimalCutOff(
                                         precMatrices[methodIndex][k][ml][no],
                                         3));
@@ -179,10 +186,10 @@ public class BatchStatSummarizer {
 
                         pw.println("recallMat: ");
                         pw.println();
-                        for (int ml = 0; ml < currMLArray.length; ml++) {
+                        for (int ml = 0; ml < currMLArray.size(); ml++) {
                             pw.print(BasicMathUtil.makeADecimalCutOff(
                                     recallMatrices[methodIndex][k][ml][0], 3));
-                            for (int no = 1; no < currMLArray.length; no++) {
+                            for (int no = 1; no < currNOArray.size(); no++) {
                                 pw.print("," + BasicMathUtil.makeADecimalCutOff(
                                         recallMatrices[methodIndex][k][ml][no],
                                         3));
@@ -193,10 +200,10 @@ public class BatchStatSummarizer {
 
                         pw.println("fMat: ");
                         pw.println();
-                        for (int ml = 0; ml < currMLArray.length; ml++) {
+                        for (int ml = 0; ml < currMLArray.size(); ml++) {
                             pw.print(BasicMathUtil.makeADecimalCutOff(
                                     fMatrices[methodIndex][k][ml][0], 3));
-                            for (int no = 1; no < currMLArray.length; no++) {
+                            for (int no = 1; no < currNOArray.size(); no++) {
                                 pw.print("," + BasicMathUtil.makeADecimalCutOff(
                                         fMatrices[methodIndex][k][ml][no], 3));
                             }
@@ -208,8 +215,6 @@ public class BatchStatSummarizer {
                     System.err.println("Error writing to: "
                             + currAlgOutFile.getPath() + " , " +
                             e.getMessage());
-                } finally {
-                    pw.close();
                 }
             }
             // We also create am additional summary file that will hold the
@@ -220,18 +225,22 @@ public class BatchStatSummarizer {
             PrintWriter pw = new PrintWriter(new FileWriter(
                     totalNoNoiseSummary));
             // We sort the k-values.
-            int[] reArr = AuxSort.sortIndexedValue(kIntVals, false);
+            int[] reArr = AuxSort.sortIIndexedValue(kIntVals, false);
             try {
-                int[] accMaxIndex = new int[classifierNames.length];
-                for (int methodIndex = 0; methodIndex < classifierNames.length;
+                int[] accMaxIndex = new int[classifierNames.size()];
+                for (int methodIndex = 0; methodIndex < classifierNames.size();
                         methodIndex++) {
-                    pw.print(classifierNames[methodIndex] + ": ");
+                    pw.print(classifierNames.get(methodIndex) + ": ");
                     // The maximum accuracy will be prepended to a list of
                     // accuracies over the neighborhood range, so we need to
                     // first find the maximum value.
                     float accMax = 0;
 
-                    for (int k = 0; k < kVals.length; k++) {
+                    for (int k = 0; k < kVals.size(); k++) {
+                        if (!DataMineConstants.isAcceptableFloat(
+                                accMatrices[methodIndex][k][0][0])) {
+                            continue;
+                        }
                         if (accMatrices[methodIndex][k][0][0] > accMax) {
                             accMax = accMatrices[methodIndex][k][0][0];
                             accMaxIndex[methodIndex] = k;
@@ -243,20 +252,20 @@ public class BatchStatSummarizer {
                             accMatricesStDev[methodIndex][accMaxIndex[
                             methodIndex]][0][0], 3));
                     // Now print the remaining accuracies in the sorted order.
-                    for (int k = 0; k < kVals.length; k++) {
+                    for (int k = 0; k < kVals.size(); k++) {
                         pw.print("," + BasicMathUtil.makeADecimalCutOff(
                                 accMatrices[methodIndex][reArr[k]][0][0], 3));
                     }
                     pw.println();
                 }
                 int[][] classifierToClassifier =
-                        new int[classifierNames.length][classifierNames.length];
+                        new int[classifierNames.size()][classifierNames.size()];
                 // Perform statistical significance tests.
                 TTests tester = new TTests();
-                for (int methodIndex = 0; methodIndex < classifierNames.length;
+                for (int methodIndex = 0; methodIndex < classifierNames.size();
                         methodIndex++) {
                     for (int secondMethodIndex = methodIndex + 1;
-                            secondMethodIndex < classifierNames.length;
+                            secondMethodIndex < classifierNames.size();
                             secondMethodIndex++) {
                         classifierToClassifier[methodIndex][secondMethodIndex] =
                                 tester.pairedTwoTailedCorrectedResampled(
@@ -271,7 +280,7 @@ public class BatchStatSummarizer {
                     }
                 }
                 // Set the proper significane levels.
-                for (int methodIndex = 0; methodIndex < classifierNames.length;
+                for (int methodIndex = 0; methodIndex < classifierNames.size();
                         methodIndex++) {
                     if (methodIndex != 0) {
                         switch (classifierToClassifier[methodIndex][0]) {
@@ -314,7 +323,7 @@ public class BatchStatSummarizer {
                         pw.print("  -   ");
                     }
                     for (int secondMethodIndex = methodIndex + 1;
-                            secondMethodIndex < classifierNames.length;
+                            secondMethodIndex < classifierNames.size();
                             secondMethodIndex++) {
                         pw.print(",");
                         switch (classifierToClassifier[methodIndex][
@@ -341,6 +350,7 @@ public class BatchStatSummarizer {
                 pw.close();
             }
             // Reset the structures for the next iteration.
+            completeAccuracyResults = null;
             accMatrices = null;
             precMatrices = null;
             recallMatrices = null;
@@ -358,8 +368,120 @@ public class BatchStatSummarizer {
             kVals = null;
             kIntVals = null;
             currKVal = -1;
+            mlNameToIndexMap = null;
+            noiseNameToIndexMap = null;
+            algNameToIndexMap = null;
             // Initiate some clean-up.
             System.gc();
+        }
+    }
+    
+    /**
+     * Internal method to recurse for all classifiers used in all experiments on
+     * this particular dataset.
+     * 
+     * @param inDSDir File that is the current dataset directory.
+     */
+    private void initialRecurseForFullClassifierList(File inDSDir) {
+        // Examine the results for all the neighborhood sizes.
+        File[] fileListKValues = inDSDir.listFiles(new DirectoryFilter());
+        if (kVals == null || kNameToIndexMap == null) {
+            kNameToIndexMap = new HashMap<>(fileListKValues.length);
+            kVals = new ArrayList<>(fileListKValues.length);
+            kIntVals = new ArrayList<>(fileListKValues.length);
+        }
+        for (int i = 0; i < fileListKValues.length; i++) {
+            if (!kNameToIndexMap.containsKey(fileListKValues[i].getName())) {
+                kNameToIndexMap.put(fileListKValues[i].getName(),
+                        kVals.size());
+                kVals.add(fileListKValues[i].getName());
+                if (kVals.get(i).length() > 1) {
+                    kIntVals.add(Integer.parseInt(kVals.get(i).substring(1)));
+                } else {
+                    kIntVals.add(0);
+                }   
+            }
+        }
+        for (int k = 0; k < fileListKValues.length; k++) {
+            initialRecurseInKDir(fileListKValues[k]);
+        }
+    }
+    
+    /**
+     * Internal method to recurse for all classifiers used in all experiments on
+     * this particular dataset.
+     * 
+     * @param inKDir File that is the current k-value subdirectory of the data
+     * directory..
+     */
+    private void initialRecurseInKDir(File inKDir) {
+        // Examine the results for all the neighborhood sizes.
+        File[] mlRatesFileList = inKDir.listFiles(new DirectoryFilter());
+        if (currMLArray == null || mlNameToIndexMap == null) {
+            mlNameToIndexMap = new HashMap<>(mlRatesFileList.length);
+            currMLArray = new ArrayList<>(mlRatesFileList.length);
+        }
+        for (int i = 0; i < mlRatesFileList.length; i++) {
+            if (!mlNameToIndexMap.containsKey(mlRatesFileList[i].getName())) {
+                mlNameToIndexMap.put(mlRatesFileList[i].getName(),
+                        currMLArray.size());
+                currMLArray.add(mlRatesFileList[i].getName());
+            }
+        }
+        for (int ml = 0; ml < mlRatesFileList.length; ml++) {
+            initialRecurseInMLDir(mlRatesFileList[ml]);
+        }
+    }
+    
+    /**
+     * Internal method to recurse for all classifiers used in all experiments on
+     * this particular dataset.
+     * 
+     * @param inMLDir File that is the current mislabeling rate subdirectory of
+     * the k-value subdirectory of the data directory.
+     */
+    private void initialRecurseInMLDir(File inMLDir) {
+        // Examine the results for all the neighborhood sizes.
+        File[] noiseRatesFileList = inMLDir.listFiles(new DirectoryFilter());
+        if (currNOArray == null || noiseNameToIndexMap == null) {
+            noiseNameToIndexMap = new HashMap<>(noiseRatesFileList.length);
+            currNOArray = new ArrayList<>(noiseRatesFileList.length);
+        }
+        for (int i = 0; i < noiseRatesFileList.length; i++) {
+            if (!noiseNameToIndexMap.containsKey(
+                    noiseRatesFileList[i].getName())) {
+                noiseNameToIndexMap.put(noiseRatesFileList[i].getName(),
+                        currNOArray.size());
+                currNOArray.add(noiseRatesFileList[i].getName());
+            }
+        }
+        for (int n = 0; n < noiseRatesFileList.length; n++) {
+            initialRecurseInNoiseDir(noiseRatesFileList[n]);
+        }
+    }
+    
+    /**
+     * Internal method to recurse for all classifiers used in all experiments on
+     * this particular dataset.
+     * 
+     * @param inNoiseDir File that is the current noise-rate subdirectory of the
+     * mislabeling-rate subdirectory of the k-value subdirectory of the data
+     * directory.
+     */
+    private void initialRecurseInNoiseDir(File inNoiseDir) {
+        // Examine the results for all the neighborhood sizes.
+        File[] algorithmDirList = inNoiseDir.listFiles(new DirectoryFilter());
+        if (classifierNames == null || algNameToIndexMap == null) {
+            classifierNames = new ArrayList<>(algorithmDirList.length);
+            algNameToIndexMap = new HashMap<>(algorithmDirList.length);
+        }
+        for (int i = 0; i < algorithmDirList.length; i++) {
+            if (!algNameToIndexMap.containsKey(
+                    algorithmDirList[i].getName())) {
+                algNameToIndexMap.put(algorithmDirList[i].getName(),
+                        classifierNames.size());
+                classifierNames.add(algorithmDirList[i].getName());
+            }
         }
     }
 
@@ -372,20 +494,8 @@ public class BatchStatSummarizer {
     private void summarizeDataset(File inDSDir) throws Exception {
         // Examine the results for all the neighborhood sizes.
         File[] fileListKValues = inDSDir.listFiles(new DirectoryFilter());
-        if (kVals == null) {
-            kVals = new String[fileListKValues.length];
-            kIntVals = new int[kVals.length];
-            for (int i = 0; i < fileListKValues.length; i++) {
-                kVals[i] = fileListKValues[i].getName();
-                if (kVals[i].length() > 1) {
-                    kIntVals[i] = Integer.parseInt(kVals[i].substring(1));
-                } else {
-                    kIntVals[i] = 0;
-                }
-            }
-        }
         for (int k = 0; k < fileListKValues.length; k++) {
-            currKVal = k;
+            currKVal = kNameToIndexMap.get(fileListKValues[k].getName());
             summarizeKResults(fileListKValues[k]);
         }
     }
@@ -399,14 +509,8 @@ public class BatchStatSummarizer {
      */
     private void summarizeKResults(File inKDir) throws Exception {
         File[] mlRatesFileList = inKDir.listFiles(new DirectoryFilter());
-        if (currMLArray == null) {
-            currMLArray = new String[mlRatesFileList.length];
-            for (int i = 0; i < mlRatesFileList.length; i++) {
-                currMLArray[i] = mlRatesFileList[i].getName();
-            }
-        }
         for (int ml = 0; ml < mlRatesFileList.length; ml++) {
-            currMLIndex = ml;
+            currMLIndex = mlNameToIndexMap.get(mlRatesFileList[ml].getName());
             summarizeMislabelingRun(mlRatesFileList[ml]);
         }
     }
@@ -421,14 +525,9 @@ public class BatchStatSummarizer {
      */
     private void summarizeMislabelingRun(File inMLDir) throws Exception {
         File[] noiseRatesFileList = inMLDir.listFiles(new DirectoryFilter());
-        if (currNOArray == null) {
-            currNOArray = new String[noiseRatesFileList.length];
-            for (int i = 0; i < noiseRatesFileList.length; i++) {
-                currNOArray[i] = noiseRatesFileList[i].getName();
-            }
-        }
         for (int noise = 0; noise < noiseRatesFileList.length; noise++) {
-            currNOIndex = noise;
+            currNOIndex = noiseNameToIndexMap.get(
+                    noiseRatesFileList[noise].getName());
             summarizeNoiseRun(noiseRatesFileList[noise]);
         }
     }
@@ -443,35 +542,132 @@ public class BatchStatSummarizer {
     private void summarizeNoiseRun(File inNoiseDir) throws Exception {
         // Each directory here corresponds to an algorithm that was tested.
         File[] algorithmDirList = inNoiseDir.listFiles(new DirectoryFilter());
-        int numAlgs = algorithmDirList.length;
-        if (classifierNames == null) {
-            completeAccuracyResults = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length][
+        int numAlgs = 0;
+        if (classifierNames != null) {
+            numAlgs = classifierNames.size();
+        }
+        if (completeAccuracyResults == null) {
+            completeAccuracyResults = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()][
                     numTimes * numFolds];
-            accMatrices = new float[numAlgs][kVals.length][currMLArray.length][
-                    currNOArray.length];
-            precMatrices = new float[numAlgs][kVals.length][currMLArray.length][
-                    currNOArray.length];
-            recallMatrices = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length];
-            fMatrices = new float[numAlgs][kVals.length][currMLArray.length][
-                    currNOArray.length];
-            accMatricesStDev = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length];
-            precMatricesStDev = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length];
-            recallMatricesStDev = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length];
-            fMatricesStDev = new float[numAlgs][kVals.length][
-                    currMLArray.length][currNOArray.length];
-            classifierNames = new String[numAlgs];
-            for (int i = 0; i < algorithmDirList.length; i++) {
-                classifierNames[i] = algorithmDirList[i].getName();
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            for (int t = 0; t < numTimes * numFolds; t++) {
+                                completeAccuracyResults[algIndex][k][ml][noise][
+                                        t] = Float.NaN;
+                            }
+                        }
+                    }
+                }
+            }
+            accMatrices = new float[numAlgs][kVals.size()][currMLArray.size()][
+                    currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            accMatrices[algIndex][k][ml][noise] = Float.NaN;
+                        }
+                    }
+                }
+            }
+            precMatrices = new float[numAlgs][kVals.size()][currMLArray.size()][
+                    currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            precMatrices[algIndex][k][ml][noise] = Float.NaN;
+                        }
+                    }
+                }
+            }
+            recallMatrices = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            recallMatrices[algIndex][k][ml][noise] = Float.NaN;
+                        }
+                    }
+                }
+            }
+            fMatrices = new float[numAlgs][kVals.size()][currMLArray.size()][
+                    currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            fMatrices[algIndex][k][ml][noise] = Float.NaN;
+                        }
+                    }
+                }
+            }
+            accMatricesStDev = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            accMatricesStDev[algIndex][k][ml][noise] =
+                                    Float.NaN;
+                        }
+                    }
+                }
+            }
+            precMatricesStDev = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            precMatricesStDev[algIndex][k][ml][noise] =
+                                    Float.NaN;
+                        }
+                    }
+                }
+            }
+            recallMatricesStDev = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            recallMatricesStDev[algIndex][k][ml][noise] =
+                                    Float.NaN;
+                        }
+                    }
+                }
+            }
+            fMatricesStDev = new float[numAlgs][kVals.size()][
+                    currMLArray.size()][currNOArray.size()];
+            for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
+                for (int k = 0; k < kVals.size(); k++) {
+                    for (int ml = 0; ml < currMLArray.size(); ml++) {
+                        for (int noise = 0; noise < currNOArray.size();
+                                noise++) {
+                            fMatricesStDev[algIndex][k][ml][noise] =
+                                    Float.NaN;
+                        }
+                    }
+                }
             }
         }
         for (int methodIndex = 0; methodIndex < algorithmDirList.length;
                 methodIndex++) {
-            currALGIndex = methodIndex;
+            currALGIndex = algNameToIndexMap.get(
+                    algorithmDirList[methodIndex].getName());
             summarizeALG(algorithmDirList[methodIndex]);
         }
     }
@@ -489,8 +685,8 @@ public class BatchStatSummarizer {
                 new FileInputStream(resultFile)));
         try {
             // The first line is skipped, as it is a header.
+            br.readLine();
             String line = br.readLine();
-            line = br.readLine();
             line = line.trim();
             String[] measures = line.split(",");
             accMatrices[currALGIndex][currKVal][currMLIndex][currNOIndex] =

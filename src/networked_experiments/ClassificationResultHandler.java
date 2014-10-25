@@ -151,7 +151,7 @@ public class ClassificationResultHandler {
         // Meta-information file.
         File tmpDescriptionFile = Conversion.stringToTempFile(xstream.toXML(
                 executedTask.getRun()), "hubminer_generated_run", "xml");
-        try { 
+        try {
             UploadRun ur = client.openmlRunUpload(tmpDescriptionFile,
                     outputFiles);
             Conversion.log("INFO", "Upload Run", "Run was uploaded with rid "
@@ -378,7 +378,7 @@ public class ClassificationResultHandler {
             if(!parameterStringValues.isEmpty()) {
                 setupString += (" -- ");
                 for (String par: keyArr) {
-                    setupString += (keyArr + " ");
+                    setupString += (par + " ");
                 }
             }
             // Generate the Run object.

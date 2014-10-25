@@ -422,6 +422,65 @@ public class AuxSort {
         } while (exchange || (step != 1));
         return returnIndexes;
     }
+    
+    /**
+     * Sorts the array.
+     *
+     * @param values Values given as an integer ArrayList.
+     * @param descending True if descending, false if ascending.
+     * @return ArrayList<Integer> representing the final permutation.
+     * @throws Exception
+     */
+    public static ArrayList<Integer> sortIIndexedValueListOutput(
+            ArrayList<Integer> values, boolean descending) throws Exception {
+        double factor = 1.3;
+        int j;
+        boolean exchange;
+        int step = values.size();
+        // This array will hold the permutation.
+        ArrayList<Integer> returnIndexes = new ArrayList<>(values.size());
+        // It is initialized to identity transformation.
+        for (int i = 0; i < values.size(); i++) {
+            returnIndexes.add(i);
+        }
+        int temp;
+        int tempIndex;
+        do {
+            step = (int) ((double) step / factor);
+            if (step < 1) {
+                step = 1;
+            }
+            if ((step == 9) || (step == 10)) {
+                step = 11;
+            }
+            exchange = false;
+            for (int i = 0; i < values.size() - step; i++) {
+                j = i + step;
+                if (descending) {
+                    if (values.get(j) > values.get(i)) {
+                        exchange = true;
+                        temp = values.get(j);
+                        values.set(j, values.get(i));
+                        values.set(i, temp);
+                        tempIndex = returnIndexes.get(j);
+                        returnIndexes.set(j, returnIndexes.get(i));
+                        returnIndexes.set(i, tempIndex);
+                    }
+                } else {
+                    if (values.get(j) < values.get(i)) {
+                        exchange = true;
+                        temp = values.get(j);
+                        values.set(j, values.get(i));
+                        values.set(i, temp);
+                        tempIndex = returnIndexes.get(j);
+                        returnIndexes.set(j, returnIndexes.get(i));
+                        returnIndexes.set(i, tempIndex);
+                    }
+                }
+            }
+        } while (exchange || (step != 1));
+        return returnIndexes;
+    }
 
     /**
      * Sorts the array.
