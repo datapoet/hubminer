@@ -243,7 +243,8 @@ public class ViperChartAPICall {
                 CommandLineParser.STRING, true, false);
         clp.addParam("-positiveClassIndex", "Index of the positive class.",
                 CommandLineParser.INTEGER, true, false);
-        clp.addParam("-fontSize", "Display font size, in pt.",
+        clp.addParam("-fontSize", "Display font size, in pt. Allowed range: "
+                + "5-40.",
                 CommandLineParser.INTEGER, false, false);
         clp.addParam("-openInBrowser", "Whether to open the link immediately.",
                 CommandLineParser.BOOLEAN, false, false);
