@@ -55,6 +55,9 @@ public class ViperChartAPICall {
     private float[] fprValues;
     private float[] tprValues;
     private boolean openInBrowser = false;
+    private static final int DEFAULT_FONT_SIZE = 40;
+    private int fontSize = DEFAULT_FONT_SIZE;
+    private boolean embedded = false;
     
     static {
         chartTypeToStringMap = new HashMap<>();
@@ -121,7 +124,8 @@ public class ViperChartAPICall {
         JSONObject jObj = new JSONObject();
         jObj.put("chart", chartTypeToStringMap.get(cType));
         jObj.put("legend", "true");
-        jObj.put("embedded", "false");
+        jObj.put("fontsize", fontSize);
+        jObj.put("embedded", embedded);
         List jList = new ArrayList();
         if (cType == ChartType.PR_SPACE) {
             for (int algIndex = 0; algIndex < numAlgs; algIndex++) {
@@ -239,7 +243,13 @@ public class ViperChartAPICall {
                 CommandLineParser.STRING, true, false);
         clp.addParam("-positiveClassIndex", "Index of the positive class.",
                 CommandLineParser.INTEGER, true, false);
+        clp.addParam("-fontSize", "Display font size, in pt.",
+                CommandLineParser.INTEGER, false, false);
         clp.addParam("-openInBrowser", "Whether to open the link immediately.",
+                CommandLineParser.BOOLEAN, false, false);
+        clp.addParam("-embedded", "If set to false, additional menues will be"
+                + "loaded for configuring the chart. If set to true, just the"
+                + "final chart will be embedded in the target page.",
                 CommandLineParser.BOOLEAN, false, false);
         clp.parseLine(args);
         DataSet dset = SupervisedLoader.loadData((String) clp.getParamValues(
@@ -249,11 +259,16 @@ public class ViperChartAPICall {
                     "-positiveClassIndex").get(0);
         int numClasses = dset.countCategories();
         int numAlgs = clp.getParamValues("-inAlgorithmDir").size();
+        int fontSize = clp.hasParamValue("-fontSize") ? (Integer)
+                clp.getParamValues("-fontSize").get(0) : DEFAULT_FONT_SIZE;
         boolean openInBrowser = false;
-        if (clp.getParamValues("-openInBrowser") != null &&
-                clp.getParamValues("-openInBrowser").size() > 0) {
+        if (clp.hasParamValue("-openInBrowser")) {
             openInBrowser = (Boolean)
                     clp.getParamValues("-openInBrowser").get(0);
+        }
+        boolean embedded = false;
+        if (clp.hasParamValue("-embedded")) {
+            embedded = (Boolean) clp.getParamValues("-embedded").get(0);
         }
         File[] algDirs = new File[numAlgs];
         ArrayList<String> algNames = new ArrayList<>(numAlgs);
@@ -334,6 +349,8 @@ public class ViperChartAPICall {
         ViperChartAPICall viperProxy = new ViperChartAPICall(algNames,
                 predictedDataLabels, correctLabels, recallValues,
                 precisionValues, fprValues, tprValues);
+        viperProxy.fontSize = fontSize;
+        viperProxy.embedded = embedded;
         ChartType cType = ChartType.ROC_CURVES;
         if (chartStringToTypeMap.containsKey(chartTypeStringCode)) {
             cType = chartStringToTypeMap.get(chartTypeStringCode);
