@@ -43,6 +43,7 @@ import util.HTTPUtil;
 public class HMOpenMLConnector {
     
     OpenmlConnector client;
+    DataFromOpenML fetchedData;
     
     /**
      * Initialization.
@@ -98,6 +99,16 @@ public class HMOpenMLConnector {
         } catch (Exception e) {
             throw e;
         }
+        // It is possible to do the following (but there is a problem):
+        //fetchedData.classNames = TaskInformation.getClassNames(
+        //        client, task);
+        // Namely, the order of class names in the task may not correspond to
+        // the order of classes within the file, which might cause faulty labels
+        // to be reported back to the server.
+        ArrayList<String> classNames =
+                loader.getClassNames();
+        fetchedData.classNames = new String[classNames.size()];
+        fetchedData.classNames = classNames.toArray(fetchedData.classNames);
         unfilteredDSet.setName(dsName);
         return unfilteredDSet;
     }
@@ -184,11 +195,9 @@ public class HMOpenMLConnector {
             throw new Exception("The specified task estimation type is not "
                     + "cross-validation");
         }
-        DataFromOpenML fetchedData = new DataFromOpenML();
+        fetchedData = new DataFromOpenML();
         fetchedData.numFolds = TaskInformation.getNumberOfFolds(task);
         fetchedData.numTimes = TaskInformation.getNumberOfRepeats(task);
-        fetchedData.classNames = TaskInformation.getClassNames(
-                client, task);
         // Not to confuse with Hub Miner's DataSet class.
         Data_set dsObj = TaskInformation.getSourceData(task);
         DataSetDescription dataDescription =

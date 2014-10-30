@@ -58,6 +58,29 @@ public class IOARFF {
     private ArrayList<HashMap> nominalHashes = new ArrayList<>(10);
     // Contains a vocabulary for each nominal feature.
     private ArrayList<String>[] nominalVocabularies = null;
+    private ArrayList<String> classNames = null;
+    
+    /**
+     * @return ArrayList<String> representing the class names.
+     */
+    public ArrayList<String> getClassNames() {
+        return classNames;
+    }
+    
+    /**
+     * @param index Integer that is the index of the nominal feature to fetch
+     * the vocabulary of the latest load for.
+     * @return ArrayList<String> that is the vocabulary of the latest load for
+     * the specified nominal feature index.
+     */
+    public ArrayList<String> getVocabularyForNominalFeatureIndex(int index) {
+        if (nominalVocabularies == null || nominalVocabularies.length <
+                index || index < 0) {
+            return null;
+        } else {
+            return nominalVocabularies[index];
+        }
+    }
 
     /**
      * Parse ARFF data from OpenML service into the Hub Miner - usable form for
@@ -368,6 +391,7 @@ public class IOARFF {
      */
     public BOWDataSet loadSparseCategoryLast(String inPath) throws Exception {
         HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
+        classNames = new ArrayList<>();
         int maxClassIndex = -1;
         BOWDataSet bowDSet = new BOWDataSet();
         bowDSet.data = new ArrayList<>(10000);
@@ -451,6 +475,7 @@ public class IOARFF {
                             ++maxClassIndex;
                             classNameToIndexMap.put(classNameString,
                                     maxClassIndex);
+                            classNames.add(classNameString);
                         }
                         instance.setCategory(classNameToIndexMap.get(
                                 classNameString));
@@ -493,6 +518,7 @@ public class IOARFF {
             throws Exception {
         BOWDataSet bowDSet = new BOWDataSet();
         HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
+        classNames = new ArrayList<>();
         int maxClassIndex = -1;
         bowDSet.data = new ArrayList<>(10000);
         boolean dataMode = false;
@@ -585,6 +611,7 @@ public class IOARFF {
                                 ++maxClassIndex;
                                 classNameToIndexMap.put(classNameString,
                                         maxClassIndex);
+                                classNames.add(classNameString);
                             }
                             instance.setCategory(classNameToIndexMap.get(
                                     classNameString));
@@ -762,6 +789,7 @@ public class IOARFF {
             throws IOException {
         String line = br.readLine();
         HashMap<String, Integer> classNameToIndexMap = new HashMap<>(100);
+        classNames = new ArrayList<>();
         int maxClassIndex = -1;
         // Initialize the vocabularies for nominal feature hashing.
         if (useNominalHashing) {
@@ -866,6 +894,7 @@ public class IOARFF {
                                     ++maxClassIndex;
                                     classNameToIndexMap.put(nominalValue,
                                             maxClassIndex);
+                                    classNames.add(nominalValue);
                                 }
                                 instance.setCategory(classNameToIndexMap.get(
                                         nominalValue));

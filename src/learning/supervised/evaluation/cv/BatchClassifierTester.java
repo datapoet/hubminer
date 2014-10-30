@@ -128,6 +128,11 @@ public class BatchClassifierTester {
     public ArrayList<Integer>[][][][] trainTestIndexes;
     // Folds to use for testing on the dataset.
     private ArrayList<Integer>[][] dsFolds;
+    // Class names are kept track of only for OpenML data sources, as the labels
+    // need to be specified in their original form (not just the indexes) when
+    // the predictions are uploaded. Class name arrays for non-OpenML data
+    // sources will be null in this structure.
+    String[][] classNames;
     // DataSet objects.
     private DataSet originalDSet, currDSet;
     // The discretized data object.
@@ -858,7 +863,8 @@ public class BatchClassifierTester {
                                         ClassificationResultHandler handler =
                                                 new ClassificationResultHandler
                                                 (openmlConnector.getConnector(),
-                                                hubMinerSourceDir, currDSet);
+                                                hubMinerSourceDir, currDSet,
+                                                classNames[datasetIndex]);
                                         handler.uploadClassificationResults(
                                                 openmlConnector.getTaskForTaskID(
                                                     openMLTaskIDList.get(
@@ -880,6 +886,31 @@ public class BatchClassifierTester {
                             if (discreteCV != null) {
                                 allFuzzyPredictionsDisc =
                                     discreteCV.getAllFuzzyLabelAssignments();
+                                if (dataIndexToOpenMLCounterMap.containsKey(
+                                        datasetIndex)) {
+                                    for (int algIndex = 0; algIndex < 
+                                            discreteArray.length; algIndex++) {
+                                        ClassificationResultHandler handler =
+                                                new ClassificationResultHandler
+                                                (openmlConnector.getConnector(),
+                                                hubMinerSourceDir, currDSet,
+                                                classNames[datasetIndex]);
+                                        handler.uploadClassificationResults(
+                                                openmlConnector.getTaskForTaskID(
+                                                    openMLTaskIDList.get(
+                                                    dataIndexToOpenMLCounterMap.get(
+                                                    datasetIndex))),
+                                                    discreteArray[algIndex],
+                                                algIndex,
+                                                ClassifierParametrization.
+                                                    getClassifierParameterStringValues(
+                                                    discreteArray[algIndex]),
+                                                numTimes,
+                                                numFolds,
+                                                trainTestIndexes[datasetIndex],
+                                                allFuzzyPredictionsDisc);
+                                    }
+                                }
                             }
                             float[][][] averageFuzzyPredictions =
                                     new float[classifierNames.size()][
@@ -1135,6 +1166,7 @@ public class BatchClassifierTester {
         algorithmParametrizationMap = conf.algorithmParametrizationMap;
         openMLTaskIDList = conf.openMLTaskIDList;
         dataIndexToOpenMLCounterMap = conf.dataIndexToOpenMLCounterMap;
+        classNames = conf.classNames;
     }
 
     /**

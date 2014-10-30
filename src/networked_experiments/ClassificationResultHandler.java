@@ -61,6 +61,7 @@ public class ClassificationResultHandler {
     private final File sourceCodeDir;
     private DataSet originalDset;
     private boolean useBenchmarker = false;
+    private String[] classNames;
     
     /**
      * Initialization.
@@ -69,13 +70,16 @@ public class ClassificationResultHandler {
      * @param sourceCodeDir File that is the source code directory for the
      * algorithms used in the experiments.
      * @param originalDset DataSet that is the experiment data. 
+     * @param classNames String[] representing the class names, as they should
+     * be reported in the upload.
      */
     public ClassificationResultHandler(OpenmlConnector client,
-            File sourceCodeDir, DataSet originalDset) {
+            File sourceCodeDir, DataSet originalDset, String[] classNames) {
         this.client = client;
         this.benchmarker = new SciMark();
         this.sourceCodeDir = sourceCodeDir;
         this.originalDset = originalDset;
+        this.classNames = classNames;
     }
     
     /**
@@ -121,7 +125,8 @@ public class ClassificationResultHandler {
                 times,
                 folds,
                 foldTrainTestIndexes,
-                allLabelAssignments);
+                allLabelAssignments,
+                classNames);
         Conversion.log("INFO", "Upload Run", "Starting send run process... ");
         if (useBenchmarker) {
             // The benchmarker tests JVM performance on the local machine, in
@@ -195,6 +200,8 @@ public class ClassificationResultHandler {
          * train and test index lists that were used in the experiments
          * @param allLabelAssignments float[][][][] representing all label
          * assignments.
+         * @param classNames String[] Class names, as they are to appear in the
+         * upload.
          * @throws Exception 
          */
         public OpenmlExecutedTask(Task task, ValidateableInterface classifier,
@@ -202,7 +209,7 @@ public class ClassificationResultHandler {
                 HashMap<String, String> parameterStringValues,
                 OpenmlConnector client, int times, int folds,
                 ArrayList<Integer>[][][] foldTrainTestIndexes,
-                float[][][][] allLabelAssignments)
+                float[][][][] allLabelAssignments, String[] classNames)
                 throws Exception {
             if (allLabelAssignments == null) {
                 throw new Exception("Label assignments not provided.");
@@ -213,10 +220,22 @@ public class ClassificationResultHandler {
             if (originalDset == null || originalDset.isEmpty()) {
                 throw new Exception("Experiment dataset not provided.");
             }
-            classNames = TaskInformation.getClassNames(client, task);
+            // If it weren't for possible permutations, it would be possible to
+            // obtain the class names as follows:
+            // classNames = TaskInformation.getClassNames(client, task);
+            // However, we need to take into account this permutation in order
+            // to ensure that confidence predictions are correct.
+            String[] taskClassNames = TaskInformation.getClassNames(client,
+                    task);
             HashMap<String, Integer> classNameToIndexMap = new HashMap<>();
             for (int cIndex = 0; cIndex < classNames.length; cIndex++) {
                 classNameToIndexMap.put(classNames[cIndex], cIndex);
+            }
+            int[] classIndexPerm = new int[classNames.length];
+            for (int cIndex = 0; cIndex < classNames.length; cIndex++) {
+                int cIndexInternal =
+                        classNameToIndexMap.get(taskClassNames[cIndex]);
+                classIndexPerm[cIndexInternal] = cIndex;
             }
             // Generate an initial feature list.
             ArrayList<DataFeature> attInfo = new ArrayList<>();
@@ -343,11 +362,11 @@ public class ClassificationResultHandler {
                                         int clDecision = ArrayUtil.indexOfMax(
                                                 clPredictions);
                                         predictionInstance.sAttr[featureIndex] =
-                                                classNames[clDecision];
+                                                classNames[classIndexPerm[clDecision]];
                                     } else if (featureName.equals("correct")) {
                                         predictionInstance.sAttr[featureIndex] =
                                                 classNames[
-                                                originalDset.getLabelOf(index)];
+                                                classIndexPerm[originalDset.getLabelOf(index)]];
                                     }
                                     break;
                                 }

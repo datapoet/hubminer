@@ -74,6 +74,10 @@ public class BatchClassifierConfig {
             new HashMap<>();
     // This is used for registering versioned source code files with OpenML.
     public File hubMinerSourceDir;
+    // For OpenML tasks, it is important to keep track of the class names, since
+    // this is what the predictions need to be associated with. It is ignored
+    // otherwise, since class names are not expected to be provided.
+    public String[][] classNames;
     public BatchClassifierTester.SecondaryDistance secondaryDistanceType =
             BatchClassifierTester.SecondaryDistance.NONE;
     public int secondaryDistanceK = 50;
@@ -542,6 +546,7 @@ public class BatchClassifierConfig {
                             dsPaths.get(i).length()))).getPath());
                 }
             }
+            classNames = new String[dsPaths.size()][];
             // If the data source is an OpenML data source, we fetch the data
             // here and save it to the specified path as ARFF, so that it can
             // be loaded later into the cross-validation batch experimentational
@@ -556,6 +561,7 @@ public class BatchClassifierConfig {
                     DataFromOpenML openMLData = openMLProxy.fetchExperimentData(
                             taskID);
                     DataSet dset = openMLData.filteredDSet;
+                    classNames[dataIndex] = openMLData.classNames;
                     trainTestIndexes[dataIndex] = openMLData.trainTestIndexes;
                     String dataSavePath =
                             dsPaths.get(dataIndex).startsWith("sparse:") ?
