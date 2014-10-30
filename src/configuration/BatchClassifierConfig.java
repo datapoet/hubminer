@@ -547,44 +547,51 @@ public class BatchClassifierConfig {
             // be loaded later into the cross-validation batch experimentational
             // framework.
             trainTestIndexes = new ArrayList[dsPaths.size()][][][];
-            if (dataIndexToOpenMLCounterMap.containsKey(dataIndex)) {
-                HMOpenMLConnector openMLProxy = getOpenMLConnector();
-                int openMLArrIndex = dataIndexToOpenMLCounterMap.get(dataIndex);
-                int taskID = openMLTaskIDList.get(openMLArrIndex);
-                DataFromOpenML openMLData = openMLProxy.fetchExperimentData(
-                        taskID);
-                DataSet dset = openMLData.filteredDSet;
-                trainTestIndexes[dataIndex] = openMLData.trainTestIndexes;
-                String dataSavePath =
-                        dsPaths.get(dataIndex).startsWith("sparse:") ?
-                        dsPaths.get(dataIndex).substring(7) :
-                        dsPaths.get(dataIndex);
-                IOARFF saver = new IOARFF();
-                if (dsPaths.get(dataIndex).startsWith("sparse:")) {
-                    saver.saveSparseLabeled((BOWDataSet) dset, dataSavePath);
-                    System.out.println("Data downloaded to: " + dataSavePath);
-                } else {
-                    saver.saveLabeled(dset, dataSavePath);
-                    System.out.println("Data downloaded to: " + dataSavePath);
+            for (dataIndex = 0; dataIndex < dsPaths.size(); dataIndex++) {
+                if (dataIndexToOpenMLCounterMap.containsKey(dataIndex)) {
+                    HMOpenMLConnector openMLProxy = getOpenMLConnector();
+                    int openMLArrIndex = dataIndexToOpenMLCounterMap.get(
+                            dataIndex);
+                    int taskID = openMLTaskIDList.get(openMLArrIndex);
+                    DataFromOpenML openMLData = openMLProxy.fetchExperimentData(
+                            taskID);
+                    DataSet dset = openMLData.filteredDSet;
+                    trainTestIndexes[dataIndex] = openMLData.trainTestIndexes;
+                    String dataSavePath =
+                            dsPaths.get(dataIndex).startsWith("sparse:") ?
+                            dsPaths.get(dataIndex).substring(7) :
+                            dsPaths.get(dataIndex);
+                    IOARFF saver = new IOARFF();
+                    if (dsPaths.get(dataIndex).startsWith("sparse:")) {
+                        saver.saveSparseLabeled((BOWDataSet) dset,
+                                dataSavePath);
+                        System.out.println("Data downloaded to: " +
+                                dataSavePath);
+                    } else {
+                        saver.saveLabeled(dset, dataSavePath);
+                        System.out.println("Data downloaded to: " +
+                                dataSavePath);
+                    }
                 }
-            }
-            allDataSetFolds = new ArrayList[dsPaths.size()][][];
-            if (foldsDir != null) {
-                int datasetIndex = -1;
-                for (String dsPath : dsPaths) {
-                    datasetIndex++;
-                    if (!dataIndexIsForOpenML(datasetIndex)) {
-                        File dsFile = new File(dsPath);
-                        File foldsFile = new File(foldsDir,
-                                dsFile.getName().substring(0, dsFile.getName().
-                                lastIndexOf(".")) + "_cv_" + numTimes + "_" +
-                                numFolds + ".json");
-                        if (foldsFile.exists()) {
-                            System.out.println(
-                                    "Loading the existing folds from: " +
-                                    foldsFile.getPath());
-                            allDataSetFolds[datasetIndex] =
-                                    CVFoldsIO.loadAllFolds(foldsFile);
+                allDataSetFolds = new ArrayList[dsPaths.size()][][];
+                if (foldsDir != null) {
+                    int datasetIndex = -1;
+                    for (String dsPath : dsPaths) {
+                        datasetIndex++;
+                        if (!dataIndexIsForOpenML(datasetIndex)) {
+                            File dsFile = new File(dsPath);
+                            File foldsFile = new File(foldsDir,
+                                    dsFile.getName().substring(0,
+                                    dsFile.getName().lastIndexOf(".")) +
+                                    "_cv_" + numTimes + "_" + numFolds +
+                                    ".json");
+                            if (foldsFile.exists()) {
+                                System.out.println(
+                                        "Loading the existing folds from: " +
+                                        foldsFile.getPath());
+                                allDataSetFolds[datasetIndex] =
+                                        CVFoldsIO.loadAllFolds(foldsFile);
+                            }
                         }
                     }
                 }

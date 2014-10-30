@@ -939,7 +939,7 @@ public class IOARFF {
                     break;
                 }
                 case DataMineConstants.NOMINAL: {
-                    if (!feature.getFeatureName().equals("class")) {
+                    if (!feature.getFeatureName().equals(classFeatureName)) {
                         dset.sAttrNames[feature.getFeatureIndex()] =
                                 feature.getFeatureName();
                     }
