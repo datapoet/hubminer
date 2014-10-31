@@ -361,12 +361,18 @@ public class ClassificationResultHandler {
                                                 classifierIndex][t][index];
                                         int clDecision = ArrayUtil.indexOfMax(
                                                 clPredictions);
+                                        // Possible label permutations are taken
+                                        // into account.
                                         predictionInstance.sAttr[featureIndex] =
-                                                classNames[classIndexPerm[clDecision]];
+                                                classNames[classIndexPerm[
+                                                clDecision]];
                                     } else if (featureName.equals("correct")) {
+                                        // Possible label permutations are taken
+                                        // into account.
                                         predictionInstance.sAttr[featureIndex] =
                                                 classNames[
-                                                classIndexPerm[originalDset.getLabelOf(index)]];
+                                                classIndexPerm[originalDset.
+                                                getLabelOf(index)]];
                                     }
                                     break;
                                 }
