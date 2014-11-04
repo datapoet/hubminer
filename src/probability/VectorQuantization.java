@@ -22,7 +22,7 @@ import java.util.Random;
 
 /**
  * A vector quantization approximation of the underlying probability
- * distribution. vector quantization algorithm
+ * distribution. Vector quantization algorithm.
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
