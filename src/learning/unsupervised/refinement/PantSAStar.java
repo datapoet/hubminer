@@ -27,7 +27,7 @@ import util.AuxSort;
 /**
  * This class implements an algorithm described in the paper: Diego Ingaramo,
  * Marcelo Errecalde and Paolo Rosso. "A general bio-inspired method to improve
- * the short-text clustering task which was presented at the 2010 CICLING
+ * the short-text clustering task" which was presented at the 2010 CICLING
  * conference.
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
