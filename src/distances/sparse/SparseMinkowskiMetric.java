@@ -17,6 +17,7 @@
 package distances.sparse;
 
 import data.representation.util.DataMineConstants;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -25,7 +26,10 @@ import java.util.Set;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SparseMinkowskiMetric extends SparseMetric {
+public class SparseMinkowskiMetric extends SparseMetric
+        implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     // Exponent.
     private int M = 2;

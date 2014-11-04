@@ -22,6 +22,7 @@ import data.representation.sparse.BOWInstance;
 import data.representation.util.DataMineConstants;
 import distances.primary.DistanceMeasure;
 import distances.primary.CombinedMetric;
+import java.io.Serializable;
 
 /**
  * This class implements the functionality for combining different parts of the
@@ -29,7 +30,10 @@ import distances.primary.CombinedMetric;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SparseCombinedMetric extends CombinedMetric {
+public class SparseCombinedMetric extends CombinedMetric
+        implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     public static final SparseCombinedMetric SPARSE_COSINE =
             new SparseCombinedMetric(null, null, new SparseCosineMetric(),

@@ -17,6 +17,7 @@
 package distances.sparse;
 
 import data.representation.util.DataMineConstants;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -26,7 +27,10 @@ import java.util.Set;
  * 
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SparseManhattanWeighted extends SparseMetric {
+public class SparseManhattanWeighted extends SparseMetric
+        implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
     
     float[] featureWeights = null;
     

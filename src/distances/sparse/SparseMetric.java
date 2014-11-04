@@ -16,6 +16,7 @@
 */
 package distances.sparse;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -24,7 +25,9 @@ import java.util.HashMap;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public abstract class SparseMetric {
+public abstract class SparseMetric implements Serializable {
+    
+    private static final long serialVersionUID = 1L;
 
     /**
      * @param first First BoW map.
