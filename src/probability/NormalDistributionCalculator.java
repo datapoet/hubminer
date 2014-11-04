@@ -17,7 +17,9 @@
 package probability;
 
 /**
- *
+ * This class calculates Gaussian probability density and cumulative
+ * distribution functions.
+ * 
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public class NormalDistributionCalculator {
