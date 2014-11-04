@@ -47,7 +47,11 @@ public class ManhattanWeighted extends DistanceMeasure implements Serializable {
                     || !DataMineConstants.isAcceptableFloat(arrSecond[i])) {
                 continue;
             }
-            sum += floatWeights[i] * Math.abs(arrFirst[i] - arrSecond[i]);
+            if (floatWeights != null) {
+                sum += floatWeights[i] * Math.abs(arrFirst[i] - arrSecond[i]);
+            } else {
+                sum += Math.abs(arrFirst[i] - arrSecond[i]);
+            }
         }
         return sum;
     }
@@ -62,7 +66,11 @@ public class ManhattanWeighted extends DistanceMeasure implements Serializable {
                     || !DataMineConstants.isAcceptableFloat(arrSecond[i])) {
                 continue;
             }
-            sum += intWeights[i] * Math.abs(arrFirst[i] - arrSecond[i]);
+            if (intWeights != null) { 
+                sum += intWeights[i] * Math.abs(arrFirst[i] - arrSecond[i]);
+            } else {
+                sum += Math.abs(arrFirst[i] - arrSecond[i]);
+            }
         }
         return sum;
     }
