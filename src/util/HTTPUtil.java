@@ -17,8 +17,12 @@
 package util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -68,5 +72,41 @@ public class HTTPUtil {
         }
         String contentString = receivedContent.toString();
         return contentString;
+    }
+    
+    /**
+     * Make a POST HTTP request.
+     * 
+     * @param urlString String that represents the URL.
+     * @param userAgent String representing the user agent.
+     * @param postString String that is being POST-ed.
+     * @return String that is the response.
+     * @throws Exception 
+     */
+    public static String post(String urlString, String userAgent,
+            String contentString, String contentType)
+            throws MalformedURLException, IOException {
+        byte[] contentBytes = contentString.getBytes();
+        URL urlObject = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) urlObject.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        // For instance, content type can be something like:
+        // "application/json; charset=utf8".
+        conn.setRequestProperty("Content-Type", contentType);
+        conn.setRequestProperty("Content-Length",
+                String.valueOf(contentBytes.length));
+        conn.connect();
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(contentString.getBytes());
+            os.flush();
+        }
+        InputStream response = conn.getInputStream();
+        InputStreamReader reader = new InputStreamReader(response);
+        String resultString;
+        try (BufferedReader br = new BufferedReader(reader)) {
+            resultString = br.readLine();
+        }
+        return resultString;
     }
 }
