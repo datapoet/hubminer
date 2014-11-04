@@ -142,6 +142,8 @@ public class MultiCrossValidation {
     private float alphaAppKNN = 1f;
     // The number of threads used for distance matrix and kNN set calculations.
     private int numCommonThreads = 8;
+    // If kNN sets and/or distance matrix are available externally.
+    ExternalExperimentalContext contextObjects;
 
     /**
      * The default constructor.
@@ -291,6 +293,14 @@ public class MultiCrossValidation {
         execTimeTotal = new double[classifiers.length];
         this.numClasses = numClasses;
         this.totalDistMat = totalDistMat;
+    }
+    
+    /**
+     * @param contextObjects ExternalExperimentalContext object potentially
+     * holding pre-calculated re-usable kNN sets and/or the distance matrix.
+     */
+    public void setExternalContext(ExternalExperimentalContext contextObjects) {
+        this.contextObjects = contextObjects;
     }
     
     /**
@@ -790,6 +800,25 @@ public class MultiCrossValidation {
                 nsfUserPresent = true;
             }
         }
+        if (distUserPresent) {
+            DataSet dataContextForDists;
+            if (dataType instanceof DataSet) {
+                dataContextForDists = (DataSet) dataType;
+            } else {
+                dataContextForDists =
+                        ((DiscretizedDataSet) dataType).getOriginalData();
+            }
+            if (totalDistMat == null) {
+                if (contextObjects != null &&
+                        contextObjects.getDistances() != null) {
+                    totalDistMat = contextObjects.getDistances();
+                } else {
+                    totalDistMat =
+                            dataContextForDists.calculateDistMatrixMultThr(cmet,
+                            numCommonThreads);
+                }
+            }
+        }
         if (nsfUserPresent) {
             DataSet dataContextForNSF;
             if (dataType instanceof DataSet) {
@@ -801,44 +830,62 @@ public class MultiCrossValidation {
             if (secondaryDistanceType == SecondaryDistance.NONE) {
                 // In case the classification is done with the primary
                 // distances.
-                if (!approximateNNs || alphaAppKNN == 1) {
-                    // Exact kNN set calculations. A larger NSF object is first
-                    // created, so that few recalculations need ever be done
-                    // later on.
-                    bigNSF = new NeighborSetFinder(dataContextForNSF,
-                            totalDistMat, cmet);
-                    bigNSF.calculateNeighborSetsMultiThr(2 * kMax + 10,
-                            numCommonThreads);
+                if (contextObjects != null &&
+                        contextObjects.getNeighborSets() != null &&
+                        (contextObjects.getNeighborSets().getCurrK() >=
+                        2 * kMax + 10)) {
+                    bigNSF = contextObjects.getNeighborSets();
                 } else {
-                    // Approximate kNN set calculations. A larger NSF object is
-                    // first created, so that few recalculations need ever be
-                    // done later on.
-                    AppKNNGraphLanczosBisection appNSF =
-                            new AppKNNGraphLanczosBisection(
-                            dataContextForNSF, totalDistMat, 2 * kMax,
-                            alphaAppKNN);
-                    appNSF.calculateApproximateNeighborSets();
-                    bigNSF = NeighborSetFinder.constructFromAppFinder(appNSF,
-                            false);
+                    if (!approximateNNs || alphaAppKNN == 1) {
+                        // Exact kNN set calculations. A larger NSF object is
+                        // first created, so that few recalculations need ever
+                        // be done later on.
+                        bigNSF = new NeighborSetFinder(dataContextForNSF,
+                                totalDistMat, cmet);
+                        bigNSF.calculateNeighborSetsMultiThr(2 * kMax + 10,
+                                numCommonThreads);
+                    } else {
+                        // Approximate kNN set calculations. A larger NSF object
+                        // is first created, so that few recalculations need
+                        // ever be done later on.
+                        AppKNNGraphLanczosBisection appNSF =
+                                new AppKNNGraphLanczosBisection(
+                                dataContextForNSF, totalDistMat, 2 * kMax,
+                                alphaAppKNN);
+                        appNSF.calculateApproximateNeighborSets();
+                        bigNSF = NeighborSetFinder.constructFromAppFinder(
+                                appNSF, false);
+                    }
                 }
             } else {
                 // In case the secondary distances need to be calculated as
                 // well.
-                if (!approximateNNs || alphaAppKNN == 1) {
-                    // Exact kNN calculations.
-                    bigNSF = new NeighborSetFinder(dataContextForNSF,
-                            totalDistMat, cmet);
-                    bigNSF.calculateNeighborSetsMultiThr(secondaryK + kMax + 10,
-                            numCommonThreads);
+                if (contextObjects != null &&
+                        contextObjects.getNeighborSets() != null &&
+                        (contextObjects.getNeighborSets().getCurrK() >=
+                        secondaryK + kMax + 10)) {
+                    bigNSF = contextObjects.getNeighborSets();
                 } else {
-                    // Approximate kNN calculations.
-                    AppKNNGraphLanczosBisection appNSF =
-                            new AppKNNGraphLanczosBisection(dataContextForNSF,
-                            totalDistMat, secondaryK + kMax, alphaAppKNN);
-                    appNSF.calculateApproximateNeighborSets();
-                    bigNSF = NeighborSetFinder.constructFromAppFinder(
-                            appNSF, false);
+                    if (!approximateNNs || alphaAppKNN == 1) {
+                        // Exact kNN calculations.
+                        bigNSF = new NeighborSetFinder(dataContextForNSF,
+                                totalDistMat, cmet);
+                        bigNSF.calculateNeighborSetsMultiThr(secondaryK + kMax +
+                                10, numCommonThreads);
+                    } else {
+                        // Approximate kNN calculations.
+                        AppKNNGraphLanczosBisection appNSF =
+                                new AppKNNGraphLanczosBisection(
+                                dataContextForNSF, totalDistMat,
+                                secondaryK + kMax, alphaAppKNN);
+                        appNSF.calculateApproximateNeighborSets();
+                        bigNSF = NeighborSetFinder.constructFromAppFinder(
+                                appNSF, false);
+                    }
                 }
+            }
+            if (contextObjects != null) {
+                contextObjects.setNeighborSets(bigNSF);
             }
         }
         // Classification estimators..

@@ -191,6 +191,7 @@ public class BatchClassifierTester {
     public ArrayList<Integer> openMLTaskIDList;
     public HashMap<Integer, Integer> dataIndexToOpenMLCounterMap =
             new HashMap<>();
+    private ExternalExperimentalContext contextObjects; 
 
     /**
      * Get the human-readable name of a secondary distance type.
@@ -460,7 +461,7 @@ public class BatchClassifierTester {
                             discretizer.discretizeAll();
                             currDiscDSet.discretizeDataSet(currDSet);
                         }
-                        for (int k = kMin; k <= kMax; k += kStep) {
+                        for (int k = kMax; k >= kMin; k -= kStep) {
                             // Iterate over different neighborhood sizes.
                             if (multiLabelMode) {
                                 currOutDSDir = new File(outDir,
@@ -490,7 +491,7 @@ public class BatchClassifierTester {
                                     classifierNames.size(); cIndex++) {
                                 // Place the algorithm in the appropriate list.
                                 String cName = classifierNames.get(cIndex);
-                                ValidateableInterface cInstance ;
+                                ValidateableInterface cInstance;
                                 if (algorithmParametrizationMap.containsKey(
                                         cName)) {
                                     cInstance = getClassifierForName(cName,
@@ -645,6 +646,10 @@ public class BatchClassifierTester {
                                     cmetClass = Class.forName(dMatFile.
                                             getParentFile().getName());
                                 }
+                                if (contextObjects == null) {
+                                    contextObjects =
+                                            new ExternalExperimentalContext();
+                                }
                                 if (distMat == null) {
                                     if (dMatFile == null || !dMatFile.exists()
                                             || !(cmetClass.isInstance(
@@ -670,6 +675,7 @@ public class BatchClassifierTester {
                                                 dMatFile.getPath());
                                     }
                                 }
+                                contextObjects.setDistances(distMat);
                                 if (discreteExists) {
                                     discreteCV =
                                             new MultiCrossValidation(
@@ -688,6 +694,8 @@ public class BatchClassifierTester {
                                         discreteCV.setTrainTestIndexes(
                                                 trainTestIndexes[datasetIndex]);
                                     }
+                                    discreteCV.setExternalContext(
+                                            contextObjects);
                                 }
                                 nonDiscreteCV =
                                         new MultiCrossValidation(
@@ -705,6 +713,8 @@ public class BatchClassifierTester {
                                     nonDiscreteCV.setTrainTestIndexes(
                                             trainTestIndexes[datasetIndex]);
                                 }
+                                nonDiscreteCV.setExternalContext(
+                                        contextObjects);
                             } else {
                                 if (discreteExists) {
                                     discreteCV =
@@ -1040,6 +1050,7 @@ public class BatchClassifierTester {
                     }
                 }
                 distMat = null;
+                contextObjects = null;
             }
             datasetIndex++;
             System.gc();
