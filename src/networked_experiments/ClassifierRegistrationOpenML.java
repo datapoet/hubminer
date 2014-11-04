@@ -145,8 +145,8 @@ public class ClassifierRegistrationOpenML {
         String classifierName = classPath.substring(
                 classPath.lastIndexOf('.') + 1);
         String description = "HubMiner implementation of " + classifierName;
-        Implementation imp = new Implementation(classifierName, version,
-                description, "java", " ");
+        Implementation imp = new Implementation("HubMiner." + classifierName,
+                version, description, "java", " ");
         if (parameterDescriptions != null) {
             Set<String> paramNames = parameterDescriptions.keySet();
             for (String paramName: paramNames) {
