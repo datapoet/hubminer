@@ -79,7 +79,7 @@ public class DifferentialEvolution implements OptimizationAlgorithmInterface {
         //first initial eval
         int r1, r2, r3;
         DataInstance instance;
-        DataInstance newTemp;
+        DataInstance newChild;
         Random randa = new Random();
         int certainMutationIndex;
         populationFitness = new float[population.length];
@@ -92,10 +92,10 @@ public class DifferentialEvolution implements OptimizationAlgorithmInterface {
             children = new Object[population.length];
             for (int i = 0; i < population.length; i++) {
                 instance = (DataInstance) (population[i]);
-                newTemp = new DataInstance();
-                newTemp.sAttr = instance.sAttr;
-                newTemp.iAttr = instance.iAttr;
-                newTemp.fAttr = new float[instance.fAttr.length];
+                newChild = new DataInstance();
+                newChild.sAttr = instance.sAttr;
+                newChild.iAttr = instance.iAttr;
+                newChild.fAttr = new float[instance.fAttr.length];
                 certainMutationIndex = randa.nextInt(instance.fAttr.length);
                 for (int j = 0; j < instance.fAttr.length; j++) {
                     // Now select three random donors.
@@ -111,15 +111,15 @@ public class DifferentialEvolution implements OptimizationAlgorithmInterface {
                     decision = randa.nextFloat();
                     if (j == certainMutationIndex || decision < CR) {
                         // Perform mutation & recombination.
-                        newTemp.fAttr[j] =
+                        newChild.fAttr[j] =
                                 ((DataInstance) population[r3]).fAttr[j]
                                 + F * (((DataInstance) population[r2]).fAttr[j]
                                 - ((DataInstance) population[r1]).fAttr[j]);
                     } else {
-                        newTemp.fAttr[j] = instance.fAttr[j];
+                        newChild.fAttr[j] = instance.fAttr[j];
                     }
                 }
-                children[i] = newTemp;
+                children[i] = newChild;
             }
             // Calculate fitness for the children and replace certain parents.
             for (int i = 0; i < population.length; i++) {

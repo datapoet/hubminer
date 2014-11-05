@@ -421,7 +421,12 @@ public class DataInstance implements Serializable {
             s.append(new Integer(category).toString());
             s.append("</Label>");
             for (int i = 0; i < getNumIAtt(); i++) {
-                s.append(dataContext.iAttrNames[i]);
+                if (dataContext != null) {
+                    s.append(dataContext.iAttrNames[i]);
+                } else {
+                    s.append("I_");
+                    s.append(i);
+                }
                 s.append(":");
                 if (DataMineConstants.isAcceptableInt(iAttr[i])) {
                     s.append(new Integer(iAttr[i]).toString());
@@ -430,7 +435,12 @@ public class DataInstance implements Serializable {
                 }
             }
             for (int i = 0; i < getNumFAtt(); i++) {
-                s.append(dataContext.fAttrNames[i]);
+                if (dataContext != null) {
+                    s.append(dataContext.fAttrNames[i]);
+                } else {
+                    s.append("F_");
+                    s.append(i);
+                }
                 s.append(":");
                 if (DataMineConstants.isAcceptableFloat(fAttr[i])) {
                     s.append(new Float(fAttr[i]).toString());
@@ -439,7 +449,12 @@ public class DataInstance implements Serializable {
                 }
             }
             for (int i = 0; i < getNumNAtt(); i++) {
-                s.append(dataContext.sAttrNames[i]);
+                if (dataContext != null) {
+                    s.append(dataContext.sAttrNames[i]);
+                } else {
+                    s.append("S_");
+                    s.append(i);
+                }
                 s.append(":");
                 s.append(sAttr[i]);
             }
