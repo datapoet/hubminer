@@ -129,7 +129,7 @@ public class SimulatedThermicAnnealingLeap
      */
     public void getProbability(float scoreDifference) {
         probUpHill = (float) (Math.pow(Math.E,
-                -scoreDifference / (currTemperature * d_avg)));
+                -scoreDifference / currTemperature));
     }
 
     @Override
@@ -188,7 +188,6 @@ public class SimulatedThermicAnnealingLeap
      */
     private void evaluate(Object instance) {
         score = fe.evaluate(instance);
-        System.out.println(score + ":aiming for: " + bestScore);
         numEvaluatedInstances++;
         if (score < bestScore) {
             bestScore = score;

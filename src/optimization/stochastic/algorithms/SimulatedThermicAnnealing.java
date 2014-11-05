@@ -102,7 +102,7 @@ public class SimulatedThermicAnnealing
      */
     private void getProbability(float scoreDifference) {
         probUpHill = (float) (Math.pow(
-                Math.E, -scoreDifference / (currTemperature * d_avg)));
+                Math.E, -scoreDifference / currTemperature));
     }
 
     @Override
