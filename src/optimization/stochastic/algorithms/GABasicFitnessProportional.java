@@ -21,6 +21,7 @@ import optimization.stochastic.fitness.FitnessEvaluator;
 import optimization.stochastic.operators.MutationInterface;
 import optimization.stochastic.operators.RecombinationInterface;
 import util.AuxSort;
+import util.SOPLUtil;
 
 /**
  * This class implements the basic GA protocol where the selection probability
@@ -47,14 +48,14 @@ public class GABasicFitnessProportional
     private float score = Float.MAX_VALUE;
     private float[] inversePopulationFitness;
     private float[] inverseOffspringFitness;
-    private float[] cumulativeProbs;
+    private double[] cumulativeProbs;
     private float[] tempFitness;
-    private float totalProbs;
+    private double totalProbs;
     private Object[] tempPopulation;
     private Object[] tempChildren;
     private int[] rearrange;
     private boolean stop = false;
-    private float decision;
+    private double decision;
     private int first, second;
 
     /**
@@ -93,7 +94,7 @@ public class GABasicFitnessProportional
         population = tempPopulation;
         children = new Object[2 * population.length];
         inverseOffspringFitness = new float[children.length];
-        cumulativeProbs = new float[population.length];
+        cumulativeProbs = new double[population.length];
         tempFitness = new float[population.length];
         Random randa = new Random();
         while (!stop && ++iteration <= numIter) {
@@ -109,25 +110,43 @@ public class GABasicFitnessProportional
             // Perform recombinations.
             totalProbs = 0;
             cumulativeProbs[0] =
-                    (float) Math.pow(Math.E, -inversePopulationFitness[0]);
+                    Math.pow(Math.E, -inversePopulationFitness[0]);
             totalProbs += cumulativeProbs[0];
             for (int i = 1; i < population.length; i++) {
                 cumulativeProbs[i] = cumulativeProbs[i - 1]
-                        + (float) Math.pow(Math.E, -inversePopulationFitness[i]);
+                        + Math.pow(Math.E, -inversePopulationFitness[i]);
                 totalProbs += cumulativeProbs[i];
             }
-            for (int i = 1; i < population.length; i++) {
-                decision = randa.nextFloat() * totalProbs;
-                first = findIndex(decision, 0, population.length - 1);
-                second = first;
-                while (second == first) {
+            if (totalProbs > 0) {
+                for (int i = 0; i < population.length; i++) {
                     decision = randa.nextFloat() * totalProbs;
-                    second = findIndex(decision, 0, population.length - 1);
+                    first = findIndex(decision, 0, population.length - 1);
+                    second = first;
+                    int numTries = 0;
+                    while (second == first || numTries > 10) {
+                        decision = randa.nextFloat() * totalProbs;
+                        second = findIndex(decision, 0, population.length - 1);
+                        numTries++;
+                    }
+                    children[population.length + i] =
+                            recombiner.recombine(
+                            population[first],
+                            population[second]);
                 }
-                children[population.length + i] =
-                        recombiner.recombine(
-                        population[first],
-                        population[second]);
+            } else {
+                for (int i = 0; i < population.length; i++) {
+                    first = randa.nextInt(population.length);
+                    second = first;
+                    int numTries = 0;
+                    while (second == first || numTries > 10) {
+                        second = randa.nextInt(population.length);
+                        numTries++;
+                    }
+                    children[population.length + i] =
+                            recombiner.recombine(
+                            population[first],
+                            population[second]);
+                }
             }
             for (int i = 0; i < children.length; i++) {
                 if (!stop) {
