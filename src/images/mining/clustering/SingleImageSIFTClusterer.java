@@ -17,7 +17,7 @@
 package images.mining.clustering;
 
 import data.representation.DataSet;
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import distances.primary.CombinedMetric;
 import distances.primary.MinkowskiMetric;
 import images.mining.display.SIFTDraw;
@@ -40,7 +40,7 @@ import util.CommandLineParser;
  */
 public class SingleImageSIFTClusterer {
 
-    private SIFTRepresentation features = null;
+    private LFeatRepresentation features = null;
     private CombinedMetric cmet = null;
     private OptimalConfigurationFinder selector = null;
     private int minClusters;
@@ -50,7 +50,7 @@ public class SingleImageSIFTClusterer {
     /**
      * @return SIFTRepresentation object that holds the features on the image.
      */
-    public SIFTRepresentation getFeatures() {
+    public LFeatRepresentation getFeatures() {
         return features;
     }
 
@@ -76,7 +76,7 @@ public class SingleImageSIFTClusterer {
      * @param features SIFTRepresentation object that holds the features on the
      * image.
      */
-    public void setRepresentation(SIFTRepresentation features) {
+    public void setRepresentation(LFeatRepresentation features) {
         this.features = features;
     }
 
@@ -153,7 +153,7 @@ public class SingleImageSIFTClusterer {
         }
         Cluster[] clusterConfiguration;
         // Load the features.
-        SIFTRepresentation features = SiftUtil.importFeaturesFromArff(inPath);
+        LFeatRepresentation features = SiftUtil.importFeaturesFromArff(inPath);
         CombinedMetric cmet = new CombinedMetric(null,
                 new MinkowskiMetric(), CombinedMetric.DEFAULT);
         // Perform the clustering.

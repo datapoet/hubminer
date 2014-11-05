@@ -16,8 +16,8 @@
 */
 package gui.images;
 
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import images.mining.codebook.SIFTCodeBook;
 import images.mining.display.SIFTDraw;
 import java.awt.Color;
@@ -49,7 +49,7 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
     // frame is open to many extensions and it will be extended soon. Therefore,
     // a bit more information was included to begin with.
     // Feature representation for the image in question.
-    private SIFTRepresentation imageSIFT;
+    private LFeatRepresentation imageSIFT;
     private float[] codebookGoodness;
     // An object that represents the visual word definitions.
     private SIFTCodeBook codebook;
@@ -70,7 +70,7 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
     // feature in the currently examined image.
     private int[] codebookAssignments;
     // One partial representation for each codebook feature.
-    private SIFTRepresentation[] partialReps;
+    private LFeatRepresentation[] partialReps;
     // Black and white image.
     private BufferedImage bwImage;
     private File currentDirectory = new File(".");
@@ -101,7 +101,7 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
      */
     public QuantizedImageViewer(
             BufferedImage originalImage,
-            SIFTRepresentation imageSIFT,
+            LFeatRepresentation imageSIFT,
             float[] codebookGoodness,
             SIFTCodeBook codebook,
             double[][] codebookProfiles,
@@ -129,13 +129,13 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
         g2d.drawImage(bwImage, 0, 0, originalImage.getWidth(),
                 originalImage.getHeight(), null);
         bwImage = bwImageTmp;
-        partialReps = new SIFTRepresentation[codebook.getSize()];
+        partialReps = new LFeatRepresentation[codebook.getSize()];
         codebookVisualizationImages = new BufferedImage[codebook.getSize()];
         // Insert all the individual codebook profile visualization panels.
         for (int cInd = 0; cInd < codebook.getSize(); cInd++) {
             codebookProfilesPanel.add(cProfPanels[cInd]);
             cProfPanels[cInd].addMouseListener(new CodebookSelectionListener());
-            partialReps[cInd] = new SIFTRepresentation();
+            partialReps[cInd] = new LFeatRepresentation();
         }
         codebookProfilesPanel.revalidate();
         codebookProfilesPanel.repaint();
@@ -147,7 +147,7 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
         float[] featureGoodness = new float[imageSIFT.size()];
         codebookAssignments = new int[imageSIFT.size()];
         for (int i = 0; i < imageSIFT.size(); i++) {
-            SIFTVector sv = (SIFTVector) (imageSIFT.getInstance(i));
+            LFeatVector sv = (LFeatVector) (imageSIFT.getInstance(i));
             try {
                 codebookAssignments[i] = codebook.getIndexOfClosestCodebook(sv);
                 partialReps[codebookAssignments[i]].addDataInstance(sv);

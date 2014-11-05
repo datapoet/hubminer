@@ -16,7 +16,7 @@
 */
 package gui.images;
 
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import distances.primary.CombinedMetric;
 import draw.basic.RotatedEllipse;
 import images.mining.clustering.SingleImageSIFTClusterer;
@@ -67,7 +67,7 @@ public class ImageManipulator extends javax.swing.JFrame {
     private BufferedImage ellipsesImage = null;
 
     // SIFT feature representation.
-    private SIFTRepresentation currentSIFT = null;
+    private LFeatRepresentation currentSIFT = null;
     // SIFT feature clusters.
     private Cluster[] clusters = null;
     // Ellipses corresponding to the SIFT feature clusters.

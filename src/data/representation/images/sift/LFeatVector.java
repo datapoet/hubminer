@@ -26,15 +26,15 @@ import java.util.Arrays;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SIFTVector extends DataInstance {
+public class LFeatVector extends DataInstance {
 
-    public SIFTVector() {
+    public LFeatVector() {
     }
 
     /**
      * @param dataContext The embedding SIFTRepresentation container.
      */
-    public SIFTVector(SIFTRepresentation dataContext) {
+    public LFeatVector(LFeatRepresentation dataContext) {
         super(dataContext);
         embedInDataset(dataContext);
     }
@@ -44,7 +44,7 @@ public class SIFTVector extends DataInstance {
      * @param allValues The float feature array of this particular SIFT vector.
      * @param dataContext The embedding SIFTRepresentation container.
      */
-    public SIFTVector(float[] allValues, SIFTRepresentation dataContext) {
+    public LFeatVector(float[] allValues, LFeatRepresentation dataContext) {
         fAttr = allValues;
         embedInDataset(dataContext);
     }
@@ -54,7 +54,7 @@ public class SIFTVector extends DataInstance {
      *
      * @param instance DataInstance to initialize this SIFT vector with.
      */
-    public SIFTVector(DataInstance instance) {
+    public LFeatVector(DataInstance instance) {
         fAttr = instance.fAttr;
         iAttr = instance.iAttr;
         sAttr = instance.sAttr;
@@ -65,7 +65,7 @@ public class SIFTVector extends DataInstance {
     /**
      * @param dataContext The embedding SIFTRepresentation container.
      */
-    public void setContext(SIFTRepresentation dataContext) {
+    public void setContext(LFeatRepresentation dataContext) {
         embedInDataset(dataContext);
     }
 
@@ -178,8 +178,8 @@ public class SIFTVector extends DataInstance {
     }
 
     @Override
-    public SIFTVector copyContent() throws Exception {
-        SIFTVector instanceCopy = new SIFTVector();
+    public LFeatVector copyContent() throws Exception {
+        LFeatVector instanceCopy = new LFeatVector();
         instanceCopy.embedInDataset(getEmbeddingDataset());
         if (hasIntAtt()) {
             instanceCopy.iAttr = Arrays.copyOf(iAttr, iAttr.length);
@@ -194,8 +194,8 @@ public class SIFTVector extends DataInstance {
     }
 
     @Override
-    public SIFTVector copy() throws Exception {
-        SIFTVector instanceCopy;
+    public LFeatVector copy() throws Exception {
+        LFeatVector instanceCopy;
         try {
             instanceCopy = this.copyContent();
         } catch (Exception e) {

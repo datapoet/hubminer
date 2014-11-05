@@ -19,7 +19,7 @@ package images.mining.clustering;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import data.representation.images.sift.util.ClusteredSIFTRepresentation;
 import data.representation.images.sift.util.ClusteredSIFTVector;
 import data.representation.util.DataMineConstants;
@@ -87,7 +87,7 @@ public class IntraImageKMeansAdapted extends ClusteringAlg {
      * @param numClusters Number of clusters to cluster to.
      */
     public IntraImageKMeansAdapted(BufferedImage bi,
-            SIFTRepresentation rep, int numClusters) {
+            LFeatRepresentation rep, int numClusters) {
         setDataSet(rep);
         setNumClusters(numClusters);
         minClusters = numClusters;
@@ -107,7 +107,7 @@ public class IntraImageKMeansAdapted extends ClusteringAlg {
      * distance.
      * @param beta Float value that is the weight of the color in the distance.
      */
-    public IntraImageKMeansAdapted(BufferedImage bi, SIFTRepresentation rep,
+    public IntraImageKMeansAdapted(BufferedImage bi, LFeatRepresentation rep,
             int numClusters, float alpha, float beta) {
         setDataSet(rep);
         setNumClusters(numClusters);
@@ -134,7 +134,7 @@ public class IntraImageKMeansAdapted extends ClusteringAlg {
      * distance.
      * @param beta Float value that is the weight of the color in the distance.
      */
-    public IntraImageKMeansAdapted(BufferedImage bi, SIFTRepresentation rep,
+    public IntraImageKMeansAdapted(BufferedImage bi, LFeatRepresentation rep,
             int minClusters, int maxClusters, int repetitions,
             boolean randomInit, float alpha, float beta) {
         setDataSet(rep);
@@ -160,7 +160,7 @@ public class IntraImageKMeansAdapted extends ClusteringAlg {
      * @param randomInit Boolean indicating whether to use random
      * initialization.
      */
-    public IntraImageKMeansAdapted(BufferedImage bi, SIFTRepresentation rep,
+    public IntraImageKMeansAdapted(BufferedImage bi, LFeatRepresentation rep,
             int minClusters, int maxClusters, int repetitions,
             boolean randomInit) {
         setDataSet(rep);
@@ -253,7 +253,7 @@ public class IntraImageKMeansAdapted extends ClusteringAlg {
      * @throws Exception
      */
     public void clusterOnce() throws Exception {
-        SIFTRepresentation dset = (SIFTRepresentation) (getDataSet());
+        LFeatRepresentation dset = (LFeatRepresentation) (getDataSet());
         int numClusters = getNumClusters();
         performBasicChecks();
         boolean trivial = checkIfTrivial();

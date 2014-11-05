@@ -16,7 +16,7 @@
 */
 package images.mining.util;
 
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import ioformat.images.SiftUtil;
 import java.io.File;
 
@@ -50,7 +50,7 @@ public class SIFTCounter {
         float avg = 0;
         for (int i = 0; i < children.length; i++) {
             if (children[i].isFile()) {
-                SIFTRepresentation tempRep =
+                LFeatRepresentation tempRep =
                         SiftUtil.importFeaturesFromSift(children[i]);
                 tempSIFT = tempRep.size();
                 if (tempSIFT > maxNum) {

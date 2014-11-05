@@ -17,7 +17,7 @@
 package data.representation.images.sift.util;
 
 import data.representation.DataInstance;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatVector;
 import java.util.Arrays;
 
 /**
@@ -27,7 +27,7 @@ import java.util.Arrays;
  * @deprecated
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class ClusteredSIFTVector extends SIFTVector {
+public class ClusteredSIFTVector extends LFeatVector {
 
     /**
      * @param rep The embedding data context.
@@ -40,7 +40,7 @@ public class ClusteredSIFTVector extends SIFTVector {
     /**
      * @param sv The original SIFTVector object that this one is derived from.
      */
-    public ClusteredSIFTVector(SIFTVector sv) {
+    public ClusteredSIFTVector(LFeatVector sv) {
         fAttr = sv.fAttr;
         iAttr = new int[1];
     }

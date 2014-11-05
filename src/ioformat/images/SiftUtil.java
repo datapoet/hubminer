@@ -16,8 +16,8 @@
 */
 package ioformat.images;
 
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import ioformat.FileUtil;
 import ioformat.IOARFF;
 import java.io.BufferedReader;
@@ -44,9 +44,9 @@ public class SiftUtil {
      * @return SIFTRepresentation that holds the loaded features.
      * @throws Exception
      */
-    public static SIFTRepresentation importFeaturesFromSift(File keyFile)
+    public static LFeatRepresentation importFeaturesFromSift(File keyFile)
             throws Exception {
-        SIFTRepresentation rep = null;
+        LFeatRepresentation rep = null;
         if (keyFile.exists() && keyFile.isFile()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     new FileInputStream(keyFile)));
@@ -54,8 +54,8 @@ public class SiftUtil {
                 String line = br.readLine();
                 String[] header = line.split(" ");
                 int numFeatures = Integer.parseInt(header[0]);
-                rep = new SIFTRepresentation(numFeatures, 10);
-                SIFTVector siftVect;
+                rep = new LFeatRepresentation(numFeatures, 10);
+                LFeatVector siftVect;
                 int index;
                 // The header will contain the coordinates, the scale and the
                 // angle.
@@ -64,7 +64,7 @@ public class SiftUtil {
                 String[] siftComponents;
                 for (int featureIndex = 0; featureIndex < numFeatures;
                         featureIndex++) {
-                    siftVect = new SIFTVector(rep);
+                    siftVect = new LFeatVector(rep);
                     line = br.readLine();
                     // Contains y, x, scale and angle.
                     line = line.trim();
@@ -94,7 +94,7 @@ public class SiftUtil {
             }
             return rep;
         } else {
-            return new SIFTRepresentation();
+            return new LFeatRepresentation();
         }
     }
 
@@ -105,13 +105,13 @@ public class SiftUtil {
      * @return SIFTRepresentation object.
      * @throws Exception
      */
-    public static SIFTRepresentation importFeaturesFromArff(String inPath)
+    public static LFeatRepresentation importFeaturesFromArff(String inPath)
             throws Exception {
         File featureFile = new File(inPath);
-        SIFTRepresentation rep;
+        LFeatRepresentation rep;
         if (featureFile.exists() && featureFile.isFile()) {
             IOARFF arff = new IOARFF();
-            rep = new SIFTRepresentation(arff.load(inPath));
+            rep = new LFeatRepresentation(arff.load(inPath));
             return rep;
         } else {
             throw new Exception("File " + inPath + " does not exist");

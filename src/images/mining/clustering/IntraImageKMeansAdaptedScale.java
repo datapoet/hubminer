@@ -19,8 +19,8 @@ package images.mining.clustering;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import data.representation.images.sift.util.ClusteredSIFTRepresentation;
 import data.representation.images.sift.util.ClusteredSIFTVector;
 import data.representation.util.DataMineConstants;
@@ -93,7 +93,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @param numClusters Number of clusters to cluster to.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int numClusters) {
+            LFeatRepresentation rep, int numClusters) {
         setDataSet(rep);
         setNumClusters(numClusters);
         minClusters = numClusters;
@@ -114,7 +114,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @param beta Float value that is the weight of the color in the distance.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int numClusters, float alpha, float beta) {
+            LFeatRepresentation rep, int numClusters, float alpha, float beta) {
         setDataSet(rep);
         setNumClusters(numClusters);
         minClusters = numClusters;
@@ -138,7 +138,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @param gamma Float value that is the weight of the scale in the distance.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int numClusters, float alpha,
+            LFeatRepresentation rep, int numClusters, float alpha,
             float beta, float gamma) {
         setDataSet(rep);
         setNumClusters(numClusters);
@@ -167,7 +167,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @param beta Float value that is the weight of the color in the distance.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int minClusters, int maxClusters,
+            LFeatRepresentation rep, int minClusters, int maxClusters,
             int repetitions, boolean randomInit, float alpha, float beta) {
         setDataSet(rep);
         setNumClusters(minClusters);
@@ -197,7 +197,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @param gamma Float value that is the weight of the scale in the distance.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int minClusters, int maxClusters,
+            LFeatRepresentation rep, int minClusters, int maxClusters,
             int repetitions, boolean randomInit, float alpha, float beta,
             float gamma) {
         setDataSet(rep);
@@ -224,7 +224,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * initialization.
      */
     public IntraImageKMeansAdaptedScale(BufferedImage bi,
-            SIFTRepresentation rep, int minClusters, int maxClusters,
+            LFeatRepresentation rep, int minClusters, int maxClusters,
             int repetitions, boolean randomInit) {
         setDataSet(rep);
         setNumClusters(minClusters);
@@ -316,7 +316,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
      * @throws Exception
      */
     public void clusterOnce() throws Exception {
-        SIFTRepresentation dset = (SIFTRepresentation) (getDataSet());
+        LFeatRepresentation dset = (LFeatRepresentation) (getDataSet());
         int numClusters = getNumClusters();
         performBasicChecks();
         boolean trivial = checkIfTrivial();
@@ -494,7 +494,7 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
                         descDists[cIndex] = smet.dist(instance.fAttr,
                                 centroids[cIndex].fAttr);
                         scaleDists[cIndex] = centroids[i].getScale()
-                                - ((SIFTVector) instance).getScale();
+                                - ((LFeatVector) instance).getScale();
                     }
                     boolean descending = false;
                     // At index 0 is the closest centroid according to the

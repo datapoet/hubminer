@@ -17,7 +17,7 @@
 package util;
 
 import data.representation.DataSet;
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import java.util.ArrayList;
 
 /**
@@ -34,12 +34,12 @@ public class DataSetJoiner {
      * @return SIFTRepresentation containing all objects from all individual
      * SIFTRepresentation-s in the array.
      */
-    public static SIFTRepresentation joinSIFTCollections(
-            SIFTRepresentation[] dsets) {
+    public static LFeatRepresentation joinSIFTCollections(
+            LFeatRepresentation[] dsets) {
         if (dsets == null || dsets.length == 0) {
             return null;
         } else {
-            SIFTRepresentation joinedDSet = new SIFTRepresentation(100, 10);
+            LFeatRepresentation joinedDSet = new LFeatRepresentation(100, 10);
             if (dsets[0].identifiers != null) {
                 DataSet[] identifiersArr = new DataSet[dsets.length];
                 for (int i = 0; i < dsets.length; i++) {

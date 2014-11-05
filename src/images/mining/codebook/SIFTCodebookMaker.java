@@ -18,8 +18,8 @@ package images.mining.codebook;
 
 import java.io.File;
 import java.util.ArrayList;
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import ioformat.images.SiftUtil;
 import util.fileFilters.ARFFFileNameFilter;
 import util.fileFilters.KeyFileNameFilter;
@@ -44,7 +44,7 @@ public class SIFTCodebookMaker {
     public static final int DEFAULT_SIZE = 400;
     private File target = null;
     private boolean recursive = true;
-    private SIFTRepresentation siftSample = null;
+    private LFeatRepresentation siftSample = null;
     private Cluster[] resultingConfiguration = null;
     private FastKMeans clusterer = null;
 
@@ -81,7 +81,7 @@ public class SIFTCodebookMaker {
         // files in the directory. If it is a file, only for the given file.
         this.target = target;
         this.recursive = recursive;
-        siftSample = new SIFTRepresentation(20000, 10000);
+        siftSample = new LFeatRepresentation(20000, 10000);
     }
 
     /**
@@ -131,14 +131,14 @@ public class SIFTCodebookMaker {
      * centroids.
      * @throws Exception
      */
-    public SIFTVector[] getConfigurationCentroids() throws Exception {
+    public LFeatVector[] getConfigurationCentroids() throws Exception {
         if ((resultingConfiguration == null)
                 || resultingConfiguration.length == 0) {
-            return new SIFTVector[0];
+            return new LFeatVector[0];
         }
-        SIFTVector[] centroids = new SIFTVector[resultingConfiguration.length];
+        LFeatVector[] centroids = new LFeatVector[resultingConfiguration.length];
         for (int i = 0; i < centroids.length; i++) {
-            centroids[i] = new SIFTVector(
+            centroids[i] = new LFeatVector(
                     resultingConfiguration[i].getCentroid());
         }
         return centroids;
@@ -154,10 +154,10 @@ public class SIFTCodebookMaker {
             return new SIFTCodeBook();
         }
         SIFTCodeBook result = new SIFTCodeBook();
-        ArrayList<SIFTVector> featureVector = new ArrayList<>(
+        ArrayList<LFeatVector> featureVector = new ArrayList<>(
                 resultingConfiguration.length);
         for (int i = 0; i < resultingConfiguration.length; i++) {
-            featureVector.add(new SIFTVector(
+            featureVector.add(new LFeatVector(
                     resultingConfiguration[i].getCentroid()));
         }
         result.setCodeBookSet(featureVector);
@@ -172,9 +172,9 @@ public class SIFTCodebookMaker {
     private void loadSIFTFromARFFFile(File inSIFTFile) {
         // Extract data and append to the current sample.
         IOARFF persister = new IOARFF();
-        SIFTRepresentation imageSIFTrep;
+        LFeatRepresentation imageSIFTrep;
         try {
-            imageSIFTrep = new SIFTRepresentation(
+            imageSIFTrep = new LFeatRepresentation(
                     persister.load(inSIFTFile.getPath()));
             if (!imageSIFTrep.isEmpty()) {
                 for (DataInstance localFeature : imageSIFTrep.data) {
@@ -193,7 +193,7 @@ public class SIFTCodebookMaker {
      */
     private void loadSIFTFromSIFTFile(File inSIFTFile) {
         // Extract data and append to the current sample.
-        SIFTRepresentation imageSIFTrep;
+        LFeatRepresentation imageSIFTrep;
         try {
             imageSIFTrep = SiftUtil.importFeaturesFromSift(inSIFTFile);
             if (!imageSIFTrep.isEmpty()) {
@@ -248,10 +248,10 @@ public class SIFTCodebookMaker {
     private void loadSIFTFromARFFFile(File inFile, float perc) {
         // Extract data and append to the current sample.
         IOARFF persister = new IOARFF();
-        SIFTRepresentation imageSIFTrep;
+        LFeatRepresentation imageSIFTrep;
         Random randa = new Random();
         try {
-            imageSIFTrep = new SIFTRepresentation(persister.load(
+            imageSIFTrep = new LFeatRepresentation(persister.load(
                     inFile.getPath()));
             if (!imageSIFTrep.isEmpty()) {
                 for (DataInstance element : imageSIFTrep.data) {
@@ -273,7 +273,7 @@ public class SIFTCodebookMaker {
      */
     private void loadSIFTFromSIFTFile(File inFile, float perc) {
         // Extract data and append to the current sample.
-        SIFTRepresentation imageSIFTrep;
+        LFeatRepresentation imageSIFTrep;
         Random randa = new Random();
         try {
             imageSIFTrep = SiftUtil.importFeaturesFromSift(inFile);

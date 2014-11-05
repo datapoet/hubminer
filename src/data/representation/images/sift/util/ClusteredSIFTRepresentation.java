@@ -17,8 +17,8 @@
 package data.representation.images.sift.util;
 
 import data.representation.DataInstance;
-import data.representation.images.sift.SIFTRepresentation;
-import static data.representation.images.sift.SIFTRepresentation.
+import data.representation.images.sift.LFeatRepresentation;
+import static data.representation.images.sift.LFeatRepresentation.
         DEFAULT_DESCRIPTOR_LENGTH;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusterConfigurationCleaner;
@@ -29,7 +29,7 @@ import learning.unsupervised.ClusterConfigurationCleaner;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class ClusteredSIFTRepresentation extends SIFTRepresentation {
+public class ClusteredSIFTRepresentation extends LFeatRepresentation {
 
     /**
      *
@@ -57,7 +57,7 @@ public class ClusteredSIFTRepresentation extends SIFTRepresentation {
     /**
      * @param sr SIFTRepresentation to base this clustered representation on.
      */
-    public ClusteredSIFTRepresentation(SIFTRepresentation sr) {
+    public ClusteredSIFTRepresentation(LFeatRepresentation sr) {
         super();
         fAttrNames = sr.fAttrNames;
         iAttrNames = sr.iAttrNames;

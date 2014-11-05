@@ -17,8 +17,8 @@
 package images.mining.display;
 
 import data.representation.DataInstance;
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import data.representation.images.sift.util.ClusteredSIFTRepresentation;
 import draw.basic.BoxBlur;
 import draw.basic.RotatedEllipse;
@@ -194,7 +194,7 @@ public class SIFTDraw {
             String outImagePath, boolean useGradientDraw) throws Exception {
         IOARFF arff = new IOARFF();
         ClusteredSIFTRepresentation features = new ClusteredSIFTRepresentation(
-                new SIFTRepresentation(arff.load(arffPath)));
+                new LFeatRepresentation(arff.load(arffPath)));
         drawClustersOnImageAsEllipses(features, image, outImagePath,
                 useGradientDraw);
     }
@@ -238,7 +238,7 @@ public class SIFTDraw {
             String inImagePath, String outImagePath) throws Exception {
         IOARFF persister = new IOARFF();
         ClusteredSIFTRepresentation features = new ClusteredSIFTRepresentation(
-                new SIFTRepresentation(persister.load(arffPath)));
+                new LFeatRepresentation(persister.load(arffPath)));
         File outImageFile = new File(outImagePath);
         BufferedImage image = null;
         try {
@@ -263,7 +263,7 @@ public class SIFTDraw {
                     randa.nextFloat());
         }
         for (int i = 0; i < features.data.size(); i++) {
-            SIFTVector v = new SIFTVector(features.data.get(i));
+            LFeatVector v = new LFeatVector(features.data.get(i));
             graphics.setColor(clusterColors[(features.data.get(i)).iAttr[0]]);
             transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
             transformAndDrawLine(graphics, v, 0.85f, 0.1f, 1.f, 0.f);
@@ -305,7 +305,7 @@ public class SIFTDraw {
         for (int i = 0; i < siftClusters.length; i++) {
             if (siftClusters[i] != null) {
                 for (int j = 0; j < siftClusters[i].size(); j++) {
-                    SIFTVector v = new SIFTVector(
+                    LFeatVector v = new LFeatVector(
                             siftClusters[i].getInstance(j));
                     graphics.setColor(clusterColors[i]);
                     transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
@@ -334,7 +334,7 @@ public class SIFTDraw {
             throws Exception {
         IOARFF persister = new IOARFF();
         ClusteredSIFTRepresentation features = new ClusteredSIFTRepresentation(
-                new SIFTRepresentation(persister.load(arffPath)));
+                new LFeatRepresentation(persister.load(arffPath)));
         File outImageFile = new File(outImagePath);
         Graphics2D graphics = image.createGraphics();
         int maxClusterIndex = -1;
@@ -352,7 +352,7 @@ public class SIFTDraw {
                     randa.nextFloat());
         }
         for (int i = 0; i < features.size(); i++) {
-            SIFTVector v = new SIFTVector(features.data.get(i));
+            LFeatVector v = new LFeatVector(features.data.get(i));
             graphics.setColor(clusterColors[(features.data.get(i)).iAttr[0]]);
             transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
             transformAndDrawLine(graphics, v, 0.85f, 0.1f, 1.f, 0.f);
@@ -374,7 +374,7 @@ public class SIFTDraw {
      */
     public static void drawSIFTImage(String arffPath, String inImagePath,
             String outImagePath) throws Exception {
-        SIFTRepresentation features = SiftUtil.importFeaturesFromArff(arffPath);
+        LFeatRepresentation features = SiftUtil.importFeaturesFromArff(arffPath);
         File outImageFile = new File(outImagePath);
         BufferedImage image = null;
         try {
@@ -385,7 +385,7 @@ public class SIFTDraw {
         }
         Graphics2D graphics = image.createGraphics();
         for (int i = 0; i < features.size(); i++) {
-            SIFTVector v = new SIFTVector((DataInstance) (
+            LFeatVector v = new LFeatVector((DataInstance) (
                     features.data.get(i)));
             transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
             transformAndDrawLine(graphics, v, 0.85f, 0.1f, 1.f, 0.f);
@@ -405,7 +405,7 @@ public class SIFTDraw {
      * @return BufferedImage that the features have been drawn on.
      * @throws Exception
      */
-    public static BufferedImage drawSIFTImage(SIFTRepresentation features,
+    public static BufferedImage drawSIFTImage(LFeatRepresentation features,
             BufferedImage inImage) throws Exception {
         if (inImage == null) {
             return null;
@@ -413,7 +413,7 @@ public class SIFTDraw {
         BufferedImage outImage = ImageUtil.copyImage(inImage);
         Graphics2D graphics = outImage.createGraphics();
         for (int i = 0; i < features.data.size(); i++) {
-            SIFTVector v = new SIFTVector(features.data.get(i));
+            LFeatVector v = new LFeatVector(features.data.get(i));
             transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
             transformAndDrawLine(graphics, v, 0.85f, 0.1f, 1.f, 0.f);
             transformAndDrawLine(graphics, v, 0.85f, -0.1f, 1.f, 0.f);
@@ -433,7 +433,7 @@ public class SIFTDraw {
      * @throws Exception
      */
     public static BufferedImage drawSIFTGoodnessOnImage(
-            SIFTRepresentation features, float[] featureGoodness,
+            LFeatRepresentation features, float[] featureGoodness,
             BufferedImage inImage) throws Exception {
         BufferedImage outImage = ImageUtil.copyImage(inImage);
         Graphics2D graphics = outImage.createGraphics();
@@ -464,9 +464,9 @@ public class SIFTDraw {
         }
         // Fill the buckets.
         for (int i = 0; i < features.size(); i++) {
-            bucketX = (int) (((SIFTVector) (
+            bucketX = (int) (((LFeatVector) (
                     features.data.get(i))).getX() / step);
-            bucketY = (int) (((SIFTVector) (
+            bucketY = (int) (((LFeatVector) (
                     features.data.get(i))).getY() / step);
             bucketedData[bucketX][bucketY].add(i);
         }
@@ -492,12 +492,12 @@ public class SIFTDraw {
                 // Weight that measures the influence of that feature from the
                 // bucket on the currently considered pixel.
                 weight = Math.min(Math.exp(-sigma
-                        * ((((SIFTVector) (
+                        * ((((LFeatVector) (
                         features.data.get(fIndex))).getX() - pX)
-                        * (((SIFTVector) (features.data.get(fIndex))).getX()
-                        - pX) + (((SIFTVector) (
+                        * (((LFeatVector) (features.data.get(fIndex))).getX()
+                        - pX) + (((LFeatVector) (
                         features.data.get(fIndex))).getY()
-                        - pY) * (((SIFTVector) (features.data.get(fIndex)))
+                        - pY) * (((LFeatVector) (features.data.get(fIndex)))
                         .getY() - pY))), 1);
                 // Update the good and bad totals.
                 gh += weight * featureGoodness[fIndex];
@@ -528,7 +528,7 @@ public class SIFTDraw {
         // In the end, also draw individual features by applying the same color
         // scheme as for the regions.
         for (int i = 0; i < features.data.size(); i++) {
-            SIFTVector v = new SIFTVector(features.data.get(i));
+            LFeatVector v = new LFeatVector(features.data.get(i));
             val = (int) (255 * (Math.min(1, featureGoodness[i])));
             Color col = new Color(val << 8 | (255 - val) << 16);
             graphics.setColor(col);
@@ -557,7 +557,7 @@ public class SIFTDraw {
                     randa.nextFloat());
             graphics.setColor(col);
             for (int j = 0; j < visualObjectClusters[i].size(); j++) {
-                SIFTVector v = new SIFTVector(
+                LFeatVector v = new LFeatVector(
                         visualObjectClusters[i].getInstance(j));
                 transformAndDrawLine(graphics, v, 0.f, 0.f, 1.f, 0.f);
                 transformAndDrawLine(graphics, v, 0.85f, 0.1f, 1.f, 0.f);
@@ -578,7 +578,7 @@ public class SIFTDraw {
      * @param xSecond X coordinate of the second point.
      * @param ySecond Y coordinate of the second point.
      */
-    private static void transformAndDrawLine(Graphics2D graphics, SIFTVector v,
+    private static void transformAndDrawLine(Graphics2D graphics, LFeatVector v,
             float xFirst, float yFirst, float xSecond, float ySecond) {
         float x = v.getX();
         float y = v.getY();

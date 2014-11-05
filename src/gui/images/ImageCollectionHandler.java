@@ -23,7 +23,7 @@ import data.representation.images.quantized.QuantizedImageDistribution;
 import data.representation.images.quantized.QuantizedImageDistributionDataSet;
 import data.representation.images.quantized.QuantizedImageHistogram;
 import data.representation.images.quantized.QuantizedImageHistogramDataSet;
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import distances.primary.ColorsAndCodebooksMetric;
 import distances.primary.CombinedMetric;
 import distances.primary.Manhattan;
@@ -1792,7 +1792,7 @@ public class ImageCollectionHandler extends javax.swing.JFrame {
             try {
                 statusValueLabel.setText("Calculating...");
                 File currSIFTFile;
-                SIFTRepresentation currSIFTRepresentation;
+                LFeatRepresentation currSIFTRepresentation;
                 QuantizedImageHistogramDataSet quantizedDSet =
                         codebook.getNewHistogramContext();
                 QuantizedImageHistogram quantizedImage;
@@ -1827,7 +1827,7 @@ public class ImageCollectionHandler extends javax.swing.JFrame {
                                 SiftUtil.importFeaturesFromSift(currSIFTFile);
                         if (currSIFTRepresentation == null) {
                             currSIFTRepresentation =
-                                    new SIFTRepresentation(20, 10);
+                                    new LFeatRepresentation(20, 10);
                         }
                         quantizedImage = codebook.
                                 getHistogramForImageRepresentation(
@@ -1900,7 +1900,7 @@ public class ImageCollectionHandler extends javax.swing.JFrame {
             try {
                 statusValueLabel.setText("Calculating...");
                 File currSIFTFile;
-                SIFTRepresentation currSIFTRepresentation;
+                LFeatRepresentation currSIFTRepresentation;
                 siftDistributions = codebook.getNewDistributionContext();
                 siftBOW = codebook.getNewHistogramContext();
                 QuantizedImageDistribution currDistr;

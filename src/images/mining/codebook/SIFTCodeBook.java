@@ -20,8 +20,8 @@ import data.representation.images.quantized.QuantizedImageDistribution;
 import data.representation.images.quantized.QuantizedImageDistributionDataSet;
 import data.representation.images.quantized.QuantizedImageHistogram;
 import data.representation.images.quantized.QuantizedImageHistogramDataSet;
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import distances.primary.SIFTMetric;
 import java.io.BufferedReader;
 import java.io.File;
@@ -40,7 +40,7 @@ public class SIFTCodeBook {
 
     public static final int DEFAULT_SIZE = 400;
     // Feature vectors that define the codeboook.
-    private ArrayList<SIFTVector> codebook = new ArrayList<>();
+    private ArrayList<LFeatVector> codebook = new ArrayList<>();
 
     /**
      * @return Integer that is the codebook size.
@@ -54,7 +54,7 @@ public class SIFTCodeBook {
      *
      * @param v SIFT feature vector to add to the codebook.
      */
-    public void addVectorToCodeBook(SIFTVector v) {
+    public void addVectorToCodeBook(LFeatVector v) {
         codebook.add(v);
     }
 
@@ -64,7 +64,7 @@ public class SIFTCodeBook {
      * @param codebook ArrayList of SIFT feature vectors comprising the current
      * codebook.
      */
-    public void setCodeBookSet(ArrayList<SIFTVector> codebook) {
+    public void setCodeBookSet(ArrayList<LFeatVector> codebook) {
         this.codebook = codebook;
     }
 
@@ -109,7 +109,7 @@ public class SIFTCodeBook {
      * @throws Exception
      */
     public QuantizedImageHistogram getHistogramForImageRepresentation(
-            SIFTRepresentation rep,
+            LFeatRepresentation rep,
             QuantizedImageHistogramDataSet qihDSet) throws Exception {
         QuantizedImageHistogram qih = new QuantizedImageHistogram(qihDSet);
         if (rep == null || rep.isEmpty()) {
@@ -117,7 +117,7 @@ public class SIFTCodeBook {
         }
         qih.setPath(rep.getPath());
         for (int i = 0; i < rep.data.size(); i++) {
-            qih.iAttr[getIndexOfClosestCodebook((SIFTVector) (
+            qih.iAttr[getIndexOfClosestCodebook((LFeatVector) (
                     rep.data.get(i)))]++;
         }
         return qih;
@@ -132,7 +132,7 @@ public class SIFTCodeBook {
      * @throws Exception
      */
     public QuantizedImageHistogram getHistogramForImageRepresentation(
-            SIFTRepresentation rep) throws Exception {
+            LFeatRepresentation rep) throws Exception {
         QuantizedImageHistogramDataSet qihDSet =
                 new QuantizedImageHistogramDataSet(codebook.size());
         QuantizedImageHistogram qih = new QuantizedImageHistogram(qihDSet);
@@ -141,7 +141,7 @@ public class SIFTCodeBook {
         }
         qih.setPath(rep.getPath());
         for (int i = 0; i < rep.data.size(); i++) {
-            qih.iAttr[getIndexOfClosestCodebook((SIFTVector) (
+            qih.iAttr[getIndexOfClosestCodebook((LFeatVector) (
                     rep.data.get(i)))]++;
         }
         return qih;
@@ -157,7 +157,7 @@ public class SIFTCodeBook {
      * @throws Exception
      */
     public QuantizedImageDistribution getDistributionForImageRepresentation(
-            SIFTRepresentation rep) throws Exception {
+            LFeatRepresentation rep) throws Exception {
         QuantizedImageDistributionDataSet qidDSet =
                 new QuantizedImageDistributionDataSet(codebook.size());
         QuantizedImageDistribution qid = new QuantizedImageDistribution(
@@ -167,7 +167,7 @@ public class SIFTCodeBook {
         }
         qid.setPath(rep.getPath());
         for (int i = 0; i < rep.data.size(); i++) {
-            qid.fAttr[getIndexOfClosestCodebook((SIFTVector) (
+            qid.fAttr[getIndexOfClosestCodebook((LFeatVector) (
                     rep.data.get(i)))]++;
         }
         // Normalization to get a probability distribution over codebooks.
@@ -188,7 +188,7 @@ public class SIFTCodeBook {
      * @throws Exception
      */
     public QuantizedImageDistribution getDistributionForImageRepresentation(
-            SIFTRepresentation rep, QuantizedImageDistributionDataSet qidDSet)
+            LFeatRepresentation rep, QuantizedImageDistributionDataSet qidDSet)
             throws Exception {
         QuantizedImageDistribution qid =
                 new QuantizedImageDistribution(qidDSet);
@@ -199,7 +199,7 @@ public class SIFTCodeBook {
             return qid;
         }
         for (int i = 0; i < rep.data.size(); i++) {
-            qid.fAttr[getIndexOfClosestCodebook((SIFTVector) (
+            qid.fAttr[getIndexOfClosestCodebook((LFeatVector) (
                     rep.data.get(i)))]++;
         }
         //normalization to get a probability distribution over codebooks
@@ -217,7 +217,7 @@ public class SIFTCodeBook {
      * @return Integer that is the index of the closest codebook vector.
      * @throws Exception
      */
-    public int getIndexOfClosestCodebook(SIFTVector vect) throws Exception {
+    public int getIndexOfClosestCodebook(LFeatVector vect) throws Exception {
         // Only the desciptors are taken into account in distance calculations.
         int closest = -1;
         SIFTMetric smet = new SIFTMetric();
@@ -243,7 +243,7 @@ public class SIFTCodeBook {
         PrintWriter pw = new PrintWriter(new FileWriter(outCodebookFile));
         try {
             pw.println("codebook_size:" + codebook.size());
-            for (SIFTVector sift : codebook) {
+            for (LFeatVector sift : codebook) {
                 pw.println(sift.toCSVString());
             }
         } catch (Exception e) {
@@ -276,9 +276,9 @@ public class SIFTCodeBook {
             int size = Integer.parseInt(pair[1]);
             codebook = new ArrayList<>(size);
             s = br.readLine();
-            SIFTVector tempVector;
+            LFeatVector tempVector;
             while (s != null) {
-                tempVector = new SIFTVector();
+                tempVector = new LFeatVector();
                 tempVector.fillFromCSVString(s);
                 tempVector.setContext(null);
                 codebook.add(tempVector);

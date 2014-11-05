@@ -17,8 +17,8 @@
 package optimization.stochastic.fitness;
 
 import data.representation.DataInstance;
-import data.representation.images.sift.SIFTRepresentation;
-import data.representation.images.sift.SIFTVector;
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import images.mining.clustering.IntraImageKMeansAdapted;
 import images.mining.clustering.IntraImageKMeansAdaptedScale;
 import images.mining.clustering.IntraImageKMeansWeighted;
@@ -45,7 +45,7 @@ public class SIFTSegmentationHomogeneity implements FitnessEvaluator {
     private File inSegmentDir;
     private String[] nameList;
     private BufferedImage[] images;
-    private SIFTRepresentation[] siftReps;
+    private LFeatRepresentation[] siftReps;
     private int[][][] segmentations;
     private int[] numSegments;
     private int minClusters = 10;
@@ -169,7 +169,7 @@ public class SIFTSegmentationHomogeneity implements FitnessEvaluator {
         File currSIFTFile;
         File currSegmentFile;
         images = new BufferedImage[length];
-        siftReps = new SIFTRepresentation[length];
+        siftReps = new LFeatRepresentation[length];
         segmentations = new int[length][][];
         numSegments = new int[length];
         for (int i = 0; i < length; i++) {
@@ -236,9 +236,9 @@ public class SIFTSegmentationHomogeneity implements FitnessEvaluator {
                     for (int j = 0; j < clusters.length; j++) {
                         if (clusters[j] != null && !clusters[j].isEmpty()) {
                             for (int k = 0; k < clusters[j].size(); k++) {
-                                x = (int) ((SIFTVector)
+                                x = (int) ((LFeatVector)
                                         (clusters[j].getInstance(k))).getX();
-                                y = (int) ((SIFTVector)
+                                y = (int) ((LFeatVector)
                                         (clusters[j].getInstance(k))).getY();
                                 y = Math.min(segmentations[i].length - 1, y);
                                 x = Math.min(segmentations[i][0].length - 1, x);
@@ -313,9 +313,9 @@ public class SIFTSegmentationHomogeneity implements FitnessEvaluator {
                 for (int j = 0; j < clusters.length; j++) {
                     if (clusters[j] != null && !clusters[j].isEmpty()) {
                         for (int k = 0; k < clusters[j].size(); k++) {
-                            x = (int) ((SIFTVector)
+                            x = (int) ((LFeatVector)
                                     (clusters[j].getInstance(k))).getX();
-                            y = (int) ((SIFTVector)
+                            y = (int) ((LFeatVector)
                                     (clusters[j].getInstance(k))).getY();
                             y = Math.min(segmentations[i].length - 1, y);
                             x = Math.min(segmentations[i][0].length - 1, x);

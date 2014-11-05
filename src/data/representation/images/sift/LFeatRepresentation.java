@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import learning.unsupervised.Cluster;
 
 /**
- * This class implements a container for individual SIFT features that can be
+ * This class implements a container for individual local features that can be
  * used as a feature representation of an individual image.
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SIFTRepresentation extends DataSet {
+public class LFeatRepresentation extends DataSet {
 
     private String imagePath;
     public static final int DEFAULT_DESCRIPTOR_LENGTH = 128;
@@ -48,7 +48,7 @@ public class SIFTRepresentation extends DataSet {
 
     /**
      */
-    public SIFTRepresentation() {
+    public LFeatRepresentation() {
         // Assumes standard descriptor length
         fAttrNames = new String[DEFAULT_DESCRIPTOR_LENGTH + 4];
         fAttrNames[0] = "Y";
@@ -66,7 +66,7 @@ public class SIFTRepresentation extends DataSet {
      *
      * @param descLength The length of SIFT descriptors.
      */
-    public SIFTRepresentation(int descLength) {
+    public LFeatRepresentation(int descLength) {
         fAttrNames = new String[descLength + 4];
         fAttrNames[0] = "Y";
         fAttrNames[1] = "X";
@@ -81,7 +81,7 @@ public class SIFTRepresentation extends DataSet {
      * @param initsize Initial size of the data array.
      * @param increment Increment.
      */
-    public SIFTRepresentation(int initsize, int increment) {
+    public LFeatRepresentation(int initsize, int increment) {
         // Assumes standard descriptor length
         fAttrNames = new String[DEFAULT_DESCRIPTOR_LENGTH + 4];
         fAttrNames[0] = "Y";
@@ -99,7 +99,7 @@ public class SIFTRepresentation extends DataSet {
      *
      * @param dset DataSet object containing the SIFTRepresentation data.
      */
-    public SIFTRepresentation(DataSet dset) {
+    public LFeatRepresentation(DataSet dset) {
         super();
         data = dset.data;
         identifiers = dset.identifiers;
@@ -125,9 +125,9 @@ public class SIFTRepresentation extends DataSet {
         // Coordinate sums.
         double x_sum = 0.;
         double y_sum = 0.;
-        SIFTVector featureVector;
+        LFeatVector featureVector;
         for (int i = 0; i < clust.size(); i++) {
-            featureVector = ((SIFTVector) (clust.getInstance(i)));
+            featureVector = ((LFeatVector) (clust.getInstance(i)));
             x_sum += featureVector.getX();
             y_sum += featureVector.getY();
         }

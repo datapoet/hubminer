@@ -27,7 +27,7 @@ import data.neighbors.hubness.KNeighborEntropyExplorer;
 import data.representation.DataInstance;
 import data.representation.DataSet;
 import data.representation.images.color.ColorHistogramVector;
-import data.representation.images.sift.SIFTRepresentation;
+import data.representation.images.sift.LFeatRepresentation;
 import distances.primary.CombinedMetric;
 import distances.secondary.LocalScalingCalculator;
 import distances.secondary.MutualProximityCalculator;
@@ -234,7 +234,7 @@ public class ImageHubExplorer extends javax.swing.JFrame {
     // The representation of the current query.
     private DataInstance queryImageRep;
     // Local image features of the current query, if available.
-    private SIFTRepresentation queryImageSIFT;
+    private LFeatRepresentation queryImageSIFT;
     // Neighbors of the current query image.
     private int[] queryImageNeighbors;
     // Distances to the neighbors of the current query image.
@@ -4536,7 +4536,7 @@ private void mdsVisualizeItemActionPerformed(java.awt.event.ActionEvent evt) {//
         String shortPathCutOff = shortPath.substring(0, dotIndex);
         String shortPathKey = shortPathCutOff + ".key";
         File imgSIFTFile = new File(siftDir, shortPathKey);
-        SIFTRepresentation siftRep = null;
+        LFeatRepresentation siftRep = null;
         try {
             // Load the features from the disk
             siftRep = SiftUtil.importFeaturesFromSift(imgSIFTFile);
