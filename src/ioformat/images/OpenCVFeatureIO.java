@@ -18,11 +18,14 @@ package ioformat.images;
 
 import data.representation.images.sift.LFeatRepresentation;
 import data.representation.images.sift.LFeatVector;
+import ioformat.FileUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 /**
  * This class handles saving and loading keypoints and descriptors in the OpenCV
@@ -115,6 +118,58 @@ public class OpenCVFeatureIO {
             }
         }
         return imageRepresentation;
+    }
+    
+    /**
+     * Saves the image feature representation into the keypoint and descriptor
+     * file in the OpenCV format.
+     * 
+     * @param imageRepresentation LFeatRepresentation to save.
+     * @param keypointFile File that will hold the keypoint specification for
+     * the image.
+     * @param descriptorFile File that will hold the descriptor value for the
+     * image.
+     * @throws IOException 
+     */
+    public static void writeRepresentationToFiles(
+            LFeatRepresentation imageRepresentation, File keypointFile,
+            File descriptorFile) throws IOException {
+        if (keypointFile == null) {
+            throw new NullPointerException("Null keypoint file target.");
+        }
+        if (descriptorFile == null) {
+            throw new NullPointerException("Null descriptor file target.");
+        }
+        if (imageRepresentation == null) {
+            return;
+        }
+        FileUtil.createFile(keypointFile);
+        FileUtil.createFile(descriptorFile);
+        try (PrintWriter pw = new PrintWriter(new FileWriter(descriptorFile))) {
+            for (int i = 0; i < imageRepresentation.size(); i++) {
+                LFeatVector vect = (LFeatVector) imageRepresentation.
+                        getInstance(i);
+                pw.print(vect.fAttr[4]);
+                for (int j = 5; j < vect.fAttr.length; j++) {
+                    pw.print("," + vect.fAttr[j]);
+                }
+                pw.println();
+            }
+        }
+        try (PrintWriter pw = new PrintWriter(new FileWriter(keypointFile))) {
+            for (int i = 0; i < imageRepresentation.size(); i++) {
+                LFeatVector vect = (LFeatVector) imageRepresentation.
+                        getInstance(i);
+                pw.print(vect.getX());
+                pw.print(",");
+                pw.print(vect.getY());
+                pw.print(",");
+                pw.print(vect.getScale());
+                pw.print(",");
+                pw.print(vect.getAngle());
+                pw.println();
+            }
+        }
     }
     
 }
