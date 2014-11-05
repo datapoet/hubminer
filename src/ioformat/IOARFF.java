@@ -1028,7 +1028,8 @@ public class IOARFF {
                     feature.setFeatureName(featureName);
                     if (featureType.equalsIgnoreCase("string")
                             || featureType.equalsIgnoreCase("nominal")
-                            || featureType.startsWith("{")) {
+                            || featureType.startsWith("{")
+                            || featureType.startsWith("date")) {
                         feature.setFeatureType(DataMineConstants.NOMINAL);
                         feature.setFeatureIndex(numNominalFeatures++);
                         if (useNominalHashing) {
