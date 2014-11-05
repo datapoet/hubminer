@@ -96,6 +96,7 @@ public class HTTPUtil {
         conn.setRequestProperty("Content-Type", contentType);
         conn.setRequestProperty("Content-Length",
                 String.valueOf(contentBytes.length));
+        conn.setRequestProperty("User-Agent", userAgent);
         conn.connect();
         try (OutputStream os = conn.getOutputStream()) {
             os.write(contentString.getBytes());
