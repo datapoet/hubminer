@@ -4531,7 +4531,7 @@ private void mdsVisualizeItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 (new File(workspace, "photos")).getPath().length(),
                 imgPaths.get(index).length());
         File repDir = new File(workspace, "representation");
-        File siftDir = new File(repDir, "SIFT_representation");
+        File siftDir = new File(repDir, "raw_representation");
         int dotIndex = shortPath.lastIndexOf(".");
         String shortPathCutOff = shortPath.substring(0, dotIndex);
         String shortPathKey = shortPathCutOff + ".key";
