@@ -75,6 +75,7 @@ public class LFeatRepresentation extends DataSet {
         for (int i = 0; i < descLength; i++) {
             fAttrNames[i + 4] = "desc" + i;
         }
+        data = new ArrayList<>(100);
     }
 
     /**

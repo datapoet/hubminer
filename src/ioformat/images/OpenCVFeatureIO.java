@@ -16,12 +16,13 @@
 */
 package ioformat.images;
 
+import data.representation.images.sift.LFeatRepresentation;
+import data.representation.images.sift.LFeatVector;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 
 /**
  * This class handles saving and loading keypoints and descriptors in the OpenCV
@@ -32,6 +33,88 @@ import java.io.PrintWriter;
  */
 public class OpenCVFeatureIO {
     
-    
+    /**
+     * Load the local feature representation from the keypoint and descriptor
+     * files in the OpenCV format.
+     * 
+     * @param keypointFile File that holds the keypoint specification for the
+     * image.
+     * @param descriptorFile File that holds the descriptor value for the image.
+     * @return LFeatRepresentation loaded from the files.
+     * @throws IOException 
+     */
+    public LFeatRepresentation loadImageRepresentation(File keypointFile,
+            File descriptorFile) throws IOException {
+        if (keypointFile == null) {
+            throw new NullPointerException("Null keypoint file.");
+        }
+        if (descriptorFile == null) {
+            throw new NullPointerException("Null descriptor file.");
+        }
+        if (!keypointFile.exists()) {
+            throw new IOException("Keypoint file " + keypointFile.getPath() +
+                    " does not exist.");
+        }
+        if (!descriptorFile.exists()) {
+            throw new IOException("Descriptor file " +
+                    descriptorFile.getPath() + " does not exist.");
+        }
+        // First take a sneek peak into the descriptor file to get the
+        // descriptor length.
+        int descriptorLength;
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(descriptorFile)))) {
+            String s = br.readLine();
+            String[] lineItems = s.split(",");
+            descriptorLength = lineItems.length;
+        }
+        LFeatRepresentation imageRepresentation = new LFeatRepresentation(
+                descriptorLength);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(descriptorFile)))) {
+            String s = br.readLine();
+            String[] lineItems;
+            while (s != null) {
+                lineItems = s.split(",");
+                LFeatVector vect = new LFeatVector(imageRepresentation);
+                imageRepresentation.addDataInstance(vect);
+                for (int i = 0; i < Math.min(descriptorLength,
+                        lineItems.length); i++) {
+                    vect.setDescriptorElement(i, Float.parseFloat(
+                            lineItems[i]));
+                }
+                s = br.readLine();
+            }
+        }
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream(keypointFile)))) {
+            String s = br.readLine();
+            String[] lineItems;
+            int counter = 0;
+            while (s != null) {
+                lineItems = s.split(",");
+                if (counter >= imageRepresentation.size()) {
+                    break;
+                }
+                LFeatVector vect = (LFeatVector) imageRepresentation.
+                        getInstance(counter);
+                if (lineItems.length > 0) {
+                    vect.setX(Float.parseFloat(lineItems[0]));
+                }
+                if (lineItems.length > 1) {
+                    vect.setY(Float.parseFloat(lineItems[1]));
+                }
+                if (lineItems.length > 2) {
+                    vect.setScale(Float.parseFloat(lineItems[2]));
+                }
+                if (lineItems.length > 3) {
+                    vect.setAngle(Float.parseFloat(lineItems[3]));
+                }
+                s = br.readLine();
+                counter++;
+            }
+        }
+        return imageRepresentation;
+    }
     
 }

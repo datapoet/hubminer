@@ -148,6 +148,30 @@ public class LFeatVector extends DataInstance {
             fAttr[3] = val;
         }
     }
+    
+    /**
+     * Sets the descriptor value at the specified index.
+     * 
+     * @param index Integer that is the index in the descriptor.
+     * @param val Float that is the value to set.
+     */
+    public void setDescriptorElement(int index, float val) {
+        if (fAttr != null && index < getNumFAtt() - 4) {
+            fAttr[4 + index] = val;
+        }
+    }
+    
+    /**
+     * @param index Integer that is the index in the descriptor.
+     * @return Float that is the value at the specified index in the descriptor.
+     */
+    public float getDescriptorElement(int index) {
+        if (fAttr != null && index < getNumFAtt() - 4) {
+            return fAttr[4 + index];
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * Make a CSV string out of the current representation.
@@ -155,7 +179,7 @@ public class LFeatVector extends DataInstance {
      * @return
      */
     public String toCSVString() {
-        StringBuffer sb = new StringBuffer(160);
+        StringBuilder sb = new StringBuilder(160);
         sb.append(fAttr[0]);
         for (int i = 1; i < fAttr.length; i++) {
             sb.append(",");
