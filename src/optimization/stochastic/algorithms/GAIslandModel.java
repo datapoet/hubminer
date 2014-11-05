@@ -54,14 +54,14 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
     private float score = Float.MAX_VALUE;
     private float[][] inversePopulationFitness;
     private float[][] inverseOffspringFitness;
-    private float[][] cumulativeProbs;
+    private double[][] cumulativeProbs;
     private float[] tempFitness;
-    private float[] totalProbs;
+    private double[] totalProbs;
     private Object[] tempPopulation;
     private Object[] tempChildren;
     private int[] rearrange;
     private boolean stop = false;
-    private float decision;
+    private double decision;
     private int first, second;
 
     /**
@@ -96,8 +96,8 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
     @Override
     public void optimize() throws Exception {
         numIslands = populations.length;
-        cumulativeProbs = new float[numIslands][];
-        totalProbs = new float[numIslands];
+        cumulativeProbs = new double[numIslands][];
+        totalProbs = new double[numIslands];
         inversePopulationFitness = new float[numIslands][];
         for (int islandIndex = 0; islandIndex < numIslands; islandIndex++) {
             inversePopulationFitness[islandIndex] =
@@ -126,7 +126,7 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                 inverseOffspringFitness[islandIndex] =
                         new float[2 * populations[islandIndex].length];
                 cumulativeProbs[islandIndex] =
-                        new float[populations[islandIndex].length];
+                        new double[populations[islandIndex].length];
                 tempFitness = new float[populations[islandIndex].length];
                 // Perform mutations.
                 for (int i = 0; i < populations[islandIndex].length; i++) {
@@ -142,38 +142,57 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                 // Perform recombinations.
                 totalProbs[islandIndex] = 0;
                 cumulativeProbs[islandIndex][0] =
-                        (float) Math.pow(
+                        Math.pow(
                         Math.E,
                         -inversePopulationFitness[islandIndex][0]);
                 totalProbs[islandIndex] += cumulativeProbs[islandIndex][0];
                 for (int i = 1; i < populations[islandIndex].length; i++) {
                     cumulativeProbs[islandIndex][i] =
                             cumulativeProbs[islandIndex][i - 1]
-                            + (float) Math.pow(Math.E,
+                            + Math.pow(Math.E,
                             -inversePopulationFitness[islandIndex][i]);
                     totalProbs[islandIndex] += cumulativeProbs[islandIndex][i];
                 }
-                for (int i = 1; i < populations[islandIndex].length; i++) {
-                    decision = randa.nextFloat() * totalProbs[islandIndex];
-                    first = findIndex(
-                            islandIndex,
-                            decision,
-                            0,
-                            populations[islandIndex].length - 1);
-                    second = first;
-                    while (second == first) {
-                        decision = randa.nextFloat()
-                                * totalProbs[islandIndex];
-                        second = findIndex(
+                if (totalProbs[islandIndex] > 0) {
+                    for (int i = 0; i < populations[islandIndex].length; i++) {
+                        decision = randa.nextFloat() * totalProbs[islandIndex];
+                        first = findIndex(
                                 islandIndex,
                                 decision,
                                 0,
                                 populations[islandIndex].length - 1);
+                        second = first;
+                        int numTries = 0;
+                        while (second == first || numTries > 10) {
+                            decision = randa.nextFloat()
+                                    * totalProbs[islandIndex];
+                            second = findIndex(
+                                    islandIndex,
+                                    decision,
+                                    0,
+                                    populations[islandIndex].length - 1);
+                            numTries++;
+                        }
+                        children[populations[islandIndex].length + i] =
+                                recombiner.recombine(
+                                populations[islandIndex][first],
+                                populations[islandIndex][second]);
                     }
-                    children[populations[islandIndex].length + i] =
-                            recombiner.recombine(
-                            populations[islandIndex][first],
-                            populations[islandIndex][second]);
+                } else {
+                    for (int i = 0; i < populations[islandIndex].length; i++) {
+                        first = randa.nextInt(populations[islandIndex].length);
+                        second = randa.nextInt(populations[islandIndex].length);
+                        int numTries = 0;
+                        while (second == first || numTries > 10) {
+                            second = randa.nextInt(
+                                    populations[islandIndex].length);
+                            numTries++;
+                        }
+                        children[populations[islandIndex].length + i] =
+                                recombiner.recombine(
+                                populations[islandIndex][first],
+                                populations[islandIndex][second]);
+                    }
                 }
                 for (int i = 0; i < children.length; i++) {
                     if (!stop) {
@@ -211,9 +230,9 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
             }
             // Perform migrations stochastically.
             decision = randa.nextFloat();
-            if (decision < migrationProbability) {
+            if (decision < migrationProbability && numIslands > 1) {
                 for (int i = 0; i < migrationSize; i++) {
-                    int chosen = 0;
+                    int chosen;
                     int searchSpot = -1;
                     // Randomly pick the source and the destination.
                     // The selected individual will attempt to migrate to the
@@ -224,9 +243,13 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                     while (second == first) {
                         second = randa.nextInt(numIslands);
                     }
-                    decision = randa.nextFloat() * totalProbs[first];
-                    chosen = findIndex(first, decision, 0,
-                            populations[first].length - 1);
+                    if (totalProbs[first] > 0) {
+                        decision = randa.nextFloat() * totalProbs[first];
+                        chosen = findIndex(first, decision, 0,
+                                populations[first].length - 1);
+                    } else {
+                        chosen = randa.nextInt(populations[first].length);
+                    }
                     // Now find a place (if any) to insert it into target
                     // population.
                     while (++searchSpot < populations[second].length
@@ -236,11 +259,11 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                     }
                     if (searchSpot < populations[second].length) {
                         totalProbs[second] -=
-                                (float) Math.pow(Math.E,
+                                Math.pow(Math.E,
                                 -inversePopulationFitness[second][
                                 populations[second].length - 1]);
                         totalProbs[second] +=
-                                (float) Math.pow(Math.E,
+                                Math.pow(Math.E,
                                 -inversePopulationFitness[first][chosen]);
                         for (int j = populations[second].length - 1;
                                 j > searchSpot; j--) {
@@ -253,11 +276,14 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                         inversePopulationFitness[second][searchSpot] =
                                 inversePopulationFitness[first][chosen];
                         // Update the probabilities.
-                        for (int j = searchSpot; j < populations[second].length;
-                                j++) {
+                        cumulativeProbs[second][searchSpot] =
+                                Math.pow(Math.E,
+                                -inversePopulationFitness[first][chosen]);
+                        for (int j = searchSpot + 1;
+                                j < populations[second].length; j++) {
                             cumulativeProbs[second][j] =
                                     cumulativeProbs[second][j - 1]
-                                    + (float) Math.pow(Math.E,
+                                    + Math.pow(Math.E,
                                     -inversePopulationFitness[second][j]);
                         }
                     }
