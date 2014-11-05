@@ -128,8 +128,7 @@ public class SimulatedThermicAnnealingLeap
      * @param scoreDifference Difference in fitness between the solutions.
      */
     public void getProbability(float scoreDifference) {
-        probUpHill = (float) (Math.pow(Math.E,
-                -scoreDifference / currTemperature));
+        probUpHill = (float) (Math.exp(-scoreDifference / currTemperature));
     }
 
     @Override

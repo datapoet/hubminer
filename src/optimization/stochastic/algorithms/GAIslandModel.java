@@ -142,14 +142,12 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                 // Perform recombinations.
                 totalProbs[islandIndex] = 0;
                 cumulativeProbs[islandIndex][0] =
-                        Math.pow(
-                        Math.E,
-                        -inversePopulationFitness[islandIndex][0]);
+                        Math.exp(-inversePopulationFitness[islandIndex][0]);
                 totalProbs[islandIndex] += cumulativeProbs[islandIndex][0];
                 for (int i = 1; i < populations[islandIndex].length; i++) {
                     cumulativeProbs[islandIndex][i] =
                             cumulativeProbs[islandIndex][i - 1]
-                            + Math.pow(Math.E,
+                            + Math.exp(
                             -inversePopulationFitness[islandIndex][i]);
                     totalProbs[islandIndex] += cumulativeProbs[islandIndex][i];
                 }
@@ -259,11 +257,10 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                     }
                     if (searchSpot < populations[second].length) {
                         totalProbs[second] -=
-                                Math.pow(Math.E,
-                                -inversePopulationFitness[second][
+                                Math.exp(-inversePopulationFitness[second][
                                 populations[second].length - 1]);
                         totalProbs[second] +=
-                                Math.pow(Math.E,
+                                Math.exp(
                                 -inversePopulationFitness[first][chosen]);
                         for (int j = populations[second].length - 1;
                                 j > searchSpot; j--) {
@@ -277,13 +274,13 @@ public class GAIslandModel implements OptimizationAlgorithmInterface {
                                 inversePopulationFitness[first][chosen];
                         // Update the probabilities.
                         cumulativeProbs[second][searchSpot] =
-                                Math.pow(Math.E,
+                                Math.exp(
                                 -inversePopulationFitness[first][chosen]);
                         for (int j = searchSpot + 1;
                                 j < populations[second].length; j++) {
                             cumulativeProbs[second][j] =
                                     cumulativeProbs[second][j - 1]
-                                    + Math.pow(Math.E,
+                                    + Math.exp(
                                     -inversePopulationFitness[second][j]);
                         }
                     }

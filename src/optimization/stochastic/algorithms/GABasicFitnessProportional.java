@@ -109,11 +109,11 @@ public class GABasicFitnessProportional
             // Perform recombinations.
             totalProbs = 0;
             cumulativeProbs[0] =
-                    Math.pow(Math.E, -inversePopulationFitness[0]);
+                    Math.exp(-inversePopulationFitness[0]);
             totalProbs += cumulativeProbs[0];
             for (int i = 1; i < population.length; i++) {
                 cumulativeProbs[i] = cumulativeProbs[i - 1]
-                        + Math.pow(Math.E, -inversePopulationFitness[i]);
+                        + Math.exp(-inversePopulationFitness[i]);
                 totalProbs += cumulativeProbs[i];
             }
             if (totalProbs > 0) {
