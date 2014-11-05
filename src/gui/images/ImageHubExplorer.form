@@ -290,7 +290,7 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="selSIFTmenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="SIFT visual words view"/>
+                <Property name="text" type="java.lang.String" value="Visual words assessment view"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selSIFTmenuItemActionPerformed"/>

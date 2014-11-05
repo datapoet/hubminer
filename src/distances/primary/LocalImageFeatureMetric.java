@@ -24,7 +24,8 @@ import java.io.Serializable;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public class SIFTMetric extends DistanceMeasure implements Serializable {
+public class LocalImageFeatureMetric extends DistanceMeasure
+        implements Serializable {
     
     private static final long serialVersionUID = 1L;
 

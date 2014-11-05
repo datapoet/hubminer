@@ -22,7 +22,7 @@ import data.representation.images.quantized.QuantizedImageHistogram;
 import data.representation.images.quantized.QuantizedImageHistogramDataSet;
 import data.representation.images.sift.LFeatRepresentation;
 import data.representation.images.sift.LFeatVector;
-import distances.primary.SIFTMetric;
+import distances.primary.LocalImageFeatureMetric;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -220,7 +220,7 @@ public class SIFTCodeBook {
     public int getIndexOfClosestCodebook(LFeatVector vect) throws Exception {
         // Only the desciptors are taken into account in distance calculations.
         int closest = -1;
-        SIFTMetric smet = new SIFTMetric();
+        LocalImageFeatureMetric smet = new LocalImageFeatureMetric();
         float currMinDist = Float.MAX_VALUE;
         float tempDist;
         for (int i = 0; i < codebook.size(); i++) {

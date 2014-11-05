@@ -24,7 +24,7 @@ import data.representation.images.sift.util.ClusteredSIFTRepresentation;
 import data.representation.images.sift.util.ClusteredSIFTVector;
 import data.representation.util.DataMineConstants;
 import distances.primary.CombinedMetric;
-import distances.primary.SIFTMetric;
+import distances.primary.LocalImageFeatureMetric;
 import distances.primary.SIFTSpatialMetric;
 import images.mining.calc.AverageColorGrabber;
 import java.awt.image.BufferedImage;
@@ -324,7 +324,7 @@ public class IntraImageKMeansWeighted extends ClusteringAlg {
             setIterationIndex(0);
             boolean noReassignments;
             boolean errorDifferenceSignificant = true;
-            SIFTMetric smet = new SIFTMetric();
+            LocalImageFeatureMetric smet = new LocalImageFeatureMetric();
             do {
                 nextIteration();
                 // Dynamically calculate the iteration error.

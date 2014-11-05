@@ -235,11 +235,66 @@ public class GenericCodeBook {
     public int getIndexOfClosestCodebook(DataInstance instance)
             throws Exception {
         // Only the desciptors are taken into account in distance calculations.
+        if (codebook == null || codebook.isEmpty()) {
+            throw new Exception("Can not compare to empty codebook.");
+        }
         int closest = -1;
         float currMinDist = Float.MAX_VALUE;
         float tempDist;
+        DataInstance offsetInstance;
+        if (instance.getNumFAtt() > codebook.get(0).getNumFAtt()) {
+            int offset = instance.getNumFAtt() - codebook.get(0).getNumFAtt();
+            offsetInstance = new DataInstance();
+            offsetInstance.fAttr = new float[instance.getNumFAtt() - offset];
+            for (int i = 0; i < instance.getNumFAtt() - offset; i++) {
+                offsetInstance.fAttr[i] = instance.fAttr[i + offset];
+            }
+        } else {
+            offsetInstance = instance;
+        }
         for (int i = 0; i < codebook.size(); i++) {
-            tempDist = cmet.dist(instance, codebook.get(i));
+            tempDist = cmet.dist(offsetInstance, codebook.get(i));
+            if (tempDist < currMinDist) {
+                currMinDist = tempDist;
+                closest = i;
+            }
+        }
+        return closest;
+    }
+    
+    /**
+     * Returns the index of the closest codebook vector.
+     *
+     * @param instance DataInstance to find the corresponding codebook vector
+     * for.
+     * @param cmetMatch CombinedMetric object used for distance calculations.
+     * @return Integer that is the index of the closest codebook vector.
+     * @throws Exception
+     */
+    public int getIndexOfClosestCodebook(DataInstance instance,
+            CombinedMetric cmetMatch)
+            throws Exception {
+        if (codebook == null || codebook.isEmpty()) {
+            throw new Exception("Can not compare to empty codebook.");
+        }
+        // Only the desciptors are taken into account in distance calculations.
+        int closest = -1;
+        float currMinDist = Float.MAX_VALUE;
+        float tempDist;
+        // Sometimes the keypoint part is not contained in the codebook.
+        DataInstance offsetInstance;
+        if (instance.getNumFAtt() > codebook.get(0).getNumFAtt()) {
+            int offset = instance.getNumFAtt() - codebook.get(0).getNumFAtt();
+            offsetInstance = new DataInstance();
+            offsetInstance.fAttr = new float[instance.getNumFAtt() - offset];
+            for (int i = 0; i < instance.getNumFAtt() - offset; i++) {
+                offsetInstance.fAttr[i] = instance.fAttr[i + offset];
+            }
+        } else {
+            offsetInstance = instance;
+        }
+        for (int i = 0; i < codebook.size(); i++) {
+            tempDist = cmetMatch.dist(offsetInstance, codebook.get(i));
             if (tempDist < currMinDist) {
                 currMinDist = tempDist;
                 closest = i;
@@ -255,16 +310,13 @@ public class GenericCodeBook {
      * @throws Exception
      */
     public void writeCodeBookToFile(File outCodebookFile) throws Exception {
-        PrintWriter pw = new PrintWriter(new FileWriter(outCodebookFile));
-        try {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(outCodebookFile))) {
             pw.println("codebook_size:" + codebook.size());
             for (DataInstance instance : codebook) {
                 pw.println(instance.floatsToCSVString());
             }
         } catch (Exception e) {
             throw e;
-        } finally {
-            pw.close();
         }
     }
 
@@ -275,9 +327,8 @@ public class GenericCodeBook {
      * @throws Exception
      */
     public void loadCodeBookFromFile(File inCodebookFile) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(inCodebookFile)));
-        try {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                     new FileInputStream(inCodebookFile)))) {
             String s = br.readLine();
             while ((s != null) && !(s.contains("codebook_size"))) {
                 s = br.readLine();
@@ -305,8 +356,6 @@ public class GenericCodeBook {
             }
         } catch (Exception e) {
             throw e;
-        } finally {
-            br.close();
         }
     }
 }

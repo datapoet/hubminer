@@ -123,9 +123,8 @@ public class GenericCodeBookMaker {
      * @param inFilePath
      */
     public void populateTabuMap(String inFilePath) throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(new File(inFilePath))));
-        try {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                     new FileInputStream(new File(inFilePath))))) {
             String s = br.readLine();
             while (s != null) {
                 tabuPathMap.put(s, s);
@@ -133,8 +132,6 @@ public class GenericCodeBookMaker {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
-            br.close();
         }
     }
 

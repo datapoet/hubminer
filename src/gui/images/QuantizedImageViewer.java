@@ -18,7 +18,9 @@ package gui.images;
 
 import data.representation.images.sift.LFeatRepresentation;
 import data.representation.images.sift.LFeatVector;
-import images.mining.codebook.SIFTCodeBook;
+import distances.primary.CombinedMetric;
+import distances.primary.LocalImageFeatureMetric;
+import images.mining.codebook.GenericCodeBook;
 import images.mining.display.SIFTDraw;
 import java.awt.Color;
 import java.awt.Component;
@@ -49,10 +51,10 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
     // frame is open to many extensions and it will be extended soon. Therefore,
     // a bit more information was included to begin with.
     // Feature representation for the image in question.
-    private LFeatRepresentation imageSIFT;
+    private LFeatRepresentation imageFRep;
     private float[] codebookGoodness;
     // An object that represents the visual word definitions.
-    private SIFTCodeBook codebook;
+    private GenericCodeBook codebook;
     private double[][] codebookProfiles;
     // Class colors for display.
     private Color[] classColors;
@@ -88,9 +90,9 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
      * Initialization.
      *
      * @param originalImage BufferedImage that is the current image.
-     * @param imageSIFT Image feature representation.
+     * @param imageFRep Image feature representation.
      * @param codebookGoodness Float array of codebook goodness scores.
-     * @param codebook SIFTCodeBook object that holds the visual word
+     * @param codebook GenericCodeBook object that holds the visual word
      * definitions.
      * @param codebookProfiles double[][] that represents the class-conditional
      * occurrence profiles for all the codebooks.
@@ -101,16 +103,16 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
      */
     public QuantizedImageViewer(
             BufferedImage originalImage,
-            LFeatRepresentation imageSIFT,
+            LFeatRepresentation imageFRep,
             float[] codebookGoodness,
-            SIFTCodeBook codebook,
+            GenericCodeBook codebook,
             double[][] codebookProfiles,
             CodebookVectorProfilePanel[] cProfPanels,
             Color[] classColors,
             String[] classNames) {
         initComponents();
         codebookProfilesPanel.setLayout(new FlowLayout());
-        this.imageSIFT = imageSIFT;
+        this.imageFRep = imageFRep;
         this.codebookGoodness = codebookGoodness;
         this.codebook = codebook;
         this.codebookProfiles = codebookProfiles;
@@ -144,15 +146,16 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
         originalImagePanel.setImage(originalImage);
         // Calculate the closest codebook feature for each feature in the
         // original image.
-        float[] featureGoodness = new float[imageSIFT.size()];
-        codebookAssignments = new int[imageSIFT.size()];
-        for (int i = 0; i < imageSIFT.size(); i++) {
-            LFeatVector sv = (LFeatVector) (imageSIFT.getInstance(i));
+        float[] featureGoodness = new float[imageFRep.size()];
+        codebookAssignments = new int[imageFRep.size()];
+        for (int i = 0; i < imageFRep.size(); i++) {
+            LFeatVector sv = (LFeatVector) (imageFRep.getInstance(i));
             try {
                 codebookAssignments[i] = codebook.getIndexOfClosestCodebook(sv);
                 partialReps[codebookAssignments[i]].addDataInstance(sv);
             } catch (Exception e) {
-                System.out.println(e);
+                System.err.println("Quantization error.");
+                System.err.println(e);
             }
             featureGoodness[i] = codebookGoodness[codebookAssignments[i]];
         }
@@ -168,7 +171,7 @@ public class QuantizedImageViewer extends javax.swing.JFrame {
         visualizeVisualWordUtility(maxRepIndex);
         // Visualize the overall utility of different image regions.
         try {
-            goodnessSIFTImage = SIFTDraw.drawSIFTGoodnessOnImage(imageSIFT,
+            goodnessSIFTImage = SIFTDraw.drawSIFTGoodnessOnImage(imageFRep,
                     featureGoodness, bwImage);
         } catch (Exception e) {
             System.err.println(e.getMessage());

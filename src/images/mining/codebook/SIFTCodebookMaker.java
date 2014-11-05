@@ -27,7 +27,7 @@ import util.fileFilters.DirectoryFilter;
 import ioformat.IOARFF;
 import data.representation.DataInstance;
 import learning.unsupervised.Cluster;
-import distances.primary.SIFTMetric;
+import distances.primary.LocalImageFeatureMetric;
 import distances.primary.CombinedMetric;
 import learning.unsupervised.methods.FastKMeans;
 import learning.unsupervised.ClusteringAlg;
@@ -110,7 +110,7 @@ public class SIFTCodebookMaker {
         if ((siftSample == null) || (siftSample.isEmpty())) {
             return;
         }
-        CombinedMetric cmet = new CombinedMetric(null, new SIFTMetric(),
+        CombinedMetric cmet = new CombinedMetric(null, new LocalImageFeatureMetric(),
                 CombinedMetric.DEFAULT);
         clusterer = new FastKMeans(siftSample, cmet, numClusters);
         clusterer.cluster();

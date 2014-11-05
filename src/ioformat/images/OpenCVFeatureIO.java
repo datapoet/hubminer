@@ -43,7 +43,7 @@ public class OpenCVFeatureIO {
      * @return LFeatRepresentation loaded from the files.
      * @throws IOException 
      */
-    public LFeatRepresentation loadImageRepresentation(File keypointFile,
+    public static LFeatRepresentation loadImageRepresentation(File keypointFile,
             File descriptorFile) throws IOException {
         if (keypointFile == null) {
             throw new NullPointerException("Null keypoint file.");

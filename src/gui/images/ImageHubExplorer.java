@@ -94,6 +94,8 @@ import learning.supervised.methods.knn.HIKNN;
 import learning.supervised.methods.knn.KNN;
 import learning.supervised.methods.knn.NHBNN;
 import data.neighbors.NSFUserInterface;
+import images.mining.codebook.GenericCodeBook;
+import ioformat.images.OpenCVFeatureIO;
 import java.awt.HeadlessException;
 import java.io.IOException;
 import learning.supervised.methods.knn.NWKNN;
@@ -140,7 +142,7 @@ public class ImageHubExplorer extends javax.swing.JFrame {
     private static final int SECONDARY_METRIC = 1;
     private ImageHubExplorer frameReference = this;
     // Codebook data structures for visual word analysis.
-    private SIFTCodeBook codebook = null;
+    private GenericCodeBook codebook = null;
     private double[][] codebookProfiles = null;
     private float[] codebookGoodness = null;
     // Whether to also load the secondary distances from the disk (if available)
@@ -234,7 +236,7 @@ public class ImageHubExplorer extends javax.swing.JFrame {
     // The representation of the current query.
     private DataInstance queryImageRep;
     // Local image features of the current query, if available.
-    private LFeatRepresentation queryImageSIFT;
+    private LFeatRepresentation queryImageLFeat;
     // Neighbors of the current query image.
     private int[] queryImageNeighbors;
     // Distances to the neighbors of the current query image.
@@ -3243,7 +3245,7 @@ public class ImageHubExplorer extends javax.swing.JFrame {
 
         selImageMenu.setText("Selected Image");
 
-        selSIFTmenuItem.setText("SIFT visual words view");
+        selSIFTmenuItem.setText("Visual words assessment view");
         selSIFTmenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 selSIFTmenuItemActionPerformed(evt);
@@ -3261,7 +3263,7 @@ public class ImageHubExplorer extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(hubTab, javax.swing.GroupLayout.DEFAULT_SIZE, 1073, Short.MAX_VALUE)
+                .addComponent(hubTab, javax.swing.GroupLayout.PREFERRED_SIZE, 1073, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -3528,7 +3530,7 @@ private void loadCodebookItemActionPerformed(java.awt.event.ActionEvent evt) {//
         File cbFile = jfc.getSelectedFile();
         busyCalculating = true;
         try {
-            codebook = new SIFTCodeBook();
+            codebook = new GenericCodeBook();
             codebook.loadCodeBookFromFile(cbFile);
             JOptionPane.showMessageDialog(frameReference, "Load completed");
         } catch (Exception e) {
@@ -3832,10 +3834,10 @@ private void imageBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {/
             SiftUtil.siftFile(pgmFile, siftTempFile, "");
             pgmFile.delete();
             // Load the extracted SIFT features.
-            queryImageSIFT = SiftUtil.importFeaturesFromSift(siftTempFile);
+            queryImageLFeat = SiftUtil.importFeaturesFromSift(siftTempFile);
             DataInstance queryImageRepAlmost =
                     codebook.getDistributionForImageRepresentation(
-                    queryImageSIFT);
+                    queryImageLFeat, imageFile.getPath());
             // Get the color histogram.
             ColorHistogramVector cHist = new ColorHistogramVector();
             cHist.populateFromImage(queryImage, imgName);
@@ -3844,10 +3846,8 @@ private void imageBrowseButtonActionPerformed(java.awt.event.ActionEvent evt) {/
                     + cHist.getNumFAtt()];
             queryImageRep.iAttr = new int[queryImageRepAlmost.getNumIAtt()];
             queryImageRep.sAttr = new String[queryImageRepAlmost.getNumNAtt()];
-            // Combine the representations.
-            for (int i = 0; i < cHist.getNumFAtt(); i++) {
-                queryImageRep.fAttr[i] = cHist.fAttr[i];
-            }
+            System.arraycopy(cHist.fAttr, 0, queryImageRep.fAttr, 0,
+                    cHist.getNumFAtt());
             for (int i = 0; i < queryImageRepAlmost.getNumFAtt(); i++) {
                 queryImageRep.fAttr[i + cHist.getNumFAtt()] =
                         queryImageRepAlmost.fAttr[i];
@@ -4232,23 +4232,17 @@ private void mdsVisualizeItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 }
                 // Calculate the goodness of each visual word.
                 codebookGoodness = new float[codebook.getSize()];
-                float maxGoodness = 0;
-                float minGoodness = 1;
                 for (int codeIndex = 0; codeIndex < codebookGoodness.length;
                         codeIndex++) {
                     if (codeClassSums[codeIndex] > 0) {
                         codebookGoodness[codeIndex] = codeClassMax[codeIndex]
                                 / codeClassSums[codeIndex];
                     } else {
-                        codebookGoodness[codeIndex] = 1;
-                    }
-                    if (codebookGoodness[codeIndex] > maxGoodness) {
-                        maxGoodness = codebookGoodness[codeIndex];
-                    }
-                    if (codebookGoodness[codeIndex] < minGoodness) {
-                        minGoodness = codebookGoodness[codeIndex];
+                        codebookGoodness[codeIndex] = 0;
                     }
                 }
+                float maxGoodness = ArrayUtil.max(codebookGoodness);
+                float minGoodness = ArrayUtil.min(codebookGoodness);
                 for (int codeIndex = 0; codeIndex < codebookGoodness.length;
                         codeIndex++) {
                     if ((maxGoodness - minGoodness) > 0) {
@@ -4531,25 +4525,46 @@ private void mdsVisualizeItemActionPerformed(java.awt.event.ActionEvent evt) {//
                 (new File(workspace, "photos")).getPath().length(),
                 imgPaths.get(index).length());
         File repDir = new File(workspace, "representation");
-        File siftDir = new File(repDir, "raw_representation");
+        File lFeatDir = new File(repDir, "raw_representation");
         int dotIndex = shortPath.lastIndexOf(".");
         String shortPathCutOff = shortPath.substring(0, dotIndex);
+        // For files in SiftWin keypoint format.
         String shortPathKey = shortPathCutOff + ".key";
-        File imgSIFTFile = new File(siftDir, shortPathKey);
-        LFeatRepresentation siftRep = null;
-        try {
-            // Load the features from the disk
-            siftRep = SiftUtil.importFeaturesFromSift(imgSIFTFile);
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+        // For files in the OpenCV format.
+        String shortPathKeypoint = shortPathCutOff + ".kp";
+        String shortPathDescriptor = shortPathCutOff + ".desc";
+        LFeatRepresentation lFeatRep = null;
+        File imgSIFTFile = new File(lFeatDir, shortPathKey);
+        if (imgSIFTFile.exists()) {
+            try {
+                // Load the features from the disk
+                lFeatRep = SiftUtil.importFeaturesFromSift(imgSIFTFile);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        } else {
+            File imgKPFile = new File(lFeatDir, shortPathKeypoint);
+            File imgDescFile = new File(lFeatDir, shortPathDescriptor);
+            if (!imgKPFile.exists() || !imgDescFile.exists()) {
+                System.err.println("No supported local feature format detected"
+                        + "for the image.");
+            } else {
+                try {
+                    // Load the features from the disk
+                    lFeatRep = OpenCVFeatureIO.loadImageRepresentation(
+                            imgKPFile, imgDescFile);
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
         }
-        if (siftRep == null || siftRep.isEmpty()) {
+        if (lFeatRep == null || lFeatRep.isEmpty()) {
             return;
         }
         // Start examining the utility of different visual words on the image.
         BufferedImage originalImage = getPhoto(index);
         QuantizedImageViewer qiv = new QuantizedImageViewer(
-                originalImage, siftRep, codebookGoodness, codebook,
+                originalImage, lFeatRep, codebookGoodness, codebook,
                 codebookProfiles, codebookProfPanels, classColors, classNames);
         qiv.setVisible(true);
     }//GEN-LAST:event_selSIFTmenuItemActionPerformed
