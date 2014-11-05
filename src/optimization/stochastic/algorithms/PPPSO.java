@@ -113,6 +113,60 @@ public class PPPSO implements OptimizationAlgorithmInterface {
         }
     }
     
+    /**
+     * Initialization.
+     * 
+     * @param lowerValueLimits float[] representing the lower value limits.
+     * @param upperValueLimits float[] representing the upper value limits.
+     * @param populationSize Integer that is the prey population size.
+     * @param fe FitnessEvaluator for solution fitness evaluation.
+     */
+    public PPPSO(float[] lowerValueLimits, float[] upperValueLimits,
+            int populationSize, FitnessEvaluator fe) {
+        this.lowerValueLimits = lowerValueLimits;
+        this.upperValueLimits = upperValueLimits;
+        if (lowerValueLimits != null) {
+            numDim = lowerValueLimits.length;
+        } else if (upperValueLimits != null) {
+            numDim = upperValueLimits.length;
+        }
+        this.populationSize = populationSize;
+        this.fe = fe;
+    }
+    
+    /**
+     * Initialization.
+     * 
+     * @param lowerValueLimits float[] representing the lower value limits.
+     * @param upperValueLimits representing the upper value limits.
+     * @param preyPopulation ArrayList<DataInstance> that is the initial prey
+     * population.
+     * @param predatorInstance DataInstance that is the initial predator
+     * instance.
+     * @param populationContext DataSet representing the data context with
+     * feature definitions.
+     * @param fe FitnessEvaluator for solution fitness evaluation.
+     */
+    public PPPSO(float[] lowerValueLimits, float[] upperValueLimits,
+            ArrayList<DataInstance> preyPopulation,
+            DataInstance predatorInstance, DataSet populationContext,
+            FitnessEvaluator fe) {
+        this.lowerValueLimits = lowerValueLimits;
+        this.upperValueLimits = upperValueLimits;
+        if (lowerValueLimits != null) {
+            numDim = lowerValueLimits.length;
+        } else if (upperValueLimits != null) {
+            numDim = upperValueLimits.length;
+        }
+        this.predatorInstance = predatorInstance;
+        this.preyPopulation = preyPopulation;
+        this.populationContext = populationContext;
+        if (preyPopulation != null) {
+            populationSize = preyPopulation.size();
+        }
+        this.fe = fe;
+    }
+    
     @Override
     public void optimize() throws Exception {
         assertValueLimits();
