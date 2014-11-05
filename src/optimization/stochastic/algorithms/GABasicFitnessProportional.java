@@ -21,7 +21,6 @@ import optimization.stochastic.fitness.FitnessEvaluator;
 import optimization.stochastic.operators.MutationInterface;
 import optimization.stochastic.operators.RecombinationInterface;
 import util.AuxSort;
-import util.SOPLUtil;
 
 /**
  * This class implements the basic GA protocol where the selection probability

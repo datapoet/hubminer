@@ -47,12 +47,10 @@ public class GABasicTSel implements OptimizationAlgorithmInterface {
     private float[] inversePopulationFitness;
     private float[] inverseOffspringFitness;
     private float[] tempFitness;
-    private float totalProbs;
     private Object[] tempPopulation;
     private Object[] tempChildren;
     private int[] rearrange;
     private boolean stop = false;
-    private float decision;
     private int first, second, third;
 
     /**
@@ -104,9 +102,7 @@ public class GABasicTSel implements OptimizationAlgorithmInterface {
                 }
             }
             // Perform recombinations.
-            totalProbs = 0;
-            for (int i = 1; i < population.length; i++) {
-                decision = randa.nextFloat() * totalProbs;
+            for (int i = 0; i < population.length; i++) {
                 first = randa.nextInt(population.length);
                 second = first;
                 while (second == first) {
