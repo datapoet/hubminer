@@ -101,11 +101,11 @@ public class BlendFloatRecombiner implements RecombinationInterface {
                     && DataMineConstants.isAcceptableFloat(d2.fAttr[i])) {
                 min = Math.min(d1.fAttr[i], d2.fAttr[i]);
                 max = Math.max(d1.fAttr[i], d2.fAttr[i]);
-                d1.fAttr[i] = min - alpha + randa.nextFloat()
+                result.fAttr[i] = min - alpha + randa.nextFloat()
                         * (max - min + 2 * alpha);
                 // Validate the values.
-                d1.fAttr[i] = Math.max(d1.fAttr[i], lowerBounds[i]);
-                d1.fAttr[i] = Math.min(d1.fAttr[i], upperBounds[i]);
+                result.fAttr[i] = Math.max(d1.fAttr[i], lowerBounds[i]);
+                result.fAttr[i] = Math.min(d1.fAttr[i], upperBounds[i]);
             }
         }
         return result;

@@ -44,7 +44,7 @@ public class AffineFloatRecombiner implements RecombinationInterface {
                     && DataMineConstants.isAcceptableFloat(d2.fAttr[i])) {
                 min = Math.min(d1.fAttr[i], d2.fAttr[i]);
                 max = Math.max(d1.fAttr[i], d2.fAttr[i]);
-                d1.fAttr[i] = min + randa.nextFloat() * (max - min);
+                result.fAttr[i] = min + randa.nextFloat() * (max - min);
             }
         }
         return result;
