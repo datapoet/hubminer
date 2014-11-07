@@ -57,38 +57,102 @@ public class SupervisedLoader {
         } else {
             if (inPath.endsWith(".csv")) {
                 if (multiLabelMode) {
+                    // First try the no-header mode.
                     try {
-                        IOCSV reader = new IOCSV(false, ",");
-                        originalDSet = reader.readData(inFile);
+                        try {
+                            IOCSV reader = new IOCSV(false, ",");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception e) {
+                            IOCSV reader = new IOCSV(false, " +");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     } catch (Exception e) {
-                        IOCSV reader = new IOCSV(false, " +");
-                        originalDSet = reader.readData(inFile);
+                        // Try with the headers in the first line.
+                        try {
+                            IOCSV reader = new IOCSV(false, ",");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception eSecond) {
+                            IOCSV reader = new IOCSV(false, " +");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     }
                 } else {
+                    // First try the no-header mode.
                     try {
-                        IOCSV reader = new IOCSV(true, ",");
-                        originalDSet = reader.readData(inFile);
+                        try {
+                            IOCSV reader = new IOCSV(true, ",");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception e) {
+                            IOCSV reader = new IOCSV(true, " +");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     } catch (Exception e) {
-                        IOCSV reader = new IOCSV(true, " +");
-                        originalDSet = reader.readData(inFile);
+                        // Try with the headers in the first line.
+                        try {
+                            IOCSV reader = new IOCSV(true, ",");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception eSecond) {
+                            IOCSV reader = new IOCSV(true, " +");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     }
                 }
             } else if (inPath.endsWith(".tsv")) {
                 if (multiLabelMode) {
+                    // First try the no-header mode.
                     try {
-                        IOCSV reader = new IOCSV(false, " +");
-                        originalDSet = reader.readData(inFile);
+                        try {
+                            IOCSV reader = new IOCSV(false, " +");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception e) {
+                            IOCSV reader = new IOCSV(false, "\t");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     } catch (Exception e) {
-                        IOCSV reader = new IOCSV(false, "\t");
-                        originalDSet = reader.readData(inFile);
+                        // Try with the headers in the first line.
+                        try {
+                            IOCSV reader = new IOCSV(false, " +");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception eSecond) {
+                            IOCSV reader = new IOCSV(false, "\t");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     }
                 } else {
+                    // First try the no-header mode.
                     try {
-                        IOCSV reader = new IOCSV(true, " +");
-                        originalDSet = reader.readData(inFile);
+                        try {
+                            IOCSV reader = new IOCSV(true, " +");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception e) {
+                            IOCSV reader = new IOCSV(true, "\t");
+                            reader.noHeaderMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     } catch (Exception e) {
-                        IOCSV reader = new IOCSV(true, "\t");
-                        originalDSet = reader.readData(inFile);
+                        // Try with the headers in the first line.
+                        try {
+                            IOCSV reader = new IOCSV(true, " +");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        } catch (Exception eSecond) {
+                            IOCSV reader = new IOCSV(true, "\t");
+                            reader.headerMode();
+                            originalDSet = reader.readData(inFile);
+                        }
                     }
                 }
             } else if (inPath.endsWith(".arff")) {
