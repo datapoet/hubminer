@@ -36,7 +36,8 @@ import distances.primary.CombinedMetric;
 public class LocalOutlierFactor extends OutlierDetector {
 
     // Relative difference in densities that defines outliers.
-    private float cutoff_threshold = 1.4f;
+    public static final float DEFAULT_CUTOFF_THRESHOLD = 1.4f;
+    private float cutoffThreshold = DEFAULT_CUTOFF_THRESHOLD;
     // Neighborhood size to consider.
     private int k = 5;
     private NeighborSetFinder nsf;
@@ -45,54 +46,54 @@ public class LocalOutlierFactor extends OutlierDetector {
     private float[] localOutlierFactor;
 
     /**
-     * @param dataset Dataset to be analyzed.
+     * @param dset Dataset to be analyzed.
      * @param k Neighborhood size.
-     * @param cutoff_threshold Cutoff ratio for flagging outliers.
+     * @param cutoffThreshold Cutoff ratio for flagging outliers.
      */
-    public LocalOutlierFactor(DataSet dataset, int k, float cutoff_threshold) {
-        setDataSet(dataset);
+    public LocalOutlierFactor(DataSet dset, int k, float cutoffThreshold) {
+        setDataSet(dset);
         this.k = k;
-        this.cutoff_threshold = cutoff_threshold;
+        this.cutoffThreshold = cutoffThreshold;
     }
 
     /**
-     * @param dataset Dataset to be analyzed.
+     * @param dset Dataset to be analyzed.
      * @param nsf NeighborSetFinder object.
-     * @param cutoff_threshold Cutoff ratio for flagging outliers.
+     * @param cutoffThreshold Cutoff ratio for flagging outliers.
      */
-    public LocalOutlierFactor(DataSet dataset, NeighborSetFinder nsf,
-            float cutoff_threshold) {
-        setDataSet(dataset);
+    public LocalOutlierFactor(DataSet dset, NeighborSetFinder nsf,
+            float cutoffThreshold) {
+        setDataSet(dset);
         this.nsf = nsf;
-        this.cutoff_threshold = cutoff_threshold;
+        this.cutoffThreshold = cutoffThreshold;
     }
 
     /**
-     * @param dataset Dataset to be analyzed.
+     * @param dset Dataset to be analyzed.
      * @param cmet Metric.
      * @param k Neighborhood size.
-     * @param cutoff_threshold Cutoff ratio for flagging outliers.
+     * @param cutoffThreshold Cutoff ratio for flagging outliers.
      */
-    public LocalOutlierFactor(DataSet dataset, CombinedMetric cmet, int k,
-            float cutoff_threshold) {
-        setDataSet(dataset);
+    public LocalOutlierFactor(DataSet dset, CombinedMetric cmet, int k,
+            float cutoffThreshold) {
+        setDataSet(dset);
         this.cmet = cmet;
         this.k = k;
-        this.cutoff_threshold = cutoff_threshold;
+        this.cutoffThreshold = cutoffThreshold;
     }
 
     /**
      * @param dataset Dataset to be analyzed.
      * @param cmet Metric.
      * @param nsf Neighborhood size.
-     * @param cutoff_threshold Cutoff ratio for flagging outliers.
+     * @param cutoffThreshold Cutoff ratio for flagging outliers.
      */
     public LocalOutlierFactor(DataSet dataset, CombinedMetric cmet,
-            NeighborSetFinder nsf, float cutoff_threshold) {
+            NeighborSetFinder nsf, float cutoffThreshold) {
         setDataSet(dataset);
         this.cmet = cmet;
         this.nsf = nsf;
-        this.cutoff_threshold = cutoff_threshold;
+        this.cutoffThreshold = cutoffThreshold;
     }
 
     /**
@@ -104,28 +105,30 @@ public class LocalOutlierFactor extends OutlierDetector {
      */
     private float getReachabilityDistance(int i, int j) {
         int first = Math.min(i, j);
-        int second = Math.min(i, j);
+        int second = Math.max(i, j);
         return Math.max(nsf.getDistances()[first][second - first - 1],
                 nsf.getKDistances()[second][k - 1]);
     }
 
     @Override
     public void detectOutliers() throws Exception {
-        DataSet dataset = getDataSet();
-        if (dataset == null || dataset.isEmpty()) {
+        DataSet dset = getDataSet();
+        if (dset == null || dset.isEmpty()) {
             throw new OutlierDetectionException("Empty DataSet provided.");
         }
-        ArrayList<Float> outlierScores = new ArrayList<>(dataset.size());
+        ArrayList<Float> outlierScores = new ArrayList<>(dset.size());
         ArrayList<Integer> outlierIndexes =
-                new ArrayList<>(dataset.size());
+                new ArrayList<>(dset.size());
+        localReachabilityDensity = new float[dset.size()];
+        localOutlierFactor = new float[dset.size()];
         if (nsf == null || nsf.getKNeighbors() == null) {
-            nsf = new NeighborSetFinder(dataset, cmet);
+            nsf = new NeighborSetFinder(dset, cmet);
             nsf.calculateDistances();
             nsf.calculateNeighborSetsMultiThr(k, 6);
         }
         int[][] kneighbors = nsf.getKNeighbors();
         float sum;
-        for (int i = 0; i < dataset.size(); i++) {
+        for (int i = 0; i < dset.size(); i++) {
             sum = 0;
             for (int j = 0; j < k; j++) {
                 sum += getReachabilityDistance(i, kneighbors[i][j]);
@@ -134,7 +137,7 @@ public class LocalOutlierFactor extends OutlierDetector {
         }
         float maxOutlierScore = 0;
         int count;
-        for (int i = 0; i < dataset.size(); i++) {
+        for (int i = 0; i < dset.size(); i++) {
             sum = 0;
             count = 0;
             for (int j = 0; j < k; j++) {
@@ -151,7 +154,7 @@ public class LocalOutlierFactor extends OutlierDetector {
                 localOutlierFactor[i] =
                         sum / (localReachabilityDensity[i] * count);
                 // Here we test if the point is an outlier.
-                if (localOutlierFactor[i] > cutoff_threshold) {
+                if (localOutlierFactor[i] > cutoffThreshold) {
                     outlierIndexes.add(i);
                     outlierScores.add(localOutlierFactor[i]);
                     if (localOutlierFactor[i] > maxOutlierScore) {
