@@ -40,6 +40,15 @@ public abstract class OutlierDetector {
     public int numberOfOutliersFound() {
         return outlierIndexes == null ? 0 : outlierIndexes.size();
     }
+    
+    /**
+     * @return HashMap<Integer, Float> that maps the outlier indexes to their 
+     * calculated outlier scores. If the point is not an outlier, its index is 
+     * not in the map.
+     */
+    public HashMap<Integer, Float> getOutlierScoresMap() {
+        return outlierScoresMap;
+    }
 
     /**
      * Checks if an index points to an outlier instance.
