@@ -97,7 +97,10 @@ public class SOPLUtil {
      */
     public static void printArrayList(ArrayList arr) {
         if (arr == null) {
-            System.out.println("Null array.");
+            System.out.println("Null ArrayList.");
+        }
+        if (arr.isEmpty()) {
+            System.out.println("Empty ArrayList");
         }
         for (int i = 0; i < arr.size() - 1; i++) {
             System.out.print(arr.get(i) + " ");
@@ -182,7 +185,10 @@ public class SOPLUtil {
      */
     public static void printArrayListToStream(ArrayList arr, PrintWriter pw) {
         if (arr == null) {
-            pw.println("Null array.");
+            pw.println("Null ArrayList.");
+        }
+        if (arr.isEmpty()) {
+            pw.println("Empty ArrayList");
         }
         for (int i = 0; i < arr.size() - 1; i++) {
             pw.print(arr.get(i) + " ");
@@ -277,7 +283,10 @@ public class SOPLUtil {
     public static void printArrayListToStream(ArrayList arr, PrintWriter pw,
             String sep) {
         if (arr == null) {
-            pw.println("Null array.");
+            pw.println("Null ArrayList.");
+        }
+        if (arr.isEmpty()) {
+            pw.println("Empty ArrayList");
         }
         for (int i = 0; i < arr.size() - 1; i++) {
             pw.print(arr.get(i) + sep);
