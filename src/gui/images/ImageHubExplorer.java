@@ -48,7 +48,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.PickingGraphMousePlugin;
 import edu.uci.ics.jung.visualization.control.PluggableGraphMouse;
 import edu.uci.ics.jung.visualization.picking.PickedState;
-import images.mining.codebook.SIFTCodeBook;
 import ioformat.FileUtil;
 import ioformat.IOARFF;
 import ioformat.images.ConvertJPGToPGM;
