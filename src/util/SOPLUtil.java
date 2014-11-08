@@ -34,6 +34,7 @@ public class SOPLUtil {
     public static void printArray(float[] arr) {
         if (arr == null) {
             System.out.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             System.out.print(arr[i] + " ");
@@ -50,6 +51,7 @@ public class SOPLUtil {
     public static void printArray(int[] arr) {
         if (arr == null) {
             System.out.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             System.out.print(arr[i] + " ");
@@ -66,6 +68,7 @@ public class SOPLUtil {
     public static void printArray(double[] arr) {
         if (arr == null) {
             System.out.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             System.out.print(arr[i] + " ");
@@ -82,6 +85,7 @@ public class SOPLUtil {
     public static void printArray(String[] arr) {
         if (arr == null) {
             System.out.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             System.out.print(arr[i] + " ");
@@ -120,6 +124,7 @@ public class SOPLUtil {
     public static void printArrayToStream(double[] arr, PrintWriter pw) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + " ");
@@ -137,6 +142,7 @@ public class SOPLUtil {
     public static void printArrayToStream(int[] arr, PrintWriter pw) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + " ");
@@ -154,6 +160,7 @@ public class SOPLUtil {
     public static void printArrayToStream(float[] arr, PrintWriter pw) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + " ");
@@ -171,6 +178,7 @@ public class SOPLUtil {
     public static void printArrayToStream(String[] arr, PrintWriter pw) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + " ");
@@ -212,6 +220,7 @@ public class SOPLUtil {
             String sep) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + sep);
@@ -231,6 +240,7 @@ public class SOPLUtil {
             String sep) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + sep);
@@ -250,6 +260,7 @@ public class SOPLUtil {
             String sep) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + sep);
@@ -269,6 +280,7 @@ public class SOPLUtil {
             String sep) {
         if (arr == null) {
             pw.println("Null array.");
+            return;
         }
         for (int i = 0; i < arr.length - 1; i++) {
             pw.print(arr[i] + sep);
