@@ -300,6 +300,7 @@ public class AntiHub extends OutlierDetector implements NSFUserInterface {
         ArrayList<Float> outlierScores = new ArrayList<>(size);
         ArrayList<Integer> outlierIndexes = new ArrayList<>(size);
         float maxOutlierScore = 0;
+        float minOutlierScore = Float.MAX_VALUE;
         // Form an outlier list and a list of the associated outlier scores.
         for (int i = 0; i < size; i++) {
             if (bestAlphaAHScores[i] <= bestOutlierThreshold) {
@@ -308,12 +309,18 @@ public class AntiHub extends OutlierDetector implements NSFUserInterface {
                 if (bestAlphaAHScores[i] > maxOutlierScore) {
                     maxOutlierScore = bestAlphaAHScores[i];
                 }
+                if (bestAlphaAHScores[i] < minOutlierScore) {
+                    minOutlierScore = bestAlphaAHScores[i];
+                }
             }
         }
-        // Normalize.
+        // Normalize. Also, transform the scores so that now the higher scores
+        // correspond to more likely outliers.
         if (maxOutlierScore > 0) {
             for (int j = 0; j < outlierScores.size(); j++) {
-                outlierScores.set(j, outlierScores.get(j) / maxOutlierScore);
+                outlierScores.set(j, 1 - ((outlierScores.get(j) -
+                        minOutlierScore) / (maxOutlierScore -
+                        minOutlierScore)));
             }
         }
         setOutlierIndexes(outlierIndexes, outlierScores);
