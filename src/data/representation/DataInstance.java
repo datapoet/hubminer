@@ -594,20 +594,38 @@ public class DataInstance implements Serializable {
             }
         }
     }
-
+    
     /**
      * Add two DataInstance object values and return the result in another
      * DataInstance object.
      *
      * @param first DataInstance object.
      * @param second DataInstance object.
-     * @return A sum of the two DataInstance objects, for all integer and float
-     * feature values.
+     * @return The sum of the two DataInstance objects, for all integer and
+     * float feature values.
      */
     public static DataInstance add(DataInstance first, DataInstance second) {
         DataInstance result = new DataInstance(first.getEmbeddingDataset());
         result.add(first);
         result.add(second);
+        return result;
+    }
+
+    /**
+     * Subtract two DataInstance object values and return the result in another
+     * DataInstance object.
+     *
+     * @param first DataInstance object.
+     * @param second DataInstance object.
+     * @return The difference of the two DataInstance objects, for all integer
+     * and float feature values.
+     */
+    public static DataInstance subtract(DataInstance first,
+            DataInstance second) throws Exception {
+        DataInstance result = new DataInstance(first.getEmbeddingDataset());
+        result.add(second);
+        result = DataInstance.multiplyByFactor(-1, result);
+        result.add(first);
         return result;
     }
 
