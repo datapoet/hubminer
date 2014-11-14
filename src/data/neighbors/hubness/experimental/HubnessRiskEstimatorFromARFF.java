@@ -147,6 +147,8 @@ public class HubnessRiskEstimatorFromARFF {
             nsfSecondary.calculateNeighborSets(k);
             nicdmLogger.updateByObservedFreqs(
                     nsfSecondary.getNeighborFrequencies());
+            nicdmLogger.updateLabelMismatchPercentages(
+                    nsfSecondary.getKNeighbors());
             pointDistancesSecondary = new float[dsetTest.size()][
                     dsetTrainSub.size()];
             pointNeighborsSecondary = new int[dsetTest.size()][k];
@@ -247,6 +249,8 @@ public class HubnessRiskEstimatorFromARFF {
             nsfSecondary.calculateNeighborSets(k);
             simcosLogger.updateByObservedFreqs(
                     nsfSecondary.getNeighborFrequencies());
+            simcosLogger.updateLabelMismatchPercentages(
+                    nsfSecondary.getKNeighbors());
             // Calculate the test-to-training point distances.
             pointDistancesSecondary = new float[dsetTest.size()][
                     dsetTrainSub.size()];
@@ -341,6 +345,8 @@ public class HubnessRiskEstimatorFromARFF {
             nsfSecondary.calculateNeighborSets(k);
             simhubLogger.updateByObservedFreqs(
                     nsfSecondary.getNeighborFrequencies());
+            simhubLogger.updateLabelMismatchPercentages(
+                    nsfSecondary.getKNeighbors());
             pointDistancesSecondary = new float[dsetTest.size()][
                     dsetTrainSub.size()];
             pointNeighborsSecondary = new int[dsetTest.size()][k];
@@ -419,6 +425,8 @@ public class HubnessRiskEstimatorFromARFF {
             nsfSecondary.calculateNeighborSets(k);
             mpLogger.updateByObservedFreqs(
                     nsfSecondary.getNeighborFrequencies());
+            mpLogger.updateLabelMismatchPercentages(
+                    nsfSecondary.getKNeighbors());
             pointDistancesSecondary = new float[dsetTest.size()][
                     dsetTrainSub.size()];
             pointNeighborsSecondary = new int[dsetTest.size()][k];
@@ -498,6 +506,8 @@ public class HubnessRiskEstimatorFromARFF {
             nsfPrimary = nsfPrimary.getSubNSF(k);
             primaryLogger.updateByObservedFreqs(
                     nsfPrimary.getNeighborFrequencies());
+            primaryLogger.updateLabelMismatchPercentages(
+                    nsfPrimary.getKNeighbors());
             pointNeighborsPrimary =
                     NeighborSetFinder.getIndexesOfNeighbors(dsetTrainSub,
                     dsetTest, k, pointDistancesPrimary);
@@ -568,25 +578,27 @@ public class HubnessRiskEstimatorFromARFF {
         // Name of the distance that this logger is logging for.
         private String distName;
         
+        private ArrayList<Float> skewValues;
+        private ArrayList<Float> labelMismatchPercs;
+        private ArrayList<Float> kurtosisValues;
+        private ArrayList<Float> knnAccuracies;
+        private ArrayList<Float> nhbnnAccuracies;
+        private ArrayList<Float> hiknnAccuracies;
+        private ArrayList<Float> hfnnAccuracies;
+        
         /**
          * Initialization.
          */
         public StatsLogger(String distName) {
             this.distName = distName;
             skewValues = new ArrayList<>(numRepetitions);
+            labelMismatchPercs = new ArrayList<>(numRepetitions);
             kurtosisValues = new ArrayList<>(numRepetitions);
             knnAccuracies = new ArrayList<>(numRepetitions);
             nhbnnAccuracies = new ArrayList<>(numRepetitions);
             hiknnAccuracies = new ArrayList<>(numRepetitions);
             hfnnAccuracies = new ArrayList<>(numRepetitions);
         }
-
-        private ArrayList<Float> skewValues;
-        private ArrayList<Float> kurtosisValues;
-        private ArrayList<Float> knnAccuracies;
-        private ArrayList<Float> nhbnnAccuracies;
-        private ArrayList<Float> hiknnAccuracies;
-        private ArrayList<Float> hfnnAccuracies;
         
         /**
          * This method inserts the calculated classifier accuracies from the
@@ -610,6 +622,31 @@ public class HubnessRiskEstimatorFromARFF {
         }
         
         /**
+         * This method calculates and updates the list of label mismatch 
+         * percentages in kNN sets on the data.
+         * 
+         * @param kNeighbors int[][] representing the k-nearest neighbors. 
+         */
+        public void updateLabelMismatchPercentages(int[][] kNeighbors) {
+            if (kNeighbors != null && kNeighbors.length > 0 &&
+                    dsetTrainSub != null && dsetTest != null) {
+                int[] testLabels = dsetTest.obtainLabelArray();
+                int[] trainingLabels = dsetTrainSub.obtainLabelArray();
+                float totalMismatches = 0;
+                for (int i = 0; i < dsetTest.size(); i++) {
+                    for (int kInd = 0; kInd < k; kInd++) {
+                        if (trainingLabels[kNeighbors[i][kInd]] !=
+                                testLabels[i]) {
+                            totalMismatches++;
+                        }
+                    }
+                }
+                float mismatchPerc = totalMismatches / (k * dsetTest.size());
+                labelMismatchPercs.add(mismatchPerc);
+            }
+        }
+        
+        /**
          * This method looks at the neighbor occurrence frequencies, calculates
          * the skewness and kurtosis and updates the stats logger object.
          * 
@@ -630,7 +667,13 @@ public class HubnessRiskEstimatorFromARFF {
          * @param pw PrintWriter to print the logger to.
          */
         public void printLoggerToStream(PrintWriter pw) {
-            // First the hubness meta-skews and kurtosis.
+            // Label micmatch percentages.
+            pw.println("Sampled label mismatch percentages for: " + distName);
+            SOPLUtil.printArrayListToStream(labelMismatchPercs, pw, ",");
+            pw.println("Label mismatch percs historgram: ");
+            SOPLUtil.printArrayListToStream(getHistogram(labelMismatchPercs,
+                    0.01f), pw, ",");
+            // The hubness meta-skews and kurtosis.
             pw.println("Sampled hubnesses for: " + distName);
             SOPLUtil.printArrayListToStream(skewValues, pw, ",");
             pw.println("Calculated moments (mean, stdev, skew, kurtosis):");
