@@ -157,8 +157,10 @@ public class UniformSampler extends Sampler {
         // extracting the sample.
         while (numFix < bad) {
             candidate = randa.nextInt(sampleSizeArray.length);
-            numFix++;
-            sampleSizeArray[candidate]++;
+            if (sizeArray[candidate] > sampleSizeArray[candidate]) {
+                numFix++;
+                sampleSizeArray[candidate]++;
+            }
         }
         // We go and iteratively sample through the data sets.
         DataSet[] samples = new DataSet[sampleSizeArray.length];
