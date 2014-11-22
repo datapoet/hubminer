@@ -28,7 +28,6 @@ import java.util.PriorityQueue;
 import java.util.Random;
 import util.ArrayUtil;
 import util.DataSetJoiner;
-import util.SOPLUtil;
 
 /**
  * A class that implements weight-proportional data sampling.
