@@ -428,8 +428,4 @@ public class WeightProportionalSampler extends Sampler {
         }
     }
     
-    public static void main(String[] args) throws Exception {
-        float[] sW = {1.2f, 2.2f, 3.3f, 14.4f, 26f, 55f, 120f, 130f, 140f};
-        SOPLUtil.printArray(getSampleWithReps(15, sW));
-    }
 }
