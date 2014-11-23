@@ -129,6 +129,8 @@ public class DistanceFeatures {
                             dset.getInstance(targetIndexes.get(d)));
                 }
             }
+            // Set the class label.
+            distFeatInstance.setCategory(instance.getCategory());
         }
         return distFeatDSet;
     }
@@ -170,6 +172,7 @@ public class DistanceFeatures {
                 distFeatInstance.fAttr[d] = cmet.dist(instance,
                         targetInstances.get(d));
             }
+            distFeatInstance.setCategory(instance.getCategory());
         }
         return distFeatDSet;
     }
