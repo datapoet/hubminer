@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
@@ -43,16 +47,22 @@ public class GCNN extends InstanceSelector implements NSFUserInterface {
     private float[] nearestProtoFriendDist;
     // Distances to nearest prototypes of different classes.
     private float[] nearestProtoEnemyDist;
-
-    /**
-     * @return String containing the paper reference describing the algorithm.
-     */
-    public static String citing() {
-        return "Chien-Hsing Chou; Bo-Han Kuo; Fu Chang, 'The Generalized "
-                + "Condensed Nearest Neighbor Rule as A Data Reduction Method' "
-                + "Pattern Recognition, 2006. ICPR 2006. 18th International "
-                + "Conference on , vol.2, no., pp.556,559, "
-                + "doi: 10.1109/ICPR.2006.1119";
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setTitle("The Generalized Condensed Nearest Neighbor Rule as A Data"
+                + " Reduction Method");
+        pub.addAuthor(new Author("Chien-Hsing", "Chou"));
+        pub.addAuthor(new Author("Bo-Han", "Kuo"));
+        pub.addAuthor(new Author("Fu", "Chang"));
+        pub.setConferenceName("International Conference on Pattern "
+                + "Recognition");
+        pub.setYear(2006);
+        pub.setStartPage(556);
+        pub.setEndPage(559);
+        pub.setDoi("10.1109/ICPR.2006.1119");
+        return pub;
     }
 
     /**

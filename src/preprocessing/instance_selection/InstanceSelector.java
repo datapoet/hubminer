@@ -16,6 +16,7 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Citable;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -32,7 +33,7 @@ import java.util.Collections;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public abstract class InstanceSelector {
+public abstract class InstanceSelector implements Citable {
 
     private int k; // Neighborhood datasize for hubness calculations.
     private CombinedMetric cmet = CombinedMetric.FLOAT_MANHATTAN;

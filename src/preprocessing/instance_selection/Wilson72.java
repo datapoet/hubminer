@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.representation.DataSet;
 import data.neighbors.NeighborSetFinder;
@@ -37,6 +41,21 @@ public class Wilson72 extends InstanceSelector implements NSFUserInterface {
     private NeighborSetFinder nsf;
     // Neighborhood size to be used in selection criteria.
     private int kSelection = 1;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Asymptotic Properties of Nearest Neighbor Rules Using "
+                + "Edited Data");
+        pub.addAuthor(new Author("D. R.", "Wilson"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Systems, Man and Cybernetics");
+        pub.setYear(1972);
+        pub.setStartPage(408);
+        pub.setEndPage(421);
+        pub.setVolume(2);
+        return pub;
+    }
 
     public Wilson72() {
     }

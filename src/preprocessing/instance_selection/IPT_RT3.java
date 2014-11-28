@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
@@ -40,6 +44,20 @@ public class IPT_RT3 extends InstanceSelector implements NSFUserInterface {
     private NeighborSetFinder nsf;
     // Neighborhood size to use in selection criteria.
     private int kSelection = 1;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setTitle("Instance Pruning Techniques");
+        pub.addAuthor(new Author("D. Randall", "Wilson"));
+        pub.addAuthor(new Author("Tony R.", "Martinez"));
+        pub.setConferenceName("International Conference on Machine Learning");
+        pub.setYear(1997);
+        pub.setStartPage(404);
+        pub.setEndPage(411);
+        pub.setPublisher(Publisher.MORGAN_KAUFMANN);
+        return pub;
+    }
 
     public IPT_RT3() {
     }

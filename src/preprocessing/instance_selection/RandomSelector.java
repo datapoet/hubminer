@@ -16,6 +16,7 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Publication;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
@@ -47,6 +48,13 @@ public class RandomSelector extends InstanceSelector
     
     // To use for calculating the unbiased hubness estimates.
     private NeighborSetFinder nsf;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        // This is just stratified random selection. No publications associated 
+        // with it.
+        return new Publication();
+    }
 
     /**
      * The default constructor.

@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.representation.DataSet;
 import data.neighbors.NeighborSetFinder;
@@ -41,6 +45,22 @@ public class RNNR_AL1 extends InstanceSelector implements NSFUserInterface {
     // Neighborhood size to be used in selection criteria.
     private int kSelection = 1;
     private int threshold = 1;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setTitle("An instance selection algorithm based on reverse nearest "
+                + "neighbor");
+        pub.addAuthor(new Author("B. R.", "Dai"));
+        pub.addAuthor(new Author("S. M.", "Hsu"));
+        pub.setConferenceName("Pacific-Asian Conference on Knowledge Discovery "
+                + "and Data Mining");
+        pub.setYear(2011);
+        pub.setStartPage(1);
+        pub.setEndPage(12);
+        pub.setPublisher(Publisher.MORGAN_KAUFMANN);
+        return pub;
+    }
 
     public RNNR_AL1() {
     }

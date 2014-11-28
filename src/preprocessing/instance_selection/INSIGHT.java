@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
@@ -49,6 +53,22 @@ public class INSIGHT extends InstanceSelector implements NSFUserInterface {
     public static final int GOOD_HUBNESS_RELATIVE = 1;
     public static final int XI = 2;
     public static final int GOOD_MINUS_BAD_HUBNESS_PROP = 3;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Pacific Asian Knowledge Discovery and Data "
+                + "Mining Conference");
+        pub.addAuthor(Author.KRISZTIAN_BUZA);
+        pub.addAuthor(Author.ALEXANDROS_NANOPOULOS);
+        pub.setTitle("INSIGHT: efficient and effective instance selection for "
+                + "time-series classification");
+        pub.setYear(2011);
+        pub.setStartPage(149);
+        pub.setEndPage(160);
+        pub.setPublisher(Publisher.SPRINGER);
+        return pub;
+    }
 
     public INSIGHT() {
     }

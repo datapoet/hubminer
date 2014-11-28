@@ -16,6 +16,10 @@
 */
 package preprocessing.instance_selection;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
@@ -40,6 +44,20 @@ public class CNN extends InstanceSelector implements NSFUserInterface {
     // matched/mismatched data labels, for all data points.
     private float[] nearestProtoFriendDist;
     private float[] nearestProtoEnemyDist;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("The Condensed Nearest Neighbor Rule");
+        pub.addAuthor(new Author("P. E.", "Hart"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Information Theory");
+        pub.setYear(1968);
+        pub.setStartPage(515);
+        pub.setEndPage(516);
+        pub.setVolume(14);
+        return pub;
+    }
 
     public CNN() {
     }
