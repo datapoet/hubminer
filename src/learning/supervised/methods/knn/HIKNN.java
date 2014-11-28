@@ -16,6 +16,11 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Address;
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
@@ -78,6 +83,25 @@ public class HIKNN extends Classifier implements AutomaticKFinderInterface,
         paramMap.put("mValue", "Exponent for distance weighting. Defaults"
                 + " to 2.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Nearest Neighbor Voting in High-Dimensional Data: "
+                + "Learning from Past Occurrences");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.setPublisher(new Publisher("ComSIS Consortium",
+                new Address("Novi Sad", "Serbia")));
+        pub.setJournalName("Computer Science and Information Systems");
+        pub.setYear(2013);
+        pub.setStartPage(691);
+        pub.setEndPage(712);
+        pub.setVolume(9);
+        pub.setIssue(2);
+        pub.setDoi("10.2298/CSIS111211014T");
+        return pub;
     }
     
     @Override

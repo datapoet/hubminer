@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete.trees;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import data.representation.util.DataMineConstants;
@@ -59,6 +63,21 @@ public class DCT_ID3 extends DiscreteClassifier implements Serializable {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Induction of Decision Trees");
+        pub.addAuthor(new Author("J. R.", "Quinlan"));
+        pub.setPublisher(Publisher.MCGRAW_HILL);
+        pub.setJournalName("Machine Learning");
+        pub.setYear(1986);
+        pub.setStartPage(81);
+        pub.setEndPage(106);
+        pub.setVolume(1);
+        pub.setIssue(1);
+        return pub;
     }
 
     @Override

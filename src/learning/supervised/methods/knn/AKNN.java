@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.DataInstance;
 import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
@@ -63,6 +67,24 @@ public class AKNN extends Classifier implements DistMatrixUserInterface,
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("k", "Neighborhood size.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Improving Nearest Neighbor Rule With a Simple Adaptive "
+                + "Distance Measure");
+        pub.addAuthor(new Author("Jigang", "Wang"));
+        pub.addAuthor(new Author("Predrag", "Neskovic"));
+        pub.addAuthor(new Author("Leon N.", "Cooper"));
+        pub.setPublisher(Publisher.ELSEVIER);
+        pub.setJournalName("Pattern Recognition Letters");
+        pub.setYear(2007);
+        pub.setStartPage(207);
+        pub.setEndPage(213);
+        pub.setVolume(28);
+        pub.setIssue(2);
+        return pub;
     }
 
     @Override

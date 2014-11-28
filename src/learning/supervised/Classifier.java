@@ -16,6 +16,7 @@
 */
 package learning.supervised;
 
+import algref.Citable;
 import data.representation.DataInstance;
 import data.representation.DataSet;
 import data.representation.sparse.BOWDataSet;
@@ -42,7 +43,7 @@ import util.ArrayUtil;
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public abstract class Classifier implements ValidateableInterface,
-        Serializable {
+        Serializable, Citable {
 
     private static final long serialVersionUID = 1L;
     private Category[] trainingClasses = null;

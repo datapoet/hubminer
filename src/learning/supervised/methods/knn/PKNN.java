@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -32,7 +36,7 @@ import learning.supervised.evaluation.ValidateableInterface;
 /**
  * This class implements the probabilistic KNN classification algorithm that was
  * described in the paper titled "A probabilistic nearest neighbor method for
- * statistical pattern recognition that was authored by C. C. Holmes and N. M.
+ * statistical pattern recognition" that was authored by C. C. Holmes and N. M.
  * Adams from the Imperial College of Science, Technology and Medicine, London,
  * UK, 2002. In short, a Bayesian nearest neighbor model is approximated by a
  * Metropolis Markov-Chain Monte-Carlo technique. Basically, k and beta are
@@ -69,6 +73,23 @@ public class PKNN extends Classifier implements Serializable {
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("kMax", "Maximum neighborhood size to consider.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("A Probabilistic Nearest Neighbor Method for Statistical "
+                + "Pattern Recognition");
+        pub.addAuthor(new Author("C. C.", "Holmes"));
+        pub.addAuthor(new Author("N. M.", "Adams"));
+        pub.setJournalName("Journal of the Royal Statistical Society: "
+                + "Series B");
+        pub.setYear(2002);
+        pub.setStartPage(295);
+        pub.setEndPage(306);
+        pub.setVolume(64);
+        pub.setIssue(2);
+        return pub;
     }
     
     @Override

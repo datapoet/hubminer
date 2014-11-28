@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Author;
+import algref.BookPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import data.representation.util.DataMineConstants;
@@ -52,6 +56,17 @@ public class DOneRule extends DiscreteClassifier implements Serializable {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        BookPublication pub = new BookPublication();
+        pub.setTitle(" Data Mining: Practical Machine Learning Tools and "
+                + "Techniques with Java Implementation");
+        pub.addAuthor(new Author("Iain H.", "Witten"));
+        pub.addAuthor(new Author("Eibe", "Frank"));
+        pub.setPublisher(Publisher.MORGAN_KAUFMANN);
+        return pub;
     }
     
     @Override

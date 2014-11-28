@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Author;
+import algref.BookPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
@@ -58,6 +62,17 @@ implements Serializable {
         paramMap.put("isWeightedApriori", "Whether instance weights are used"
                 + "for calculating class priors.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        BookPublication pub = new BookPublication();
+        pub.setTitle("Artificial Intelligence: A Modern Approach");
+        pub.addAuthor(new Author("Stuart", "Russel"));
+        pub.addAuthor(new Author("Peter", "Norvig"));
+        pub.setPublisher(Publisher.PRENTICE_HALL);
+        pub.setYear(1995);
+        return pub;
     }
 
     @Override

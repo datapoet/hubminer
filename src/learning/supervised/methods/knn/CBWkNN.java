@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -75,6 +79,25 @@ public class CBWkNN extends Classifier implements DistMatrixUserInterface,
                 + "in order to obtain the number of neighbors for weighting"
                 + "calculations for the query point.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Pacific-Asian Conference on Knowledge Discovery "
+                + "and Data Mining");
+        pub.addAuthor(new Author("Harshit", "Dubey"));
+        pub.addAuthor(new Author("Vikram", "Pudi"));
+        pub.setTitle("Class Based Weighted K-Nearest Neighbor over Imbalance "
+                + "Dataset");
+        pub.setYear(2013);
+        pub.setStartPage(305);
+        pub.setEndPage(316);
+        pub.setPublisher(Publisher.SPRINGER);
+        pub.setDoi("10.1007/978-3-642-37456-2_26");
+        pub.setUrl("http://link.springer.com/chapter/10.1007%2F978-3-642-37456-"
+                + "2_26");
+        return pub;
     }
 
     @Override

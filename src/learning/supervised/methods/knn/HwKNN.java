@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
@@ -67,6 +71,22 @@ public class HwKNN extends Classifier implements AutomaticKFinderInterface,
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("k", "Neighborhood size.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("International Conference on Machine Learning");
+        pub.addAuthor(Author.MILOS_RADOVANOVIC);
+        pub.addAuthor(Author.ALEXANDROS_NANOPOULOS);
+        pub.addAuthor(Author.MIRJANA_IVANOVIC);
+        pub.setTitle("Nearest Neighbors in High-Dimensional Data: The Emergence"
+                + " and Influence of Hubs.");
+        pub.setYear(2009);
+        pub.setStartPage(865);
+        pub.setEndPage(872);
+        pub.setPublisher(Publisher.MORGAN_KAUFMANN);
+        return pub;
     }
     
     @Override

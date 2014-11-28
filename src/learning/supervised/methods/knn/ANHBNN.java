@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -99,6 +103,21 @@ public class ANHBNN extends Classifier implements DistMatrixUserInterface,
         paramMap.put("thetaValue", "Anti-hub cut-off point for treating"
                 + "anti-hubs as a special case.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("European Conference on Machine Learning");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.setTitle("Hub Co-occurrence Modeling for Robust High-dimensional "
+                + "kNN Classification");
+        pub.setYear(2013);
+        pub.setStartPage(643);
+        pub.setEndPage(659);
+        pub.setPublisher(Publisher.SPRINGER);
+        return pub;
     }
 
     @Override

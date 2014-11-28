@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
@@ -54,6 +58,23 @@ public class KNNNB extends DiscreteClassifier
         paramMap.put("laplaceEstimator", "Laplace estimator for smoothing."
                 + "Defaults to 1.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Fuzzy Systems and Knowledge Discovery");
+        pub.addAuthor(new Author("Liangxiao", "Jiang"));
+        pub.addAuthor(new Author("Zhihua", "Cai"));
+        pub.addAuthor(new Author("Dianhong", "Wang"));
+        pub.addAuthor(new Author("Siwei", "Jiang"));
+        pub.setTitle("Survey of Improving K-Nearest-Neighbor for "
+                + "Classification");
+        pub.setYear(2007);
+        pub.setStartPage(679);
+        pub.setEndPage(683);
+        pub.setPublisher(Publisher.IEEE);
+        return pub;
     }
 
     @Override

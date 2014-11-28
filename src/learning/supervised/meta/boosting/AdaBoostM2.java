@@ -16,6 +16,10 @@
 */
 package learning.supervised.meta.boosting;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -89,6 +93,22 @@ public class AdaBoostM2 extends Classifier implements
         resultingMap.putAll(paramMap);
         baseParamMap.putAll(baseParamMap);
         return resultingMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("A Decision-Theoretic Generalization of On-Line Learning "
+                + "and an Application to Boosting");
+        pub.addAuthor(new Author("Yoav", "Freund"));
+        pub.addAuthor(new Author("Robert E.", "Schapire"));
+        pub.setPublisher(Publisher.ACADEMIC_PRESS);
+        pub.setJournalName("Journal of Computer and System Sciences");
+        pub.setYear(1997);
+        pub.setStartPage(119);
+        pub.setEndPage(139);
+        pub.setVolume(55);
+        return pub;
     }
     
     @Override

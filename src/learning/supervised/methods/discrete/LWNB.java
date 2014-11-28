@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import data.representation.discrete.DiscretizedDataInstance;
@@ -59,6 +63,21 @@ public class LWNB extends DiscreteClassifier
         return paramMap;
     }
 
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Conference on Uncertainty in Artificial "
+                + "Intelligence");
+        pub.addAuthor(new Author("Frank", "Eibe"));
+        pub.addAuthor(new Author("Mark", "Hall"));
+        pub.addAuthor(new Author("Bernhard", "Pfahringer"));
+        pub.setTitle("Locally Weighted Naive Bayes.");
+        pub.setYear(2002);
+        pub.setStartPage(249);
+        pub.setEndPage(256);
+        pub.setPublisher(Publisher.MORGAN_KAUFMANN);
+        return pub;
+    }
     
     @Override
     public String getName() {

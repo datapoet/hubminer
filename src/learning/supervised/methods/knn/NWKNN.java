@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.DataInstance;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
@@ -62,6 +66,22 @@ public class NWKNN extends Classifier implements DistMatrixUserInterface,
         paramMap.put("mValue", "Exponent for distance weighting. Defaults"
                 + " to 2.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Neighbor-weighted K-nearest neighbor for unbalanced text"
+                + " corpus");
+        pub.addAuthor(new Author("Songbo", "Tan"));
+        pub.setPublisher(Publisher.ELSEVIER);
+        pub.setJournalName("Expert Systems with Applications");
+        pub.setYear(2005);
+        pub.setStartPage(667);
+        pub.setEndPage(671);
+        pub.setVolume(28);
+        pub.setIssue(4);
+        return pub;
     }
     
     @Override

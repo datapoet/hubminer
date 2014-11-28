@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import combinatorial.Permutation;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -31,7 +35,7 @@ import sampling.UniformSampler;
 import statistics.HigherMoments;
 
 /**
- * This class implements the robust stochastic learning vector quantization
+ * This class implements the robust soft learning vector quantization
  * classification method.
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
@@ -47,7 +51,7 @@ public class RSLVQ extends Classifier implements Serializable {
     private float[][] protoDispersions;
     // Number of prototypes per class.
     private int numProtoPerClass = 5;
-    //the learning rates
+    // The learning rates.
     float alphaProto = 0.5f;
     float alphaVariance = 0.3f;
     
@@ -60,13 +64,28 @@ public class RSLVQ extends Classifier implements Serializable {
     }
     
     @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Soft Learning Vector Quantization");
+        pub.addAuthor(new Author("Sambu", "Seo"));
+        pub.addAuthor(new Author("Klaus", "Obermayer"));
+        pub.setJournalName("Neural Computation");
+        pub.setYear(2003);
+        pub.setStartPage(1589);
+        pub.setEndPage(1604);
+        pub.setVolume(15);
+        pub.setIssue(7);
+        return pub;
+    }
+    
+    @Override
     public long getVersion() {
         return serialVersionUID;
     }
 
     @Override
     public String getName() {
-        return "Robust Stochastic Learning Vector Quantization";
+        return "Robust Soft Learning Vector Quantization";
     }
     
     /**

@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -78,6 +82,21 @@ public class RRKNN extends Classifier implements DistMatrixUserInterface,
         paramMap.put("kVoting", "Neighborhood size to use on re-ranked sub-kNN"
                 + "sets for voting and prediction.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Image Hub Explorer: Evaluating Representations and "
+                + "Metrics for Content-based Image Retrieval and Object "
+                + "Recognition");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.setPublisher(Publisher.ACM);
+        pub.setJournalName("Multimedia Tools and Applications");
+        pub.setYear(2014);
+        pub.setDoi("10.1007/s11042-014-2254-1");
+        return pub;
     }
     
     @Override

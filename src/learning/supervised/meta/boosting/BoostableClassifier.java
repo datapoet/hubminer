@@ -16,6 +16,7 @@
 */
 package learning.supervised.meta.boosting;
 
+import algref.Citable;
 import java.io.Serializable;
 import learning.supervised.Classifier;
 
@@ -26,7 +27,7 @@ import learning.supervised.Classifier;
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public abstract class BoostableClassifier extends Classifier
-implements Serializable {
+implements Serializable, Citable {
 
     private static final long serialVersionUID = 1L;
     /**

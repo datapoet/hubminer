@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
@@ -58,6 +62,23 @@ public class FNN extends Classifier implements AutomaticKFinderInterface,
         paramMap.put("mFactor", "Exponent for distance weighting. Defaults"
                 + " to 2.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("A Fuzzy k-Nearest Neighbor Algorithm");
+        pub.addAuthor(new Author("J. E.", "Keller"));
+        pub.addAuthor(new Author("M. R.", "Gray"));
+        pub.addAuthor(new Author("J. A.", "Givens"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Systems, Man and Cybernetics");
+        pub.setYear(1985);
+        pub.setStartPage(580);
+        pub.setEndPage(585);
+        pub.setVolume(15);
+        pub.setIssue(4);
+        return pub;
     }
 
     @Override

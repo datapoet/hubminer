@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Author;
+import algref.BookPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
@@ -47,6 +51,17 @@ public class DNaiveBayes extends DiscreteClassifier implements Serializable {
         paramMap.put("laplaceEstimator", "Laplace estimator used for"
                 + "smoothing. Defaults to 1.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        BookPublication pub = new BookPublication();
+        pub.setTitle("Artificial Intelligence: A Modern Approach");
+        pub.addAuthor(new Author("Stuart", "Russel"));
+        pub.addAuthor(new Author("Peter", "Norvig"));
+        pub.setPublisher(Publisher.PRENTICE_HALL);
+        pub.setYear(1995);
+        return pub;
     }
     
     @Override

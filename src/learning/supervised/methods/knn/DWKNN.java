@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.evaluation.ValidateableInterface;
 import distances.primary.CombinedMetric;
 import data.representation.DataInstance;
@@ -66,6 +70,21 @@ public class DWKNN extends Classifier implements DistToPointsQueryUserInterface,
                 + " to 2.");
 
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("The Distance-Weighted k-Nearest-Neighbor Rule");
+        pub.addAuthor(new Author("Sahibsingh A.", "Dudani"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Systems, Man and Cybernetics");
+        pub.setYear(1976);
+        pub.setStartPage(325);
+        pub.setEndPage(327);
+        pub.setVolume(6);
+        pub.setIssue(4);
+        return pub;
     }
 
     @Override

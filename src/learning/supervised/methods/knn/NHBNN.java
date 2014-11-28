@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
@@ -112,6 +116,24 @@ public class NHBNN extends Classifier implements AutomaticKFinderInterface,
                 + "anti-hubs as a special case.");
         paramMap.put("localEstimateMethod", "Anti-hub handling strategy.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Conference on Information and Knowledge "
+                + "Management");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.MILOS_RADOVANOVIC);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.addAuthor(Author.MIRJANA_IVANOVIC);
+        pub.setTitle("A Probabilistic Approach to Nearest-Neighbor "
+                + "Classification: Naive Hubness Bayesian kNN");
+        pub.setYear(2011);
+        pub.setStartPage(183);
+        pub.setEndPage(195);
+        pub.setPublisher(Publisher.SPRINGER);
+        return pub;
     }
     
     @Override

@@ -16,6 +16,10 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
@@ -98,6 +102,23 @@ public class DWHFNN extends Classifier implements AutomaticKFinderInterface,
                 + " to 2.");
         paramMap.put("localEstimateMethod", "Anti-hub handling strategy.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Machine Learning and Data Mining (MLDM)");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.MILOS_RADOVANOVIC);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.addAuthor(Author.MIRJANA_IVANOVIC);
+        pub.setTitle("Hubness-Based Fuzzy Measures for High-Dimensional "
+                + "k-Nearest Neighbor Classification");
+        pub.setYear(2011);
+        pub.setStartPage(16);
+        pub.setEndPage(30);
+        pub.setPublisher(Publisher.SPRINGER);
+        return pub;
     }
 
     /**

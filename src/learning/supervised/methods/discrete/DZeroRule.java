@@ -16,6 +16,7 @@
 */
 package learning.supervised.methods.discrete;
 
+import algref.Publication;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import java.io.Serializable;
@@ -40,6 +41,12 @@ public class DZeroRule extends DiscreteClassifier implements Serializable {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        // A trivial rule, so no reference here.
+        return new Publication();
     }
     
     @Override

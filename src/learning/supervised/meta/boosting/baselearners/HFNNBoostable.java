@@ -16,6 +16,10 @@
 */
 package learning.supervised.meta.boosting.baselearners;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -91,6 +95,19 @@ public class HFNNBoostable extends BoostableClassifier implements
                 + "anti-hubs as a special case.");
         paramMap.put("boostingMode", "Type of re-weighting procedure.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setTitle("Boosting for Vote Learning in High-Dimensional k-Nearest "
+                + "Neighbor Classification");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.setConferenceName("Workshop on High-Dimensional Data Mining at the "
+                + "International Conference on Data Mining");
+        pub.setYear(2014);
+        pub.setPublisher(Publisher.IEEE);
+        return pub;
     }
     
     @Override

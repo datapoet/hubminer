@@ -16,6 +16,7 @@
 */
 package learning.supervised;
 
+import algref.Citable;
 import data.representation.discrete.DiscretizedDataInstance;
 import data.representation.discrete.DiscretizedDataSet;
 import data.representation.DataSet;
@@ -43,7 +44,7 @@ import util.ArrayUtil;
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public abstract class DiscreteClassifier implements ValidateableInterface,
-        Serializable {
+        Serializable, Citable {
     
     private static final long serialVersionUID = 1L;
 

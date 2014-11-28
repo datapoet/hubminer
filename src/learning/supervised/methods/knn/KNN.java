@@ -16,6 +16,11 @@
 */
 package learning.supervised.methods.knn;
 
+import algref.Address;
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import learning.supervised.interfaces.AutomaticKFinderInterface;
 import learning.supervised.evaluation.ValidateableInterface;
 import distances.primary.CombinedMetric;
@@ -49,7 +54,7 @@ public class KNN extends Classifier implements AutomaticKFinderInterface,
     // The neighborhood size.
     private int k = 1;
     // The prior class distribution.
-    float[] classPriors;
+    private float[] classPriors;
     
     /**
      * Default constructor.
@@ -62,6 +67,22 @@ public class KNN extends Classifier implements AutomaticKFinderInterface,
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("k", "Neighborhood size.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Nearest Neighbor Pattern Classification");
+        pub.addAuthor(new Author("T. M.", "Cover"));
+        pub.addAuthor(new Author("P. E.", "Hart"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Information Theory");
+        pub.setYear(1967);
+        pub.setStartPage(21);
+        pub.setEndPage(27);
+        pub.setVolume(13);
+        pub.setIssue(1);
+        return pub;
     }
     
     @Override
