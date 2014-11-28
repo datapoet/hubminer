@@ -16,6 +16,7 @@
 */
 package learning.unsupervised;
 
+import algref.Citable;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import data.representation.util.DataMineConstants;
@@ -32,7 +33,7 @@ import java.util.HashMap;
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
-public abstract class ClusteringAlg extends Thread {
+public abstract class ClusteringAlg extends Thread implements Citable {
 
     // The minimal number of iterations to run in iterative clustering methods.
     public static final int MIN_ITERATIONS = 15;

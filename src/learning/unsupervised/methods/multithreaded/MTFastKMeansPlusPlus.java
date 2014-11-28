@@ -16,6 +16,9 @@
 */
 package learning.unsupervised.methods.multithreaded;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -66,6 +69,19 @@ public class MTFastKMeansPlusPlus extends ClusteringAlg {
         paramMap.put("maxClusters", "Maximal number of clusters to try.");
         paramMap.put("repetitions", "How many times to repeat for each K.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("IPPS/SPDP Workshop on High Performance Data "
+                + "Mining");
+        pub.addAuthor(new Author("Khaled", "Alsabti"));
+        pub.addAuthor(new Author("Sanjay", "Ranka"));
+        pub.addAuthor(new Author("Vineet", "Singh"));
+        pub.setTitle("An Efficient K-Means Clustering Algorithm");
+        pub.setYear(1998);
+        return pub;
     }
 
     public MTFastKMeansPlusPlus() {

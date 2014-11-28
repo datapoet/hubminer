@@ -16,6 +16,9 @@
 */
 package images.mining.clustering;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -82,6 +85,19 @@ public class IntraImageKMeansAdaptedScale extends ClusteringAlg {
         paramMap.put("maxClusters", "Maximal number of clusters to try.");
         paramMap.put("repetitions", "How many times to repeat for each K.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("Slovenian KDD Conference, Information Society "
+                + "Multiconference");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.setTitle("Two pass k-means algorithm for finding SIFT clusters in "
+                + "an image");
+        pub.setYear(2010);
+        return pub;
     }
 
     /**

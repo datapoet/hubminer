@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import combinatorial.Permutation;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
@@ -55,6 +59,21 @@ public class DBScan extends ClusteringAlg implements
     private float epsilonNeighborhoodDist = Float.MAX_VALUE;
     // Noise percentage should be carefully set.
     private float noisePerc = 0.15f;
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("KDD");
+        pub.addAuthor(new Author("Martin", "Ester"));
+        pub.addAuthor(new Author("Hans-Peter", "Kriegel"));
+        pub.addAuthor(new Author("Jorg", "Sander"));
+        pub.addAuthor(new Author("Xiaowei", "Xu"));
+        pub.setTitle("A density-based algorithm for discovering clusters in "
+                + "large spatial databases with noise");
+        pub.setYear(1996);
+        pub.setPublisher(Publisher.ACM);
+        return pub;
+    }
     
     @Override
     public HashMap<String, String> getParameterNamesAndDescriptions() {

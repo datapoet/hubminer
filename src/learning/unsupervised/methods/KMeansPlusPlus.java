@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.ConferencePublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -52,6 +56,20 @@ public class KMeansPlusPlus extends ClusteringAlg {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        ConferencePublication pub = new ConferencePublication();
+        pub.setConferenceName("ACM-SIAM symposium on Discrete algorithms");
+        pub.addAuthor(new Author("David", "Arthur"));
+        pub.addAuthor(new Author("Sergei", "Vassilvitskii"));
+        pub.setTitle("k-means++: The Advantages of Careful Seeding");
+        pub.setYear(2007);
+        pub.setStartPage(1027);
+        pub.setEndPage(1035);
+        pub.setPublisher(Publisher.SIAM);
+        return pub;
     }
 
     /**

@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -46,6 +50,21 @@ public class KMeans extends ClusteringAlg {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("Least Squares Quantization in PCM");
+        pub.addAuthor(new Author("Stuart P.", "Lloyd"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Information Theory");
+        pub.setYear(1982);
+        pub.setStartPage(129);
+        pub.setEndPage(137);
+        pub.setVolume(28);
+        pub.setIssue(2);
+        return pub;
     }
 
     /**

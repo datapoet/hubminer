@@ -16,6 +16,8 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.Publication;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -46,6 +48,19 @@ public class KMedoidsPlusPlus extends ClusteringAlg {
     public HashMap<String, String> getParameterNamesAndDescriptions() {
         HashMap<String, String> paramMap = new HashMap<>();
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        Publication pub = new Publication();
+        pub.setTitle("Clustering by means of Medoids, in Statistical Data "
+                + "Analysis Based on the L1–Norm and Related Methods");
+        pub.addAuthor(new Author("L.", "Kaufmann"));
+        pub.addAuthor(new Author("P. J.", "Rousseeuw"));
+        pub.setYear(1987);
+        pub.setStartPage(405);
+        pub.setEndPage(416);
+        return pub;
     }
 
     /**

@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.BookChapterPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -80,6 +84,25 @@ public class KernelGHPKM extends ClusteringAlg implements
                 + "class-conditional occurrences are also taken into account.");
         paramMap.put("ker", "Kernel.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        BookChapterPublication pub = new BookChapterPublication();
+        pub.setTitle("Hubness-based Clustering of High-Dimensional Data");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.MILOS_RADOVANOVIC);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.addAuthor(Author.MIRJANA_IVANOVIC);
+        pub.setPublisher(Publisher.SPRINGER);
+        pub.setBookName("Partitional Clustering Algorithms");
+        pub.setYear(2014);
+        pub.setStartPage(353);
+        pub.setEndPage(386);
+        pub.setDoi("10.1007/978-3-319-09259-1_11");
+        pub.setUrl("http://link.springer.com/chapter/10.1007/"
+                + "978-3-319-09259-1_11");
+        return pub;
     }
 
     public KernelGHPKM() {

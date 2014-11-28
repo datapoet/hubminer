@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -56,6 +60,27 @@ public class KernelKMeans extends ClusteringAlg implements
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("ker", "Kernel.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("The Global Kernel K-Means Algorithm for Clustering in "
+                + "Feature Space");
+        pub.addAuthor(new Author("G. F.", "Tzortzis"));
+        pub.addAuthor(new Author("C. L.", "Likas"));
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Neural Networks");
+        pub.setYear(2009);
+        pub.setStartPage(1181);
+        pub.setEndPage(1194);
+        pub.setVolume(20);
+        pub.setIssue(7);
+        pub.setDoi("10.1109/TNN.2009.2019722");
+        pub.setUrl("http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber="
+                + "5033312&url=http%3A%2F%2Fieeexplore.ieee.org%2Fiel5%2F72%"
+                + "2F5159575%2F05033312.pdf%3Farnumber%3D5033312");
+        return pub;
     }
 
     public KernelKMeans() {

@@ -16,6 +16,10 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.JournalPublication;
+import algref.Publication;
+import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -52,6 +56,27 @@ public class LHPC extends ClusteringAlg
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("k", "Neighborhood size.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        JournalPublication pub = new JournalPublication();
+        pub.setTitle("The Role of Hubness in Clustering High-Dimensional Data");
+        pub.addAuthor(Author.NENAD_TOMASEV);
+        pub.addAuthor(Author.MILOS_RADOVANOVIC);
+        pub.addAuthor(Author.DUNJA_MLADENIC);
+        pub.addAuthor(Author.MIRJANA_IVANOVIC);
+        pub.setPublisher(Publisher.IEEE);
+        pub.setJournalName("IEEE Transactions on Knowledge and Data "
+                + "Engineering");
+        pub.setYear(2014);
+        pub.setStartPage(183);
+        pub.setEndPage(195);
+        pub.setVolume(6634);
+        pub.setDoi("10.1109/TKDE.2013.25");
+        pub.setUrl("http://ieeexplore.ieee.org/xpl/articleDetails.jsp?"
+                + "arnumber=6427743");
+        return pub;
     }
 
     public LHPC() {

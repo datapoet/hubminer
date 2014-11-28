@@ -16,6 +16,8 @@
 */
 package learning.unsupervised.methods;
 
+import algref.Author;
+import algref.Publication;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataInstance;
 import data.representation.DataSet;
@@ -49,6 +51,15 @@ public class HarmonicKMeans extends ClusteringAlg {
         HashMap<String, String> paramMap = new HashMap<>();
         paramMap.put("p", "Exponent for harmonic mean calculations.");
         return paramMap;
+    }
+    
+    @Override
+    public Publication getPublicationInfo() {
+        Publication pub = new Publication();
+        pub.setTitle("Generalized K-Harmonic Means");
+        pub.addAuthor(new Author("Bin", "Zhang"));
+        pub.setYear(2000);
+        return pub;
     }
 
     /**
