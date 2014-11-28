@@ -49,6 +49,9 @@ public class Publisher {
             new Address("San Francisco", "CA, USA"));
     public static final Publisher MCGRAW_HILL = new Publisher(
             "McGraw-Hill", new Address("New York", "NY, USA"));
+    public static final Publisher PRENTICE_HALL = new Publisher(
+            "Prentice Hall", new Address("Upper Saddle River, New Jersey",
+            "USA"));
     public static final Publisher PERGAMON = new Publisher(
             "Pergamon Press, Inc.", new Address("Tarrytown", "NY, USA"));
     public static final Publisher KLUWER = new Publisher(
