@@ -23,6 +23,36 @@ package algref;
  */
 public class Publisher {
     
+    private String name;
+    private Address location;
+    
+    public static final Publisher SPRINGER = new Publisher("Springer-Verlag",
+            new Address("Berlin", "Germany"));
+    public static final Publisher IEEE = new Publisher("IEEE Computer Society",
+            new Address("Washington", "USA"));
+    public static final Publisher ACM = new Publisher("ACM",
+            new Address("New York", "NY, USA"));
+    public static final Publisher ELSEVIER = new Publisher(
+            "Elsevier North-Holland, Inc.",
+            new Address("Amsterdam", "The Netherlands"));
+    public static final Publisher SIAM = new Publisher("SIAM/Omnipress",
+            new Address("Philadelphia", "PA, USA"));
+    public static final Publisher AAAI = new Publisher("AAAI Press",
+            new Address("Menlo Park", "CA, USA"));
+    public static final Publisher AAAS = new Publisher(
+            "American Association for the Advancement of Science",
+            new Address("New York", "NY, USA"));
+    public static final Publisher MORGAN_KAUFMANN = new Publisher(
+            "Morgan Kaufmann Publishers",
+            new Address("San Francisco", "CA, USA"));
+    public static final Publisher PERGAMON = new Publisher(
+            "Pergamon Press, Inc.", new Address("Tarrytown", "NY, USA"));
+    public static final Publisher KLUWER = new Publisher(
+            "Kluwer Academic Publishers", new Address("Norwell", "MA, USA"));
+    public static final Publisher INFORMATICA_SLOVENIA = new Publisher(
+            "Slovenian Society Informatika",
+            new Address("Ljubljana", "Slovenia"));
+    
     /**
      * Default constructor.
      */
@@ -39,9 +69,6 @@ public class Publisher {
         this.name = name;
         this.location = location;
     }
-    
-    private String name;
-    private Address location;
 
     /**
      * @return String that is the publisher's name.
