@@ -30,6 +30,12 @@ import java.util.ArrayList;
 public class BookPublication extends Publication {
     
     /**
+     * Default constructor.
+     */
+    public BookPublication() {
+    }
+    
+    /**
      * Initialization.
      * 
      * @param title String that is the publication title.
