@@ -47,6 +47,8 @@ public class Publisher {
     public static final Publisher MORGAN_KAUFMANN = new Publisher(
             "Morgan Kaufmann Publishers",
             new Address("San Francisco", "CA, USA"));
+    public static final Publisher MCGRAW_HILL = new Publisher(
+            "McGraw-Hill", new Address("New York", "NY, USA"));
     public static final Publisher PERGAMON = new Publisher(
             "Pergamon Press, Inc.", new Address("Tarrytown", "NY, USA"));
     public static final Publisher KLUWER = new Publisher(
