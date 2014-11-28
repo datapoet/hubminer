@@ -32,6 +32,33 @@ public class Author {
     private String affiliation;
     private String email;
     
+    // The list of authors that appear frequently in the cited hubness-aware 
+    // papers of the implementations in Hub Miner. The affiliations given are 
+    // the affiliations at the time when the library was released, in late 2014.
+    public static final Author NENAD_TOMASEV = new Author("Nenad", "Tomasev",
+            "Artificial Intelligence Laboratory, Jozef Stefan Institite",
+            "nenad.tomasev@gmail.com");
+    public static final Author DUNJA_MLADENIC = new Author("Dunja", "Mladenic",
+            "Artificial Intelligence Laboratory, Jozef Stefan Institite",
+            "dunja.mladenic@ijs.si");
+    public static final Author MILOS_RADOVANOVIC = new Author("Milos",
+            "Radovanovic", "Department of Informatics, Faculty of Natural "
+            + "Sciences, Novi Sad", "radacha@dmi.uns.ac.rs");
+    public static final Author MIRJANA_IVANOVIC = new Author("Mirjana",
+            "Ivanovic", "Department of Informatics, Faculty of Natural "
+            + "Sciences, Novi Sad", "mira@dmi.uns.ac.rs");
+    public static final Author KRISZTIAN_BUZA = new Author("Krisztian", "Buza",
+            "Institute of Genomic Medicine and Rare Disorders, Semmelweis "
+            + "University", "chrisbuza@yahoo.com");
+    public static final Author ARTHUR_FLEXER = new Author("Arthur", "Flexer",
+            "Austrian Institute for Artificial Intelligence (OFAI)",
+            "arthur.flexer@ofai.at");
+    public static final Author DOMINIK_SCHNITZER =
+            new Author("Dominik", "Schnitzer");
+    public static final Author ALEXANDROS_NANOPOULOS = new Author("Alexandros",
+            "Nanopoulos", "University of Eichstatt-Ingolstadt",
+            "Alexandros.Nanopoulos@ku.de");
+    
     /**
      * Default constructor.
      */
@@ -45,6 +72,20 @@ public class Author {
     public Author(String name, String surname) {
         this.name = name;
         this.surname = surname;
+    }
+    
+    /**
+     * @param name String that is the author's name.
+     * @param surname String that is the author's surname.
+     * @param affiliation String that is the author's affiliation.
+     * @param email String that is the author's email.
+     */
+    public Author(String name, String surname, String affiliation,
+            String email) {
+        this.name = name;
+        this.surname = surname;
+        this.affiliation = affiliation;
+        this.email = email;
     }
 
     /**
