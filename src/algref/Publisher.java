@@ -42,6 +42,8 @@ public class Publisher {
     public static final Publisher AAAS = new Publisher(
             "American Association for the Advancement of Science",
             new Address("New York", "NY, USA"));
+    public static final Publisher ACADEMIC_PRESS = new Publisher(
+            "Academic Press", new Address("Waltham", "MA, USA"));
     public static final Publisher MORGAN_KAUFMANN = new Publisher(
             "Morgan Kaufmann Publishers",
             new Address("San Francisco", "CA, USA"));
