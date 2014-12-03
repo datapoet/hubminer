@@ -815,6 +815,8 @@ public class ANHBNN extends Classifier implements DistMatrixUserInterface,
         float[][] classDataKNeighborRelationTemp = reducer.
                 getClassDataNeighborRelationNonNormalized(
                 kReducer, numClasses, true);
+        classDataKNeighborRelation = new float[numClasses][
+                neighbOccFreqs.length];
         for (int cIndex = 0; cIndex < numClasses; cIndex++) {
             for (int i = 0; i < neighbOccFreqs.length; i++) {
                 classDataKNeighborRelation[cIndex][i] =
