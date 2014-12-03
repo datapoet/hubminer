@@ -342,8 +342,8 @@ public class GCNN extends InstanceSelector implements NSFUserInterface {
         ArrayList<Integer> pIndexes = getPrototypeIndexes();
         // The index list is sorted, so we shuffle it first to remove the bias.
         Collections.shuffle(pIndexes);
-        ArrayList<Integer> pIndexesSubset =
-                (ArrayList<Integer>) (pIndexes.subList(0, numPrototypes));
+        ArrayList<Integer> pIndexesSubset = new ArrayList<>(
+                pIndexes.subList(0, numPrototypes));
         setPrototypeIndexes(pIndexesSubset);
         sortSelectedIndexes();
     }
