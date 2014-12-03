@@ -19,7 +19,6 @@ package preprocessing.instance_selection;
 import algref.Author;
 import algref.ConferencePublication;
 import algref.Publication;
-import algref.Publisher;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
