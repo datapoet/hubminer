@@ -1952,6 +1952,77 @@ public class NeighborSetFinder implements Serializable {
         }
         return neighbors;
     }
+    
+    /**
+     * This method queries the dataset with an instance, given a tabu map of
+     * points that can not be considered as potential neighbors.
+     *
+     * @param dMat float[][] Upper triangular distance matrix of the dataset to
+     * query.
+     * @param instanceIndex Integer that is the instance index.
+     * @param neighborhoodSize Integer that is the desired neighborhood size.
+     * @param tabuMap HashMap containing the indexes of points that can not be
+     * considered as neighbors currently.
+     * @return int[] that contains the indexes of the k-nearest neighbors for
+     * the query point.
+     * @throws Exception
+     */
+    public static int[] getIndexesOfNeighbors(float[][] dMat, int instanceIndex,
+            int neighborhoodSize, HashMap tabuMap) throws Exception {
+        int[] neighbors = new int[neighborhoodSize];
+        float tempDist;
+        int kCurrLen = 0;
+        float[] nDists = new float[neighborhoodSize];
+        Arrays.fill(nDists, Float.MAX_VALUE);
+        int l;
+        for (int i = 0; i < dMat.length; i++) {
+            if (tabuMap.containsKey(i) || i == instanceIndex) {
+                continue;
+            }
+            int minIndex = Math.min(i, instanceIndex);
+            int maxIndex = Math.max(i, instanceIndex);
+            tempDist = dMat[minIndex][maxIndex - minIndex - 1];
+            if (kCurrLen > 0) {
+                if (kCurrLen == neighborhoodSize) {
+                    if (tempDist < nDists[kCurrLen - 1]) {
+                        // Search and insert.
+                        l = neighborhoodSize - 1;
+                        while ((l >= 1) && tempDist < nDists[l - 1]) {
+                            nDists[l] = nDists[l - 1];
+                            neighbors[l] = neighbors[l - 1];
+                            l--;
+                        }
+                        nDists[l] = tempDist;
+                        neighbors[l] = i;
+                    }
+                } else {
+                    if (tempDist < nDists[kCurrLen - 1]) {
+                        // Search and insert.
+                        l = kCurrLen - 1;
+                        nDists[kCurrLen] = nDists[kCurrLen - 1];
+                        neighbors[kCurrLen] = neighbors[kCurrLen - 1];
+                        while ((l >= 1) && tempDist < nDists[l - 1]) {
+                            nDists[l] = nDists[l - 1];
+                            neighbors[l] = neighbors[l - 1];
+                            l--;
+                        }
+                        nDists[l] = tempDist;
+                        neighbors[l] = i;
+                        kCurrLen++;
+                    } else {
+                        nDists[kCurrLen] = tempDist;
+                        neighbors[kCurrLen] = i;
+                        kCurrLen++;
+                    }
+                }
+            } else {
+                nDists[0] = tempDist;
+                neighbors[0] = i;
+                kCurrLen = 1;
+            }
+        }
+        return neighbors;
+    }
 
     /**
      * @return int[] representing the neighbor occurrence frequencies for all
