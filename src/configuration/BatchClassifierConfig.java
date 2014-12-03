@@ -33,8 +33,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import learning.supervised.evaluation.cv.BatchClassifierTester;
 import learning.supervised.evaluation.cv.CVFoldsIO;
 import learning.supervised.evaluation.cv.MultiCrossValidation;
@@ -356,11 +358,108 @@ public class BatchClassifierConfig {
                     selector = ReducersFactory.getReducerForName(lineItems[1]);
                     System.out.println("Instance selection with: " +
                             lineItems[1]);
+                    HashMap<String, Object> selectorParametrization = null;
                     if (lineItems.length > 2) {
-                        // The second value is the selection rate.
-                        System.out.println("Retained sample rate: " +
-                                lineItems[2] + " , if applicable");
-                        selectorRate = Float.parseFloat(lineItems[2]);
+                        if (!lineItems[2].startsWith("{")) {
+                            // The second value is the selection rate.
+                            System.out.println("Retained sample rate: " +
+                                    lineItems[2] + " , if applicable");
+                            selectorRate = Float.parseFloat(lineItems[2]);
+                            if (lineItems.length > 3) {
+                                // Parse the JSON parametrization string.
+                                StringBuilder sb = new StringBuilder();
+                                for (int i = 3; i < lineItems.length - 1; i++) {
+                                    sb.append(lineItems[i]);
+                                    sb.append(" ");
+                                }
+                                sb.append(lineItems[lineItems.length - 1]);
+                                Gson gson = new Gson();
+                                try {
+                                    selectorParametrization =
+                                            gson.fromJson(sb.toString(),
+                                            new TypeLiteral<
+                                            HashMap<String, Object>>() {
+                                            }.getType());
+                                } catch (Exception e) {
+                                    System.err.println(e.getMessage());
+                                }
+                            }
+                        } else {
+                            // Automatic selection rate, followed by the JSON
+                            // parametrization string.
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 2; i < lineItems.length - 1; i++) {
+                                sb.append(lineItems[i]);
+                                sb.append(" ");
+                            }
+                            sb.append(lineItems[lineItems.length - 1]);
+                            Gson gson = new Gson();
+                            try {
+                                selectorParametrization =
+                                        gson.fromJson(sb.toString(),
+                                        new TypeLiteral<
+                                        HashMap<String, Object>>() {
+                                        }.getType());
+                            } catch (Exception e) {
+                                System.err.println(e.getMessage());
+                            }
+                        }
+                        if (selector != null &&
+                                selectorParametrization != null) {
+                            // Parametrize the instance selector.
+                            try {
+                                Set<String> paramNames =
+                                        selectorParametrization.keySet();
+                                Class selClass = selector.getClass();
+                                for (String paramName: paramNames) {
+                                    // Go through all the fields.
+                                    Object paramValue =
+                                            selectorParametrization.get(
+                                            paramName);
+                                    // Get the field to set.
+                                    Field fld = selClass.getDeclaredField(
+                                            paramName);
+                                    fld.setAccessible(true);
+                                    // Handle the specified parameter values.
+                                    if (paramValue != null) {
+                                        if (fld.getType().equals(Float.TYPE) &&
+                                                paramValue.getClass().equals(
+                                                Class.forName(
+                                                "java.lang.Double"))) {
+                                            float fValue = ((Double)
+                                                    paramValue).floatValue();
+                                            fld.set(selector, fValue);
+                                        } else if (fld.getType().equals(
+                                                Integer.TYPE) &&
+                                                (paramValue.getClass().equals(
+                                                Class.forName(
+                                                "java.lang.Double"))
+                                                || paramValue.getClass().equals(
+                                                Class.forName(
+                                                "java.lang.Float")))) {
+                                            int iValue = Math.round(
+                                                    ((Double) paramValue).
+                                                    floatValue());
+                                            fld.set(selector, iValue);
+                                        } else {
+                                            fld.set(selector, paramValue);
+                                        }
+                                    }
+                                }
+                                // Print out the used reducer parameters, as 
+                                // information for the user.
+                                System.out.print("Reducer parameters: ");
+                                for (String paramName: paramNames) {
+                                    System.out.print(paramName + "=" +
+                                    selectorParametrization.get(paramName) +
+                                            " ");
+                                }
+                            } catch (NoSuchFieldException |
+                                    IllegalArgumentException |
+                                    IllegalAccessException e) {
+                                System.err.println(e);
+                            }
+                        }
                     } else {
                         // Autimatic selection rate, if and when applicable.
                         if (selector instanceof preprocessing.
