@@ -17,11 +17,18 @@
 package data.neighbors;
 
 import data.representation.DataSet;
+import distances.primary.CombinedMetric;
+import ioformat.SupervisedLoader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import learning.supervised.Category;
 import util.BasicMathUtil;
+import util.CommandLineParser;
+import util.SOPLUtil;
 
 /**
  * This class implements the methods for calculating the hit-miss neighbor sets 
@@ -140,13 +147,13 @@ public class HitMissNetwork {
             }
         }
         // Further initialization.
-        setKnHits(new int[dSize][k]);
+        knHits = new int[dSize][k];
         hitNeighbOccFreqs = new float[dSize];
         hitReverseNNSets = new List[dSize];
         for (int i = 0; i < dSize; i++) {
             hitReverseNNSets[i] = new ArrayList<>(k);
         }
-        setKnMisses(new int[dSize][k]);
+        knMisses = new int[dSize][k];
         missNeighbOccFreqs = new float[dSize];
         missReverseNNSets = new List[dSize];
         for (int i = 0; i < dSize; i++) {
@@ -161,10 +168,10 @@ public class HitMissNetwork {
                     dMat, i, k, tabuMapsClassComplementQueries[
                     dset.getLabelOf(i)]);
             for (int kIndex = 0; kIndex < k; kIndex++) {
-                getHitNeighbOccFreqs()[knHits[i][kIndex]]++;
-                getMissNeighbOccFreqs()[knMisses[i][kIndex]]++;
-                getHitReverseNNSets()[knHits[i][kIndex]].add(i);
-                getMissReverseNNSets()[knMisses[i][kIndex]].add(i);
+                hitNeighbOccFreqs[knHits[i][kIndex]]++;
+                missNeighbOccFreqs[knMisses[i][kIndex]]++;
+                hitReverseNNSets[knHits[i][kIndex]].add(i);
+                missReverseNNSets[knMisses[i][kIndex]].add(i);
             }
         }
     }
@@ -181,10 +188,19 @@ public class HitMissNetwork {
      */
     public void setKnHits(int[][] knHits) {
         this.knHits = knHits;
+        if (knHits == null) {
+            return;
+        }
+        int dSize = knHits.length;
+        hitNeighbOccFreqs = new float[dSize];
+        hitReverseNNSets = new List[dSize];
+        for (int i = 0; i < dSize; i++) {
+            hitReverseNNSets[i] = new ArrayList<>(k);
+        }
         for (int i = 0; i < knHits.length; i++) {
             for (int kIndex = 0; kIndex < k; kIndex++) {
-                getHitNeighbOccFreqs()[knHits[i][kIndex]]++;
-                getHitReverseNNSets()[knHits[i][kIndex]].add(i);
+                hitNeighbOccFreqs[knHits[i][kIndex]]++;
+                hitReverseNNSets[knHits[i][kIndex]].add(i);
             }
         }
     }
@@ -215,10 +231,19 @@ public class HitMissNetwork {
      */
     public void setKnMisses(int[][] knMisses) {
         this.knMisses = knMisses;
+        if (knMisses == null) {
+            return;
+        }
+        int dSize = knMisses.length;
+        missNeighbOccFreqs = new float[dSize];
+        missReverseNNSets = new List[dSize];
+        for (int i = 0; i < dSize; i++) {
+            missReverseNNSets[i] = new ArrayList<>(k);
+        }
         for (int i = 0; i < knMisses.length; i++) {
             for (int kIndex = 0; kIndex < k; kIndex++) {
-                getMissNeighbOccFreqs()[knMisses[i][kIndex]]++;
-                getMissReverseNNSets()[knMisses[i][kIndex]].add(i);
+                missNeighbOccFreqs[knMisses[i][kIndex]]++;
+                missReverseNNSets[knMisses[i][kIndex]].add(i);
             }
         }
     }
@@ -256,9 +281,66 @@ public class HitMissNetwork {
         // Normalize the two frequencies so that they sum up to one.
         float pHit = hitOccFreq / (hitOccFreq + missOccFreq);
         float pMiss = missOccFreq / (hitOccFreq + missOccFreq);
-        double hmScore = pHit * BasicMathUtil.log2(pHit) -
-                pMiss * BasicMathUtil.log2(pMiss);
+        double hmScore = 0;
+        if (pHit > 0) {
+            hmScore += pHit * BasicMathUtil.log2(pHit);
+        }
+        if (pMiss > 0) {
+            hmScore -= pMiss * BasicMathUtil.log2(pMiss);
+        }
         return hmScore;
+    }
+    
+    /**
+     * This method computes all the HM scores for the points in the considered 
+     * dataset.
+     * 
+     * @return double[] representing the HM scores for the considered data 
+     * points. 
+     */
+    public double[] computeAllHMScores() {
+       if (hitNeighbOccFreqs == null || missNeighbOccFreqs == null || 
+               hitNeighbOccFreqs.length != missNeighbOccFreqs.length) {
+           return null;
+       }
+       int dSize = hitNeighbOccFreqs.length;
+       double[] hmScores = new double[dSize];
+       for (int i = 0; i < dSize; i++) {
+           hmScores[i] = computeHMScore(hitNeighbOccFreqs[i],
+                   missNeighbOccFreqs[i]);
+       }
+       return hmScores;
+    }
+    
+    /**
+     * This small script extracts the hit-miss network for the specified data 
+     * and the Euclidean metric and persists the hit and miss occurrence 
+     * frequencies, as well as the HM scores for all data points.
+     * @param args
+     * @throws Exception 
+     */
+    public static void main(String[] args) throws Exception {
+        CommandLineParser clp = new CommandLineParser(true);
+        clp.addParam("-inFile", "Path to the input dataset.",
+                CommandLineParser.STRING, true, false);
+        clp.addParam("-outFile", "Output path.", CommandLineParser.STRING,
+                true, false);
+        clp.addParam("-k", "Neighborhood size.",
+                CommandLineParser.INTEGER, true, false);
+        clp.parseLine(args);
+        File inFile = new File((String) (clp.getParamValues("-inFile").get(0)));
+        File outFile = new File((String) (clp.getParamValues(
+                "-outFile").get(0)));
+        int k = (Integer) (clp.getParamValues("-k").get(0));
+        DataSet dset = SupervisedLoader.loadData(inFile.getPath(), false);
+        float[][] dMat = dset.calculateDistMatrix(CombinedMetric.EUCLIDEAN);
+        HitMissNetwork hmn = new HitMissNetwork(dset, dMat, k);
+        hmn.generateNetwork();
+        try (PrintWriter pw = new PrintWriter(new FileWriter(outFile))) {
+            SOPLUtil.printArrayToStream(hmn.getHitNeighbOccFreqs(), pw, ",");
+            SOPLUtil.printArrayToStream(hmn.getMissNeighbOccFreqs(), pw, ",");
+            SOPLUtil.printArrayToStream(hmn.computeAllHMScores(), pw, ",");
+        }
     }
     
 }
