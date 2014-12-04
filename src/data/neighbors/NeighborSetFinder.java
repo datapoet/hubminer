@@ -2257,6 +2257,7 @@ public class NeighborSetFinder implements Serializable {
         private int startRow;
         private int endRow;
         private int k;
+        private boolean[] isAllowed;
 
         /**
          * Initialization.
@@ -2271,6 +2272,23 @@ public class NeighborSetFinder implements Serializable {
             this.k = k;
             this.endRow = endRow;
         }
+        
+        /**
+         * Initialization.
+         *
+         * @param startRow Integer that is the index of the start row,
+         * inclusive.
+         * @param endRow Integer that is the index of the end row, inclusive.
+         * @param k Integer that is the neighborhood size.
+         * @param isAllowed boolean[] determining whether certain points are to 
+         * be considered as neighbors or not in the given context.
+         */
+        public ThreadNeighborCalculator(int startRow, int endRow, int k, 
+                boolean[] isAllowed) {
+            this.startRow = startRow;
+            this.k = k;
+            this.endRow = endRow;
+        }
 
         @Override
         public void run() {
@@ -2279,6 +2297,9 @@ public class NeighborSetFinder implements Serializable {
                 for (int i = startRow; i <= endRow; i++) {
 
                     for (int j = 0; j < i; j++) {
+                        if (isAllowed != null && !isAllowed[j]) {
+                            continue;
+                        }
                         if (kCurrLen[i] > 0) {
                             if (kCurrLen[i] == k) {
                                 if (distMatrix[j][i - j - 1]
@@ -2327,6 +2348,9 @@ public class NeighborSetFinder implements Serializable {
                     }
 
                     for (int j = 0; j < distMatrix[i].length; j++) {
+                        if (isAllowed != null && !isAllowed[i + j + 1]) {
+                            continue;
+                        }
                         if (kCurrLen[i] > 0) {
                             if (kCurrLen[i] == k) {
                                 if (distMatrix[i][j] < kDistances[i][
@@ -2808,6 +2832,129 @@ public class NeighborSetFinder implements Serializable {
         for (int i = 0; i < dset.size(); i++) {
             reverseNeighbors[i] = new ArrayList<>(10 * k);
         }
+        kNeighborFrequencies = new int[kNeighbors.length];
+        kBadFrequencies = new int[kNeighbors.length];
+        kGoodFrequencies = new int[kNeighbors.length];
+        for (int i = 0; i < kNeighbors.length; i++) {
+            for (int j = 0; j < k; j++) {
+                reverseNeighbors[kNeighbors[i][j]].add(i);
+                kNeighborFrequencies[kNeighbors[i][j]]++;
+                if (dset.data.get(i).getCategory() != dset.data.get(
+                        kNeighbors[i][j]).getCategory()) {
+                    kBadFrequencies[kNeighbors[i][j]]++;
+                } else {
+                    kGoodFrequencies[kNeighbors[i][j]]++;
+                }
+            }
+        }
+        meanOccFreq = 0;
+        stDevOccFreq = 0;
+        meanOccBadness = 0;
+        stDevOccBadness = 0;
+        meanOccGoodness = 0;
+        stDevOccGoodness = 0;
+        meanGoodMinusBadness = 0;
+        stDevGoodMinusBadness = 0;
+        meanRelativeGoodMinusBadness = 0;
+        stDevRelativeGoodMinusBadness = 0;
+        for (int i = 0; i < kBadFrequencies.length; i++) {
+            meanOccFreq += kNeighborFrequencies[i];
+            meanOccBadness += kBadFrequencies[i];
+            meanOccGoodness += kGoodFrequencies[i];
+            meanGoodMinusBadness += kGoodFrequencies[i] - kBadFrequencies[i];
+            if (kNeighborFrequencies[i] > 0) {
+                meanRelativeGoodMinusBadness += ((kGoodFrequencies[i]
+                        - kBadFrequencies[i]) / kNeighborFrequencies[i]);
+            } else {
+                meanRelativeGoodMinusBadness += 1;
+            }
+        }
+        meanOccFreq /= (float) kNeighborFrequencies.length;
+        meanOccBadness /= (float) kBadFrequencies.length;
+        meanOccGoodness /= (float) kGoodFrequencies.length;
+        meanGoodMinusBadness /= (float) kGoodFrequencies.length;
+        meanRelativeGoodMinusBadness /= (float) kGoodFrequencies.length;
+        for (int i = 0; i < kBadFrequencies.length; i++) {
+            stDevOccFreq += ((meanOccFreq - kNeighborFrequencies[i])
+                    * (meanOccFreq - kNeighborFrequencies[i]));
+            stDevOccBadness += ((meanOccBadness - kBadFrequencies[i])
+                    * (meanOccBadness - kBadFrequencies[i]));
+            stDevOccGoodness += ((meanOccGoodness - kGoodFrequencies[i])
+                    * (meanOccGoodness - kGoodFrequencies[i]));
+            stDevGoodMinusBadness += ((meanGoodMinusBadness
+                    - (kGoodFrequencies[i] - kBadFrequencies[i]))
+                    * (meanGoodMinusBadness - (kGoodFrequencies[i]
+                    - kBadFrequencies[i])));
+            if (kNeighborFrequencies[i] > 0) {
+                stDevRelativeGoodMinusBadness += (meanRelativeGoodMinusBadness
+                        - ((kGoodFrequencies[i] - kBadFrequencies[i])
+                        / kNeighborFrequencies[i]))
+                        * (meanRelativeGoodMinusBadness - ((kGoodFrequencies[i]
+                        - kBadFrequencies[i]) / kNeighborFrequencies[i]));
+            } else {
+                stDevRelativeGoodMinusBadness +=
+                        (meanRelativeGoodMinusBadness - 1)
+                        * (meanRelativeGoodMinusBadness - 1);
+            }
+        }
+        stDevOccFreq /= (float) kNeighborFrequencies.length;
+        stDevOccBadness /= (float) kBadFrequencies.length;
+        stDevOccGoodness /= (float) kGoodFrequencies.length;
+        stDevGoodMinusBadness /= (float) kGoodFrequencies.length;
+        stDevRelativeGoodMinusBadness /= (float) kGoodFrequencies.length;
+        stDevOccFreq = Math.sqrt(stDevOccFreq);
+        stDevOccBadness = Math.sqrt(stDevOccBadness);
+        stDevOccGoodness = Math.sqrt(stDevOccGoodness);
+        stDevGoodMinusBadness = Math.sqrt(stDevGoodMinusBadness);
+        stDevRelativeGoodMinusBadness =
+                Math.sqrt(stDevRelativeGoodMinusBadness);
+    }
+    
+    /**
+     * This method calculates the k-nearest neighbor sets in a multi-threaded
+     * way.
+     *
+     * @param k Integer that is the neighborhood size.
+     * @param numThreads Integer that is the number of threads to use.
+     * @param isAllowed boolean[] that states whether a certain point is allowed
+     * to be considered as neighbor in the given context.
+     */
+    public void calculateNeighborSetsMultiThr(int k, int numThreads,
+            boolean[] isAllowed) {
+        if (dset == null || dset.isEmpty() || distMatrix == null) {
+            return;
+        }
+        currK = k;
+        kNeighbors = new int[dset.size()][k];
+        kDistances = new float[dset.size()][k];
+        kCurrLen = new int[dset.size()];
+        reverseNeighbors = new ArrayList[dset.size()];
+        for (int i = 0; i < dset.size(); i++) {
+            reverseNeighbors[i] = new ArrayList<>(10 * k);
+        }
+
+        int size = dset.size();
+        int chunkSize = size / numThreads;
+        Thread[] threads = new Thread[numThreads];
+        for (int tIndex = 0; tIndex < numThreads - 1; tIndex++) {
+            threads[tIndex] = new Thread(new ThreadNeighborCalculator(
+                    tIndex * chunkSize, (tIndex + 1) * chunkSize - 1, k, 
+                    isAllowed));
+            threads[tIndex].start();
+        }
+        threads[numThreads - 1] = new Thread(new ThreadNeighborCalculator(
+                (numThreads - 1) * chunkSize, size - 1, k));
+        threads[numThreads - 1].start();
+        for (int tIndex = 0; tIndex < numThreads; tIndex++) {
+            if (threads[tIndex] != null) {
+                try {
+                    threads[tIndex].join();
+                } catch (Throwable t) {
+                    System.err.println(t.getMessage());
+                }
+            }
+        }
+        // Calculate the occurrence stats.
         kNeighborFrequencies = new int[kNeighbors.length];
         kBadFrequencies = new int[kNeighbors.length];
         kGoodFrequencies = new int[kNeighbors.length];
