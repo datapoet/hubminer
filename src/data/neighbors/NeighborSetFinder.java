@@ -3222,6 +3222,9 @@ public class NeighborSetFinder implements Serializable {
         // Calculate the kNN sets.
         checkNeighbors:
         for (int i = 0; i < dset.size(); i++) {
+            if (i == neighborIndex) {
+                continue;
+            }
             int minIndex = Math.min(i, neighborIndex);
             int maxIndex = Math.max(i, neighborIndex);
             if (kCurrLen[i] > 0) {
