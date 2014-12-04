@@ -2288,6 +2288,7 @@ public class NeighborSetFinder implements Serializable {
             this.startRow = startRow;
             this.k = k;
             this.endRow = endRow;
+            this.isAllowed = isAllowed;
         }
 
         @Override
@@ -2969,7 +2970,7 @@ public class NeighborSetFinder implements Serializable {
             threads[tIndex].start();
         }
         threads[numThreads - 1] = new Thread(new ThreadNeighborCalculator(
-                (numThreads - 1) * chunkSize, size - 1, k));
+                (numThreads - 1) * chunkSize, size - 1, k, isAllowed));
         threads[numThreads - 1].start();
         for (int tIndex = 0; tIndex < numThreads; tIndex++) {
             if (threads[tIndex] != null) {
