@@ -296,7 +296,7 @@ public class NeighborSetFinder implements Serializable {
                     kDistances[i][kInd] = Float.parseFloat(lineItems[kInd]);
                 }
             }
-            calculateHubnessStats();
+            calculateHubnessStats(false);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -2408,8 +2408,34 @@ public class NeighborSetFinder implements Serializable {
     /**
      * This method calculates the occurrence frequency (total, good, bad) means
      * and standard deviations.
+     * 
+     * @param recalculateOccurrences Boolean flag indicating whether to
+     * re-calculate the reverse neighbor lists and occurrence frequencies as
+     * well or to use the existing ones.
      */
-    public void calculateHubnessStats() {
+    public void calculateHubnessStats(boolean recalculateOccurrences) {
+        if (recalculateOccurrences) {
+            reverseNeighbors = new ArrayList[dset.size()];
+            for (int i = 0; i < dset.size(); i++) {
+                reverseNeighbors[i] = new ArrayList<>(10 * currK);
+            }
+            // Count the neighbor occurrence frequencies.
+            kNeighborFrequencies = new int[kNeighbors.length];
+            kBadFrequencies = new int[kNeighbors.length];
+            kGoodFrequencies = new int[kNeighbors.length];
+            for (int i = 0; i < kNeighbors.length; i++) {
+                for (int kInd = 0; kInd < currK; kInd++) {
+                    reverseNeighbors[kNeighbors[i][kInd]].add(i);
+                    kNeighborFrequencies[kNeighbors[i][kInd]]++;
+                    if (dset.data.get(i).getCategory() != dset.data.get(
+                            kNeighbors[i][kInd]).getCategory()) {
+                        kBadFrequencies[kNeighbors[i][kInd]]++;
+                    } else {
+                        kGoodFrequencies[kNeighbors[i][kInd]]++;
+                    }
+                }
+            }
+        }
         meanOccFreq = 0;
         stDevOccFreq = 0;
         meanOccBadness = 0;
@@ -3170,6 +3196,98 @@ public class NeighborSetFinder implements Serializable {
             }
         }
         return occFreqs;
+    }
+    
+    /**
+     * This method is used for incremental neighbor inclusions in incremental 
+     * instance selection. It assumes the kNN sets and other structures are 
+     * already initialized and filled with some initial points. It extends the
+     * existing kNN sets by the specified neighbor point where possible if it
+     * was not already included and updates the stats. If the neighbor sets do 
+     * not already exist, the method will break. It is meant to be used in this
+     * very specific context.
+     * 
+     * @param neighborIndex Integer that is the index of the point to consider 
+     * as a neighbor for extending the existing neighbor sets with.
+     * @param batchUpdateStats Boolean flag indicating whether to perform an 
+     * update of the occurrence stats as well after the insertion. If multiple 
+     * insertions are to be made, then it is possible to leave this object in 
+     * inconsistent intermediate states and only update after the last 
+     * insertion, which would yield a significant speed-up.
+     */
+    public void considerNeighbor(int neighborIndex, boolean batchUpdateStats) {
+        int k = kNeighbors[0].length;
+        int l;
+        // Calculate the kNN sets.
+        checkNeighbors:
+        for (int i = 0; i < dset.size(); i++) {
+            int minIndex = Math.min(i, neighborIndex);
+            int maxIndex = Math.max(i, neighborIndex);
+            if (kCurrLen[i] > 0) {
+                // First check if the index is already contained.
+                for (int kInd = 0; kInd < kCurrLen[i]; kInd++) {
+                    if (kNeighbors[i][kInd] == neighborIndex) {
+                        continue checkNeighbors;
+                    }
+                }
+                if (kCurrLen[i] == k) {
+                    if (distMatrix[minIndex][maxIndex - minIndex - 1] <
+                            kDistances[i][kCurrLen[i] - 1]) {
+                        // Search and insert.
+                        l = k - 1;
+                        while ((l >= 1) && distMatrix[minIndex][
+                                maxIndex - minIndex - 1]
+                                < kDistances[i][l - 1]) {
+                            kDistances[i][l] = kDistances[i][l - 1];
+                            kNeighbors[i][l] = kNeighbors[i][l - 1];
+                            l--;
+                        }
+                        kDistances[i][l] = distMatrix[minIndex][
+                                maxIndex - minIndex - 1];
+                        kNeighbors[i][l] = neighborIndex;
+                    }
+                } else {
+                    if (distMatrix[minIndex][maxIndex - minIndex - 1] <
+                            kDistances[i][kCurrLen[i] - 1]) {
+                        // Search and insert.
+                        l = kCurrLen[i] - 1;
+                        kDistances[i][kCurrLen[i]] =
+                                kDistances[i][kCurrLen[i] - 1];
+                        kNeighbors[i][kCurrLen[i]] =
+                                kNeighbors[i][kCurrLen[i] - 1];
+                        while ((l >= 1) && distMatrix[minIndex][
+                                maxIndex - minIndex - 1]
+                                < kDistances[i][l - 1]) {
+                            kDistances[i][l] = kDistances[i][l - 1];
+                            kNeighbors[i][l] = kNeighbors[i][l - 1];
+                            l--;
+                        }
+                        kDistances[i][l] = distMatrix[minIndex][
+                                maxIndex - minIndex - 1];
+                        kNeighbors[i][l] = neighborIndex;
+                        kCurrLen[i]++;
+                    } else {
+                        kDistances[i][kCurrLen[i]] = distMatrix[minIndex][
+                                maxIndex - minIndex - 1];
+                        kNeighbors[i][kCurrLen[i]] = neighborIndex;
+                        kCurrLen[i]++;
+                    }
+                }
+            } else {
+                kDistances[i][0] = distMatrix[minIndex][
+                        maxIndex - minIndex - 1];
+                kNeighbors[i][0] = neighborIndex;
+                kCurrLen[i] = 1;
+            }
+        }
+        if (batchUpdateStats) {
+            // It is unfortunately not possible to do an efficient update 
+            // dynamically, since updating the reverse neighbor lists is 
+            // problematic when it comes to deletions, since they are not
+            // sorted in any way. This is why it is done after the neighbor set
+            // updates, here in separate loops.
+            calculateHubnessStats(true);
+        }
     }
 
     /**
