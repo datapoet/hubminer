@@ -74,6 +74,10 @@ public class ReducersFactory {
             case "preprocessing.instance_selection.hmscore":
                 selector = new HMScore();
                 break;
+            case "carving":
+            case "preprocessing.instance_selection.carving":
+                selector = new Carving();
+                break;
             default:
                 try {
                     Class selectorClass = Class.forName(name);
