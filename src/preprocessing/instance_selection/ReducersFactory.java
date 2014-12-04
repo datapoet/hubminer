@@ -70,8 +70,19 @@ public class ReducersFactory {
             case "gcnn01":
                 selector = new GCNN(0.1f);
                 break;
+            case "hmscore":
+            case "preprocessing.instance_selection.hmscore":
+                selector = new HMScore();
+                break;
             default:
-                selector = new RandomSelector();
+                try {
+                    Class selectorClass = Class.forName(name);
+                    selector = (InstanceSelector) (selectorClass.newInstance());
+                } catch (ClassNotFoundException | InstantiationException |
+                        IllegalAccessException e) {
+                    // Fall back to a random option.
+                    selector = new RandomSelector();
+                }
                 break;
         }
         return selector;
