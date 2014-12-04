@@ -702,6 +702,27 @@ public class DataSet implements Serializable {
         }
         return result;
     }
+    
+    /**
+     * This method calculates the minimum class size in the data.
+     * 
+     * @return Integer that is the minimum class size. 
+     */
+    public int getMinClassSize() {
+        int numClasses = countCategories();
+        Category[] classes = getClassesArray(numClasses);
+        if (classes == null || classes.length == 0) {
+            return 0;
+        } else {
+            int minClassSize = Integer.MAX_VALUE;
+            for (Category cat: classes) {
+                if (cat.size() < minClassSize) {
+                    minClassSize = cat.size();
+                }
+            }
+            return minClassSize;
+        }
+    }
 
     /**
      * Takes a subsample from the data.
