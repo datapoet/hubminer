@@ -313,7 +313,7 @@ public class IPT_RT3 extends InstanceSelector implements NSFUserInterface {
             }
         }
         // Re-calculate the occurrence model.
-        nsf.calculateHubnessStats();
+        nsf.calculateHubnessStats(false);
         int currClass;
         int nLabel;
         int numClasses = getNumClasses();
