@@ -188,7 +188,8 @@ public class HitMissNetwork {
             generateNetwork();
             return;
         }
-        int kNSF = nsf.getKNeighbors() != null ? nsf.getKNeighbors().length : 0;
+        int kNSF = nsf.getKNeighbors() != null ?
+                nsf.getKNeighbors()[0].length : 0;
         if (kNSF == 0) {
             generateNetwork();
             return;
