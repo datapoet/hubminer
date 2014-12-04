@@ -16,7 +16,6 @@
 */
 package learning.supervised.methods.knn;
 
-import algref.Address;
 import algref.Author;
 import algref.JournalPublication;
 import algref.Publication;
