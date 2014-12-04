@@ -248,15 +248,10 @@ public class HMScore extends InstanceSelector implements NSFUserInterface {
             protoClassCounts[label]++;
         }
         if (numEmptyClasses > 0) {
-            HashMap<Integer, Integer> tabuMap =
-                    new HashMap<>(protoIndexes.size() * 2);
-            for (int i = 0; i < protoIndexes.size(); i++) {
-                tabuMap.put(protoIndexes.get(i), i);
-            }
-            for (int i = 0; i < originalDataSet.size(); i++) {
-                int label = originalDataSet.getLabelOf(i);
-                if (!tabuMap.containsKey(i) && protoClassCounts[label] == 0) {
-                    protoIndexes.add(i);
+            for (int i = protoIndexes.size(); i < originalDataSet.size(); i++) {
+                int label = originalDataSet.getLabelOf(perm[i]);
+                if (protoClassCounts[label] == 0) {
+                    protoIndexes.add(perm[i]);
                     protoClassCounts[label]++;
                     numEmptyClasses--;
                 }
