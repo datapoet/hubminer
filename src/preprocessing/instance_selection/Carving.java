@@ -67,7 +67,7 @@ public class Carving extends InstanceSelector implements NSFUserInterface {
     private HMScore internalReducer;
     
     /**
-     * @constructor
+     * Default constructor.
      */
     public Carving() {
     }
@@ -78,10 +78,12 @@ public class Carving extends InstanceSelector implements NSFUserInterface {
      * @param nsf Neighbor set finder object with some existing kNN info.
      * @param kHM Integer representing the neighborhood size to use for the
      * hit-miss network.
-     * @constructor
      */
     public Carving(NeighborSetFinder nsf, int kHM) {
         this.nsf = nsf;
+        if (nsf == null) {
+            throw new IllegalArgumentException("Null kNN object provided.");
+        }
         setOriginalDataSet(nsf.getDataSet());
         this.distMat = nsf.getDistances();
         this.kHM = kHM;
