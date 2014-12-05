@@ -78,6 +78,11 @@ public class ReducersFactory {
             case "preprocessing.instance_selection.carving":
                 selector = new Carving();
                 break;
+            case "icf":
+            case "iterativecasefiltering":
+            case "preprocessing.instance_selection.iterativecasefiltering":
+                selector = new IterativeCaseFiltering();
+                break;
             default:
                 try {
                     Class selectorClass = Class.forName(name);
