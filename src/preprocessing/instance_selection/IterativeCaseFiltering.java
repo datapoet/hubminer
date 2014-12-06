@@ -25,14 +25,10 @@ import data.neighbors.NSFUserInterface;
 import data.neighbors.NeighborSetFinder;
 import data.representation.DataSet;
 import distances.primary.CombinedMetric;
-import ioformat.SupervisedLoader;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import util.CommandLineParser;
-import util.SOPLUtil;
 
 /**
  * This class implements the iterative case filtering (ICF) approach that was 
