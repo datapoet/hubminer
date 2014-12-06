@@ -83,6 +83,10 @@ public class ReducersFactory {
             case "preprocessing.instance_selection.iterativecasefiltering":
                 selector = new IterativeCaseFiltering();
                 break;
+            case "enrbf":
+            case "preprocessing.instance_selection.enrbf":
+                selector = new ENRBF();
+                break;
             default:
                 try {
                     Class selectorClass = Class.forName(name);
