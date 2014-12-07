@@ -812,7 +812,7 @@ public class HubnessRiskEstimatorFromARFF {
                 CommandLineParser.INTEGER, true, false);
         clp.addParam("-k", "The neighborhood size.",
                 CommandLineParser.INTEGER, true, false);
-        clp.addParam("-outFile", "Output arff file path.",
+        clp.addParam("-outFile", "Output file path.",
                 CommandLineParser.STRING, true, false);
         clp.addParam("-inFile", "Input arff data file path.",
                 CommandLineParser.STRING, true, false);
