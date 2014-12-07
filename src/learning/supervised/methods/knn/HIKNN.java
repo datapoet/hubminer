@@ -468,6 +468,22 @@ public class HIKNN extends Classifier implements AutomaticKFinderInterface,
         setCombinedMetric(cmet);
         this.k = k;
     }
+    
+    /**
+     * Initialization.
+     *
+     * @param dset DataSet object that is the training data.
+     * @param cmet CombinedMetric object for distance calculations.
+     * @param k Integer that is the neighborhood size.
+     */
+    public HIKNN(DataSet dset, CombinedMetric cmet, int k) {
+        trainingData = dset;
+        if (dset != null) {
+            this.numClasses = dset.countCategories();
+        }
+        setCombinedMetric(cmet);
+        this.k = k;
+    }
 
     /**
      * Initialization.
