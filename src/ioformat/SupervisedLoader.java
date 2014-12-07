@@ -29,6 +29,16 @@ import java.io.IOException;
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
  */
 public class SupervisedLoader {
+    
+    /**
+     * Loads labeled data into a DataSet object.
+     * @param inFile File to load the data from.
+     * @return DataSet object with loaded data.
+     * @throws Exception 
+     */
+    public static DataSet loadData(File inFile) throws Exception {
+        return loadData(inFile, false);
+    }
 
     /**
      * Loads labeled data into a DataSet object.
