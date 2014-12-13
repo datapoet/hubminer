@@ -315,6 +315,8 @@ public class HubnessRiskEstimatorFromGaussian {
                 CommandLineParser.INTEGER, true, false);
         clp.addParam("-k", "The neighborhood size.",
                 CommandLineParser.INTEGER, true, false);
+        clp.addParam("-kSecondary", "The neighborhood size for secondary "
+                + "distances.", CommandLineParser.INTEGER, true, false);
         clp.addParam("-gaussian", "True if Gaussian, false if uniform.",
                 CommandLineParser.BOOLEAN, true, false);
         clp.addParam("-outFile", "Output arff file path.",
@@ -325,6 +327,8 @@ public class HubnessRiskEstimatorFromGaussian {
         experimenter.outFile = new File(
                 (String)(clp.getParamValues("-outFile").get(0)));
         experimenter.k = (Integer) clp.getParamValues("-k").get(0);
+        experimenter.kForSecondary = (Integer) clp.getParamValues(
+                "-kSecondary").get(0);
         experimenter.dim = (Integer) clp.getParamValues(
                 "-numDimensions").get(0);
         experimenter.numRepetitions = (Integer) clp.getParamValues(

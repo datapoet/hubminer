@@ -673,6 +673,18 @@ public class HubnessRiskEstimatorFromARFF {
             pw.println("Label mismatch percs historgram: ");
             SOPLUtil.printArrayListToStream(getHistogram(labelMismatchPercs,
                     0.01f), pw, ",");
+            pw.println("Calculated moments (mean, stdev, skew, kurtosis):");
+            float bhMean = HigherMoments.calculateArrayListMean(
+                    labelMismatchPercs);
+            float bhStDev = HigherMoments.calculateArrayListStDev(bhMean,
+                    labelMismatchPercs);
+            float bhSkew = HigherMoments.calculateSkewForSampleArrayList(
+                    labelMismatchPercs);
+            float bhKurtosis =
+                    HigherMoments.calculateKurtosisForSampleArrayList(
+                    labelMismatchPercs);
+            pw.println(bhMean + "," + bhStDev + "," + bhSkew + "," +
+                    bhKurtosis);
             // The hubness meta-skews and kurtosis.
             pw.println("Sampled hubnesses for: " + distName);
             SOPLUtil.printArrayListToStream(skewValues, pw, ",");
