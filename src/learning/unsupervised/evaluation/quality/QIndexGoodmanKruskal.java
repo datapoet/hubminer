@@ -63,6 +63,10 @@ public class QIndexGoodmanKruskal extends ClusteringQualityIndex {
         this.cmet = cmet;
     }
 
+    /**
+     * @param distances float[][] representing the upper triangular distance 
+     * matrix of the data.
+     */
     public void setDistanceMatrix(float[][] distances) {
         this.distances = distances;
         this.dGiven = true;
