@@ -23,8 +23,8 @@ import learning.unsupervised.Cluster;
 
 /**
  * It calculates an index which measures how concordant are the distances with
- * respect to data classes. Standardized categories are assumed. The index takes
- * a value betwen -1 and 1. (Nc - Nd) / (Nc + Nd), Nc - concordant, Nd -
+ * respect to data clusters. Standardized categories are assumed. The index
+ * takes a value betwen -1 and 1. (Nc - Nd) / (Nc + Nd), Nc - concordant, Nd -
  * discordant distances.
  *
  * @author Nenad Tomasev <nenad.tomasev at gmail.com>
