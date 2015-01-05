@@ -136,7 +136,12 @@ public class QIndexFolkesMallows extends ClusteringQualityIndex {
         float[][] clusterClassDistributions =
                 new float[numClusters][numClasses];
         for (int i = 0; i < dataSize; i++) {
-            clusterClassDistributions[clusterAssociations[i]][classLabels[i]]++;
+            // Handling points that are marked as noise or outliers, by having 
+            // a -1 cluster association specified.
+            if (clusterAssociations[i] > 0) {
+                clusterClassDistributions[
+                        clusterAssociations[i]][classLabels[i]]++;
+            }
         }
         // Same cluster, same class.
         float aPairs = 0;
