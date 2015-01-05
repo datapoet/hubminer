@@ -121,7 +121,7 @@ public class QIndexGoodmanKruskal extends ClusteringQualityIndex {
             if (intraIndex == numIntraDists) {
                 break;
             }
-            // Then the interDists[interIndex] is disconcordant with all
+            // Then the interDists[interIndex] is discordant with all
             // intraDists[i] for i >= intraIndex. There are numIntraDists -
             //intraIndex of them
             Nd += numIntraDists - intraIndex;
