@@ -36,17 +36,30 @@ public class QIndexGoodmanKruskal extends ClusteringQualityIndex {
     private float[][] distances;
     private boolean dGiven = false;
 
+    /**
+     * Initialization.
+     * 
+     * @param clusterAssociations Cluster association array for the points.
+     * @param dset DataSet object.
+     */
     public QIndexGoodmanKruskal(int[] clusterAssociations,
-            DataSet wholeDataSet) {
+            DataSet dset) {
         this.clusterAssociations = clusterAssociations;
-        setDataSet(wholeDataSet);
+        setDataSet(dset);
         cmet = CombinedMetric.EUCLIDEAN;
     }
 
-    public QIndexGoodmanKruskal(int[] clusterAssociations, DataSet wholeDataSet,
+    /**
+     * Initialization.
+     * 
+     * @param clusterAssociations Cluster association array for the points.
+     * @param dset DataSet object.
+     * @param cmet CombinedMetric object for distance calculations.
+     */
+    public QIndexGoodmanKruskal(int[] clusterAssociations, DataSet dset,
             CombinedMetric cmet) {
         this.clusterAssociations = clusterAssociations;
-        setDataSet(wholeDataSet);
+        setDataSet(dset);
         this.cmet = cmet;
     }
 
