@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Random;
 import learning.unsupervised.Cluster;
 import learning.unsupervised.ClusteringAlg;
+import learning.unsupervised.ClusteringError;
 
 /**
  * Clusterer that performs K-means. It is a partitional iterative procedure,
@@ -151,6 +152,9 @@ public class KMeans extends ClusteringAlg {
             }
             clusters = getClusters();
             for (int cIndex = 0; cIndex < centroids.length; cIndex++) {
+                if (clusters.length < centroids.length) {
+                    throw new ClusteringError(ClusteringError.EMPTY_CLUSTER);
+                }
                 centroids[cIndex] = clusters[cIndex].getCentroid();
             }
             errorPrevious = errorCurrent;
