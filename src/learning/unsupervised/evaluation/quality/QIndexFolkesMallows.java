@@ -138,7 +138,7 @@ public class QIndexFolkesMallows extends ClusteringQualityIndex {
         for (int i = 0; i < dataSize; i++) {
             // Handling points that are marked as noise or outliers, by having 
             // a -1 cluster association specified.
-            if (clusterAssociations[i] > 0) {
+            if (clusterAssociations[i] >= 0) {
                 clusterClassDistributions[
                         clusterAssociations[i]][classLabels[i]]++;
             }
