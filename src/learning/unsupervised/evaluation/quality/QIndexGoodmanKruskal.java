@@ -124,11 +124,11 @@ public class QIndexGoodmanKruskal extends ClusteringQualityIndex {
         Arrays.sort(interDists); //ascending sort
         intraIndex = 0;
         interIndex = 0;
-        int totalDists = numIntraDists + numInterDists;
-        int totalPairs = numIntraDists * numInterDists;
+        long totalDists = numIntraDists + numInterDists;
+        long totalPairs = numIntraDists * numInterDists;
         // This is the sum of concordant and discordant pairs.
-        int Nc; // Num concordant pairs.
-        int Nd = 0; // Num discordant pairs.
+        long Nc; // Num concordant pairs.
+        long Nd = 0; // Num discordant pairs.
         // We will only count the breaches.
         do {
             while (intraIndex < numIntraDists
