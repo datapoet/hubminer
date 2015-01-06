@@ -84,7 +84,8 @@ public class QIndexCRootK extends ClusteringQualityIndex {
                     Math.max(20, clusterAssociations.length / numClusters));
         }
         for (int i = 0; i < dset.size(); i++) {
-            if (clusterAssociations[i] >= 0) {
+            if (clusterAssociations[i] >= 0 &&
+                    !dset.getInstance(i).isNoise()) {
                 allNonNoisyIndexes.add(i);
                 clusterIndexes[clusterAssociations[i]].add(i);
             }
