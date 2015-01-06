@@ -24,7 +24,7 @@ import learning.unsupervised.Cluster;
 
 /**
  * This class implements the commonly used PBM clustering quality index, which 
- * was first proposed in the paper titled: 'Validity Index for Crips and Fuzzy 
+ * was first proposed in the paper titled: 'Validity Index for Crisp and Fuzzy 
  * Clusters', which was published in Pattern Recognition in 2004 and authored by
  * Malay K. Pakhira, Sanghamitra Bandyopadhyay and Ujjwal Maulik. It is the 
  * normalized ratio between all centered data distances and the within-cluster 
