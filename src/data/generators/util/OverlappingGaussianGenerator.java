@@ -181,7 +181,7 @@ public class OverlappingGaussianGenerator {
             System.out.println("finished dataset " + i);
         }
     }
-
+    
     /**
      * Generates the data without persisting the model or the data to a file.
      *
@@ -196,10 +196,32 @@ public class OverlappingGaussianGenerator {
      */
     public static DataSet generate(int dim, int numCat,
             boolean imbalancedMode, int catMin, int catMax) throws Exception {
+        return generate(dim, numCat, imbalancedMode, catMin, catMax,
+                0.75f, 1.5f);
+    }
+
+    /**
+     * Generates the data without persisting the model or the data to a file.
+     *
+     * @param dim Integer that is the number of dimensions.
+     * @param numCat Integer that is the number of categories.
+     * @param imbalancedMode Boolean flag indicating whether to generate an
+     * imbalanced dataset.
+     * @param catMin Integer that is the minimal category size.
+     * @param catMax Integer that is the maximal category size.
+     * @param alpha Float that is the parameter controlling how many stDevs 
+     * away from the paired selected mean should the next feature value mean be
+     * placed.
+     * @param beta Float that is the parameter controlling the dispersion
+     * update.
+     * @return DataSet that was generated.
+     * @throws Exception
+     */
+    public static DataSet generate(int dim, int numCat,
+            boolean imbalancedMode, int catMin, int catMax, float alpha,
+            float beta) throws Exception {
         Random randa = new Random();
         // First generate all data distributions.
-        float alpha = 0.75f;
-        float beta = 1.5f;
         float choice;
         float compensator = 0.5f;
         float[][] stDevs = new float[numCat][dim];
