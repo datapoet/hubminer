@@ -51,7 +51,6 @@ import distances.secondary.NICDMCalculator;
 import distances.secondary.snd.SharedNeighborCalculator;
 import ioformat.DistanceMatrixIO;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import learning.supervised.evaluation.cv.BatchClassifierTester.SecondaryDistance;
