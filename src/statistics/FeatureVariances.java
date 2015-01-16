@@ -125,7 +125,7 @@ public class FeatureVariances {
                 sum += Math.pow(Math.abs(intVariances[dint]), 2);
             }
         }
-        for (int dfloat = 0; dfloat < dset.getNumIntAttr(); dfloat++) {
+        for (int dfloat = 0; dfloat < dset.getNumFloatAttr(); dfloat++) {
             if (DataMineConstants.isAcceptableFloat(floatVariances[dfloat])) {
                 sum += Math.pow(Math.abs(floatVariances[dfloat]), 2);
             }
