@@ -80,7 +80,7 @@ public class FeatureVariances {
                             centroid.iAttr[dint]), 2);
                 }
             }
-            for (int dfloat = 0; dfloat < dset.getNumIntAttr(); dfloat++) {
+            for (int dfloat = 0; dfloat < dset.getNumFloatAttr(); dfloat++) {
                 if (DataMineConstants.isAcceptableFloat(centroid.fAttr[dfloat])
                         && DataMineConstants.isAcceptableFloat(
                         instance.fAttr[dfloat])) {
@@ -95,7 +95,7 @@ public class FeatureVariances {
                 intVariances[dint] = intSums[dint] / intCounts[dint];
             }
         }
-        for (int dfloat = 0; dfloat < dset.getNumIntAttr(); dfloat++) {
+        for (int dfloat = 0; dfloat < dset.getNumFloatAttr(); dfloat++) {
             if (floatCounts[dfloat] > 0) {
                 floatVariances[dfloat] = floatSums[dfloat] /
                         floatCounts[dfloat];
