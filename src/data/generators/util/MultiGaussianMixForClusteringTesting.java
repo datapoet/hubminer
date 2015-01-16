@@ -35,9 +35,12 @@ import util.CommandLineParser;
  */
 public class MultiGaussianMixForClusteringTesting {
 
-    private int numClusters = 10;
-    private int numDimensions = 25;
-    private int numInstances = 10000;
+    private static final int DEFAULT_NUM_CLUSTERS = 5;
+    private static final int DEFAULT_NUM_DIMENSIONS = 20;
+    private static final int DEFAULT_NUM_INSTANCES = 10000;
+    private int numClusters = DEFAULT_NUM_CLUSTERS;
+    private int numDimensions = DEFAULT_NUM_DIMENSIONS;
+    private int numInstances = DEFAULT_NUM_INSTANCES;
     private boolean usePairedGaussians = true;
 
     /**
@@ -57,6 +60,7 @@ public class MultiGaussianMixForClusteringTesting {
         this.numClusters = numClusters;
         this.numDimensions = numDimensions;
         this.usePairedGaussians = usePairedGaussians;
+        this.numInstances = numInstances;
     }
 
     public DataSet generateRandomCollection() {
@@ -71,17 +75,17 @@ public class MultiGaussianMixForClusteringTesting {
         float[] generatorProportions = new float[numClusters];
         Random randa = new Random();
         float probTotal = 0;
-        for (int i = 0; i < numClusters; i++) {
-            generatorProportions[i] = 1 + randa.nextInt(30);
-            probTotal += generatorProportions[i];
+        for (int cIndex = 0; cIndex < numClusters; cIndex++) {
+            generatorProportions[cIndex] = 1 + randa.nextInt(30);
+            probTotal += generatorProportions[cIndex];
         }
-        for (int i = 0; i < numClusters; i++) {
-            generatorProportions[i] /= probTotal;
-            generatorProportions[i] *= numInstances;
+        for (int cIndex = 0; cIndex < numClusters; cIndex++) {
+            generatorProportions[cIndex] /= probTotal;
+            generatorProportions[cIndex] *= numInstances;
         }
         int[] clusterSizes = new int[numClusters];
-        for (int i = 0; i < numClusters; i++) {
-            clusterSizes[i] = (int) generatorProportions[i];
+        for (int cIndex = 0; cIndex < numClusters; cIndex++) {
+            clusterSizes[cIndex] = (int) generatorProportions[cIndex];
         }
         // Initialize data distributions.
         float[][] means = new float[numClusters][numDimensions];
