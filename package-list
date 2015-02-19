@@ -1,12 +1,4 @@
 algref
-apps.agrovoc
-apps.bugs
-apps.chess
-apps.eeg
-apps.meg
-apps.promises
-apps.searchpoint
-apps.sensors
 combinatorial
 configuration
 data.generators
@@ -116,8 +108,6 @@ statistics.tests.constants
 transformation
 util
 util.fileFilters
-util.quickFixes
-util.quickFixes.optimization_test
 util.text
 visualization
 xml
