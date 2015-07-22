@@ -4,3 +4,6 @@ lib/*
 project/*
 test/*
 utils/*
+target/*
+*~
+.*.swp
