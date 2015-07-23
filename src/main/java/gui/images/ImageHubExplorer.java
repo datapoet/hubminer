@@ -547,9 +547,9 @@ public class ImageHubExplorer extends javax.swing.JFrame {
             vv.setEnabled(true);
             graphVServers[neighborhoodSize - 1] = vv;
             vv.getRenderContext().setVertexIconTransformer(
-                    new IconTransformer<ImageNode, Icon>());
+                    new IconTransformer());
             vv.getRenderContext().setVertexShapeTransformer(
-                    new ShapeTransformer<ImageNode, Shape>());
+                    new ShapeTransformer());
             vv.getRenderContext().setEdgeArrowPredicate(
                     new DirectionDisplayPredicate());
             vv.getRenderContext().setEdgeLabelTransformer(
@@ -654,9 +654,9 @@ public class ImageHubExplorer extends javax.swing.JFrame {
             vv.setEnabled(true);
             graphVServers[neighborhoodSize - 1] = vv;
             vv.getRenderContext().setVertexIconTransformer(
-                    new IconTransformer<ImageNode, Icon>());
+                    new IconTransformer());
             vv.getRenderContext().setVertexShapeTransformer(
-                    new ShapeTransformer<ImageNode, Shape>());
+                    new ShapeTransformer());
             vv.getRenderContext().setEdgeArrowPredicate(
                     new DirectionDisplayPredicate());
             vv.getRenderContext().setEdgeLabelTransformer(
@@ -698,11 +698,8 @@ public class ImageHubExplorer extends javax.swing.JFrame {
     /**
      * IconTransformer class. These class is used for node visualization in kNN
      * graphs.
-     *
-     * @param <ImageNode> Image node.
-     * @param <Icon> Corresponding icon.
      */
-    class IconTransformer<ImageNode, Icon>
+    class IconTransformer
             implements Transformer<ImageNode, Icon> {
 
         public static final int ICON_SIZE = 30;
@@ -735,11 +732,8 @@ public class ImageHubExplorer extends javax.swing.JFrame {
     /**
      * ShapeTransformer class. These class is used for node visualization in kNN
      * graphs.
-     *
-     * @param <ImageNode> Image node.
-     * @param <Shape> Corresponding Shape.
      */
-    class ShapeTransformer<ImageNode, Shape>
+    class ShapeTransformer
             implements Transformer<ImageNode, Shape> {
 
         public static final int ICON_SIZE = 30;
@@ -826,9 +820,9 @@ public class ImageHubExplorer extends javax.swing.JFrame {
             vv.setEnabled(true);
             graphVServers[kTmp] = vv;
             vv.getRenderContext().setVertexIconTransformer(
-                    new IconTransformer<ImageNode, Icon>());
+                    new IconTransformer());
             vv.getRenderContext().setVertexShapeTransformer(
-                    new ShapeTransformer<ImageNode, Shape>());
+                    new ShapeTransformer());
             vv.getRenderContext().setEdgeArrowPredicate(
                     new DirectionDisplayPredicate());
             vv.getRenderContext().setEdgeLabelTransformer(new Transformer() {
@@ -1784,9 +1778,9 @@ public class ImageHubExplorer extends javax.swing.JFrame {
                     vv.setEnabled(true);
                     graphVServers[neighborhoodSize - 1] = vv;
                     vv.getRenderContext().setVertexIconTransformer(
-                            new IconTransformer<ImageNode, Icon>());
+                            new IconTransformer());
                     vv.getRenderContext().setVertexShapeTransformer(
-                            new ShapeTransformer<ImageNode, Shape>());
+                            new ShapeTransformer());
                     vv.getRenderContext().setEdgeArrowPredicate(
                             new DirectionDisplayPredicate());
                     vv.getRenderContext().setEdgeLabelTransformer(
